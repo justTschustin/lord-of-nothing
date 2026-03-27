@@ -3,6 +3,7 @@ package io.github.lord_of_nothing.grid;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
+import io.github.lord_of_nothing.GameWindow;
 
 public class GridInputHandler extends InputAdapter {
 
@@ -21,13 +22,12 @@ public class GridInputHandler extends InputAdapter {
         this.grid = grid;
     }
 
-    public void updateLayout(int tileSize, int offsetX, int offsetY,
-                             int gridPixelWidth, int gridPixelHeight) {
-        this.tileSize = tileSize;
-        this.offsetX = offsetX;
-        this.offsetY = offsetY;
-        this.gridPixelWidth = gridPixelWidth;
-        this.gridPixelHeight = gridPixelHeight;
+    public void updateLayout(GameWindow window) {
+        this.tileSize = window.getTileSize();
+        this.offsetX = window.getOffsetX();
+        this.offsetY = window.getOffsetY();
+        this.gridPixelWidth = window.getGridPixelWidth();
+        this.gridPixelHeight = window.getGridPixelHeight();
     }
 
     @Override
