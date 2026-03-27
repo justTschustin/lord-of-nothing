@@ -1,8 +1,10 @@
 package io.github.lord_of_nothing.grid;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
+import io.github.lord_of_nothing.GameWindow;
 
 public class GridInputHandler extends InputAdapter {
 
@@ -21,13 +23,29 @@ public class GridInputHandler extends InputAdapter {
         this.grid = grid;
     }
 
-    public void updateLayout(int tileSize, int offsetX, int offsetY,
-                             int gridPixelWidth, int gridPixelHeight) {
-        this.tileSize = tileSize;
-        this.offsetX = offsetX;
-        this.offsetY = offsetY;
-        this.gridPixelWidth = gridPixelWidth;
-        this.gridPixelHeight = gridPixelHeight;
+    public void updateLayout(GameWindow window) {
+        this.tileSize = window.getTileSize();
+        this.offsetX = window.getOffsetX();
+        this.offsetY = window.getOffsetY();
+        this.gridPixelWidth = window.getGridPixelWidth();
+        this.gridPixelHeight = window.getGridPixelHeight();
+    }
+
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        touchPos.set(screenX, screenY, 0);
+        camera.unproject(touchPos);
+
+        int tileX = (int) ((touchPos.x - offsetX) / tileSize);
+        int tileY = (int) ((touchPos.y - offsetY) / tileSize);
+
+        if (touchPos.x >= offsetX && touchPos.x < offsetX + gridPixelWidth &&
+            touchPos.y >= offsetY && touchPos.y < offsetY + gridPixelHeight) {
+            grid.setHovered(tileX, tileY);
+        } else {
+            grid.setHovered(-1, -1);
+        }
+        return true;
     }
 
     @Override
@@ -35,18 +53,10 @@ public class GridInputHandler extends InputAdapter {
         touchPos.set(screenX, screenY, 0);
         camera.unproject(touchPos);
 
-        float worldX = touchPos.x;
-        float worldY = touchPos.y;
-
-        if (worldX < offsetX || worldX >= offsetX + gridPixelWidth ||
-            worldY < offsetY || worldY >= offsetY + gridPixelHeight) {
-            return false;
+        if (touchPos.x >= Gdx.graphics.getWidth() - 50 && touchPos.y >= Gdx.graphics.getHeight() - 50) {
+            Gdx.app.exit();
+            return true;
         }
-
-        int tileX = (int) ((worldX - offsetX) / tileSize);
-        int tileY = (int) ((worldY - offsetY) / tileSize);
-
-        grid.toggleTile(tileX, tileY);
-        return true;
+        return false;
     }
 }

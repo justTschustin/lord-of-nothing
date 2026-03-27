@@ -31,36 +31,18 @@ public class Main extends ApplicationAdapter {
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.input.setInputProcessor(gridInputHandler);
     }
-
     @Override
     public void resize(int width, int height) {
         gameWindow.resize(width, height);
-
-        gridInputHandler.updateLayout(
-            gameWindow.getTileSize(),
-            gameWindow.getOffsetX(),
-            gameWindow.getOffsetY(),
-            gameWindow.getGridPixelWidth(),
-            gameWindow.getGridPixelHeight()
-        );
+        gridInputHandler.updateLayout(gameWindow);
     }
 
-    @Override
     public void render() {
         Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         shapeRenderer.setProjectionMatrix(camera.combined);
-
-        gridRenderer.render(
-            shapeRenderer,
-            grid,
-            gameWindow.getTileSize(),
-            gameWindow.getOffsetX(),
-            gameWindow.getOffsetY(),
-            gameWindow.getGridPixelWidth(),
-            gameWindow.getGridPixelHeight()
-        );
+        gridRenderer.render(shapeRenderer, grid, gameWindow);
     }
 
     @Override
