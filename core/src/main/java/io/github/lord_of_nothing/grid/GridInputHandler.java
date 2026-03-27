@@ -1,5 +1,6 @@
 package io.github.lord_of_nothing.grid;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
@@ -31,22 +32,31 @@ public class GridInputHandler extends InputAdapter {
     }
 
     @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        touchPos.set(screenX, screenY, 0);
+        camera.unproject(touchPos);
+
+        int tileX = (int) ((touchPos.x - offsetX) / tileSize);
+        int tileY = (int) ((touchPos.y - offsetY) / tileSize);
+
+        if (touchPos.x >= offsetX && touchPos.x < offsetX + gridPixelWidth &&
+            touchPos.y >= offsetY && touchPos.y < offsetY + gridPixelHeight) {
+            grid.setHovered(tileX, tileY);
+        } else {
+            grid.setHovered(-1, -1);
+        }
+        return true;
+    }
+
+    @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         touchPos.set(screenX, screenY, 0);
         camera.unproject(touchPos);
 
-        float worldX = touchPos.x;
-        float worldY = touchPos.y;
-
-        if (worldX < offsetX || worldX >= offsetX + gridPixelWidth ||
-            worldY < offsetY || worldY >= offsetY + gridPixelHeight) {
-            return false;
+        if (touchPos.x >= Gdx.graphics.getWidth() - 50 && touchPos.y >= Gdx.graphics.getHeight() - 50) {
+            Gdx.app.exit();
+            return true;
         }
-
-        int tileX = (int) ((worldX - offsetX) / tileSize);
-        int tileY = (int) ((worldY - offsetY) / tileSize);
-
-        grid.toggleTile(tileX, tileY);
-        return true;
+        return false;
     }
 }

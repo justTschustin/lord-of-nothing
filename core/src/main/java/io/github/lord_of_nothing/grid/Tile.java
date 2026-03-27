@@ -5,12 +5,10 @@ public class Tile {
 
     private final int x;
     private final int y;
-    private boolean clicked;
 
     public Tile(int x, int y) {
         this.x = x;
         this.y = y;
-        this.clicked = false;
     }
 
     public int getX() {
@@ -19,13 +17,5 @@ public class Tile {
 
     public int getY() {
         return y;
-    }
-
-    public boolean isClicked() {
-        return clicked;
-    }
-
-    public void setClicked(boolean clicked) {
-        this.clicked = clicked;
     }
 }
