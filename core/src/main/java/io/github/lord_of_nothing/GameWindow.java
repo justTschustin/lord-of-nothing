@@ -1,5 +1,6 @@
 package io.github.lord_of_nothing;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import io.github.lord_of_nothing.grid.Grid;
 import io.github.lord_of_nothing.grid.Tile;
@@ -9,10 +10,11 @@ public class GameWindow {
     private static final int HUD_BOTTOM_HEIGHT = 120;
     private static final int HUD_TOP_HEIGHT = 40;
     private static final int HUD_SIDE_MARGIN = 20;
-
+    public static final int SIDEBAR_WIDTH = 200;
     private final OrthographicCamera camera;
     private final Grid grid;
-
+    public static final int CLOSE_BUTTON_SIZE = 40;
+    public static final int CLOSE_BUTTON_MARGIN = 10;
     private int tileSize;
     private int gridPixelWidth;
     private int gridPixelHeight;
@@ -61,4 +63,8 @@ public class GameWindow {
     public int getOffsetY() {
         return offsetY;
     }
+
+    public int getCloseButtonX() { return Gdx.graphics.getWidth() - CLOSE_BUTTON_SIZE - CLOSE_BUTTON_MARGIN; }
+
+    public int getCloseButtonY() { return Gdx.graphics.getHeight() - CLOSE_BUTTON_SIZE - CLOSE_BUTTON_MARGIN; }
 }

@@ -17,7 +17,7 @@ public class GridInputHandler extends InputAdapter {
     private int offsetY;
     private int gridPixelWidth;
     private int gridPixelHeight;
-
+    private io.github.lord_of_nothing.buildings.Building pendingBuilding = null;
     public GridInputHandler(OrthographicCamera camera, Grid grid) {
         this.camera = camera;
         this.grid = grid;
@@ -47,25 +47,30 @@ public class GridInputHandler extends InputAdapter {
         }
         return true;
     }
-
+    /**
+     * Verarbeitet Klicks: Momentan wird der Sidebar wird ein Gebäude gewählt, auf dem Grid wird das gewählte Gebäude platziert und danach abgewählt.
+     */
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         touchPos.set(screenX, screenY, 0);
         camera.unproject(touchPos);
 
-        if (touchPos.x >= Gdx.graphics.getWidth() - 50 && touchPos.y >= Gdx.graphics.getHeight() - 50) {
-            Gdx.app.exit();
+        if (touchPos.x < GameWindow.SIDEBAR_WIDTH) {
+            if (touchPos.y > Gdx.graphics.getHeight() - 100) {
+                pendingBuilding = (pendingBuilding == null) ? new io.github.lord_of_nothing.buildings.House() : null;
+            }
             return true;
         }
-
         int tileX = (int) ((touchPos.x - offsetX) / tileSize);
         int tileY = (int) ((touchPos.y - offsetY) / tileSize);
 
-        if (grid.isInside(tileX, tileY)) {
-            grid.setBuilding(tileX, tileY, new io.github.lord_of_nothing.buildings.House());
+        if (grid.isInside(tileX, tileY) && pendingBuilding != null) {
+            grid.setBuilding(tileX, tileY, pendingBuilding);
+            pendingBuilding = null;
             return true;
         }
-
         return false;
     }
+
+    public boolean isHouseSelected() { return pendingBuilding != null; }
 }

@@ -15,10 +15,10 @@ dependencies {
   }
 }
 
+/**
 jar {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
-/**
  * Verknüpft den globalen Assets-Ordner mit dem Desktop-Projekt-Resources-Pfad.
  * Ermöglicht das Laden von Texturen ohne Pfad-Präfix direkt aus dem Root.
  */

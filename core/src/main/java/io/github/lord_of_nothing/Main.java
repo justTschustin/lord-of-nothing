@@ -54,7 +54,7 @@ public class Main extends ApplicationAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         shapeRenderer.setProjectionMatrix(camera.combined);
-        gridRenderer.render(shapeRenderer, batch, grid, gameWindow, houseTexture);
+        gridRenderer.render(shapeRenderer, batch, grid, gameWindow, houseTexture, gridInputHandler.isHouseSelected());
     }
 
     @Override
