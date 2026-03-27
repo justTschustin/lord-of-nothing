@@ -41,4 +41,12 @@ public class Grid {
     public int getHoveredX() { return hoveredX; }
     public int getHoveredY() { return hoveredY; }
 
+    /**
+     * Platziert ein beliebiges Gebäude-Objekt auf den angegebenen Koordinaten.
+     */
+    public void setBuilding(int x, int y, io.github.lord_of_nothing.buildings.Building building) {
+        if (isInside(x, y)) {
+            tiles[x][y].setBuilding(building);
+        }
+    }
 }

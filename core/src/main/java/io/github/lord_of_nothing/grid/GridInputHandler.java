@@ -57,6 +57,15 @@ public class GridInputHandler extends InputAdapter {
             Gdx.app.exit();
             return true;
         }
+
+        int tileX = (int) ((touchPos.x - offsetX) / tileSize);
+        int tileY = (int) ((touchPos.y - offsetY) / tileSize);
+
+        if (grid.isInside(tileX, tileY)) {
+            grid.setBuilding(tileX, tileY, new io.github.lord_of_nothing.buildings.House());
+            return true;
+        }
+
         return false;
     }
 }
