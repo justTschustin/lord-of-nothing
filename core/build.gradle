@@ -2,6 +2,8 @@
 eclipse.project.name = appName + '-core'
 
 dependencies {
+  api "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+  api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
   api "com.badlogicgames.box2dlights:box2dlights:$box2dlightsVersion"
   api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
@@ -13,6 +15,12 @@ dependencies {
   }
 }
 
+/**
 jar {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
+ * Verknüpft den globalen Assets-Ordner mit dem Desktop-Projekt-Resources-Pfad.
+ * Ermöglicht das Laden von Texturen ohne Pfad-Präfix direkt aus dem Root.
+ */
+sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
+

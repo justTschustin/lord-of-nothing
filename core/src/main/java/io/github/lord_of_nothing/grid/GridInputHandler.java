@@ -1,11 +1,13 @@
 package io.github.lord_of_nothing.grid;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
+import io.github.lord_of_nothing.GameWindow;
 
 public class GridInputHandler extends InputAdapter {
-
+    private final GameWindow window;
     private final OrthographicCamera camera;
     private final Grid grid;
     private final Vector3 touchPos = new Vector3();
@@ -15,38 +17,76 @@ public class GridInputHandler extends InputAdapter {
     private int offsetY;
     private int gridPixelWidth;
     private int gridPixelHeight;
+    private io.github.lord_of_nothing.buildings.Building pendingBuilding = null;
+    private final io.github.lord_of_nothing.resources.ResourceManager resourceManager;
 
-    public GridInputHandler(OrthographicCamera camera, Grid grid) {
+    public GridInputHandler(OrthographicCamera camera, Grid grid, GameWindow window, io.github.lord_of_nothing.resources.ResourceManager resourceManager) {
         this.camera = camera;
         this.grid = grid;
+        this.window = window;
+        this.resourceManager = resourceManager;
     }
 
-    public void updateLayout(int tileSize, int offsetX, int offsetY,
-                             int gridPixelWidth, int gridPixelHeight) {
-        this.tileSize = tileSize;
-        this.offsetX = offsetX;
-        this.offsetY = offsetY;
-        this.gridPixelWidth = gridPixelWidth;
-        this.gridPixelHeight = gridPixelHeight;
+
+    public void updateLayout(GameWindow window) {
+        this.tileSize = window.getTileSize();
+        this.offsetX = window.getOffsetX();
+        this.offsetY = window.getOffsetY();
+        this.gridPixelWidth = window.getGridPixelWidth();
+        this.gridPixelHeight = window.getGridPixelHeight();
     }
 
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        touchPos.set(screenX, screenY, 0);
+        camera.unproject(touchPos);
+
+        int tileX = (int) ((touchPos.x - offsetX) / tileSize);
+        int tileY = (int) ((touchPos.y - offsetY) / tileSize);
+
+        if (touchPos.x >= offsetX && touchPos.x < offsetX + gridPixelWidth &&
+            touchPos.y >= offsetY && touchPos.y < offsetY + gridPixelHeight) {
+            grid.setHovered(tileX, tileY);
+        } else {
+            grid.setHovered(-1, -1);
+        }
+        return true;
+    }
+    /**
+     * Verarbeitet Klicks: Momentan wird der Sidebar wird ein Gebäude gewählt, auf dem Grid wird das gewählte Gebäude platziert und danach abgewählt, oder das GAme über den Button geschlossen.#
+     * Die Funktion sollte später noch runtergebrochen werden, wenn noch mehr funktionen hinzugefügt werden.
+     */
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         touchPos.set(screenX, screenY, 0);
         camera.unproject(touchPos);
-
-        float worldX = touchPos.x;
-        float worldY = touchPos.y;
-
-        if (worldX < offsetX || worldX >= offsetX + gridPixelWidth ||
-            worldY < offsetY || worldY >= offsetY + gridPixelHeight) {
-            return false;
+        //Close button
+        if (touchPos.x >= window.getCloseButtonX() && touchPos.x <= window.getCloseButtonX() + GameWindow.CLOSE_BUTTON_SIZE &&
+            touchPos.y >= window.getCloseButtonY() && touchPos.y <= window.getCloseButtonY() + GameWindow.CLOSE_BUTTON_SIZE) {
+            com.badlogic.gdx.Gdx.app.exit();
+            return true;
         }
+        //Sidebar selection
+        if (touchPos.x < GameWindow.SIDEBAR_WIDTH) {
+            if (touchPos.y > Gdx.graphics.getHeight() - 100) {
+                pendingBuilding = (pendingBuilding == null) ? new io.github.lord_of_nothing.buildings.House() : null;
+            }
+            return true;
+        }
+        //Grid selection
+        int tileX = (int) ((touchPos.x - offsetX) / tileSize);
+        int tileY = (int) ((touchPos.y - offsetY) / tileSize);
 
-        int tileX = (int) ((worldX - offsetX) / tileSize);
-        int tileY = (int) ((worldY - offsetY) / tileSize);
-
-        grid.toggleTile(tileX, tileY);
-        return true;
+        if (grid.isInside(tileX, tileY) && pendingBuilding != null) {
+            int cost = pendingBuilding.getCost(io.github.lord_of_nothing.resources.ResourceType.WOOD);
+            if (resourceManager.tryConsume(io.github.lord_of_nothing.resources.ResourceType.WOOD, cost)) {
+                grid.setBuilding(tileX, tileY, pendingBuilding);
+                pendingBuilding = null;
+                return true;
+            }
+        }
+        return false;
     }
+
+    public boolean isHouseSelected() { return pendingBuilding != null; }
 }
