@@ -1,5 +1,6 @@
 package io.github.lord_of_nothing;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import io.github.lord_of_nothing.grid.Grid;
 import io.github.lord_of_nothing.grid.Tile;
@@ -9,6 +10,7 @@ public class GameWindow {
     private static final int HUD_BOTTOM_HEIGHT = 120;
     private static final int HUD_TOP_HEIGHT = 40;
     private static final int HUD_SIDE_MARGIN = 20;
+    public static final int TOP_BAR_HEIGHT = 40;
 
     private final OrthographicCamera camera;
     private final Grid grid;
@@ -61,4 +63,9 @@ public class GameWindow {
     public int getOffsetY() {
         return offsetY;
     }
+
+    /**
+     * Liefert die vertikale Startposition der Topbar basierend auf der aktuellen Fensterhöhe.
+     */
+    public int getTopBarY() { return Gdx.graphics.getHeight() - TOP_BAR_HEIGHT; }
 }
