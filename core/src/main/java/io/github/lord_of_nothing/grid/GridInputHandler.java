@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.Vector3;
 import io.github.lord_of_nothing.GameWindow;
 
 public class GridInputHandler extends InputAdapter {
-
+    private final GameWindow window;
     private final OrthographicCamera camera;
     private final Grid grid;
     private final Vector3 touchPos = new Vector3();
@@ -18,10 +18,12 @@ public class GridInputHandler extends InputAdapter {
     private int gridPixelWidth;
     private int gridPixelHeight;
     private io.github.lord_of_nothing.buildings.Building pendingBuilding = null;
-    public GridInputHandler(OrthographicCamera camera, Grid grid) {
+    public GridInputHandler(OrthographicCamera camera, Grid grid, GameWindow window) {
         this.camera = camera;
         this.grid = grid;
+        this.window = window;
     }
+
 
     public void updateLayout(GameWindow window) {
         this.tileSize = window.getTileSize();
@@ -48,19 +50,27 @@ public class GridInputHandler extends InputAdapter {
         return true;
     }
     /**
-     * Verarbeitet Klicks: Momentan wird der Sidebar wird ein Gebäude gewählt, auf dem Grid wird das gewählte Gebäude platziert und danach abgewählt.
+     * Verarbeitet Klicks: Momentan wird der Sidebar wird ein Gebäude gewählt, auf dem Grid wird das gewählte Gebäude platziert und danach abgewählt, oder das GAme über den Button geschlossen.#
+     * Die Funktion sollte später noch runtergebrochen werden, wenn noch mehr funktionen hinzugefügt werden.
      */
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         touchPos.set(screenX, screenY, 0);
         camera.unproject(touchPos);
-
+        //Close button
+        if (touchPos.x >= window.getCloseButtonX() && touchPos.x <= window.getCloseButtonX() + GameWindow.CLOSE_BUTTON_SIZE &&
+            touchPos.y >= window.getCloseButtonY() && touchPos.y <= window.getCloseButtonY() + GameWindow.CLOSE_BUTTON_SIZE) {
+            com.badlogic.gdx.Gdx.app.exit();
+            return true;
+        }
+        //Sidebar selection
         if (touchPos.x < GameWindow.SIDEBAR_WIDTH) {
             if (touchPos.y > Gdx.graphics.getHeight() - 100) {
                 pendingBuilding = (pendingBuilding == null) ? new io.github.lord_of_nothing.buildings.House() : null;
             }
             return true;
         }
+        //Grid selection
         int tileX = (int) ((touchPos.x - offsetX) / tileSize);
         int tileY = (int) ((touchPos.y - offsetY) / tileSize);
 

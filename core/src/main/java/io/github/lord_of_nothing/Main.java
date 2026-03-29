@@ -10,12 +10,14 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.lord_of_nothing.grid.Grid;
 import io.github.lord_of_nothing.grid.GridInputHandler;
 import io.github.lord_of_nothing.grid.GridRenderer;
+import io.github.lord_of_nothing.hud.CloseButtonRenderer;
 import io.github.lord_of_nothing.hud.TopBarRenderer;
 import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
 
 public class Main extends ApplicationAdapter {
     private ShapeRenderer shapeRenderer;
+    private CloseButtonRenderer closeButtonRenderer;
     private OrthographicCamera camera;
     private SpriteBatch batch;
 
@@ -25,7 +27,6 @@ public class Main extends ApplicationAdapter {
     private GameWindow gameWindow;
     private ResourceManager resourceManager;
     private TopBarRenderer topBarRenderer;
-    private SpriteBatch batch;
     private Texture houseTexture;
 
     /**
@@ -41,15 +42,15 @@ public class Main extends ApplicationAdapter {
 
         grid = new Grid();
         gridRenderer = new GridRenderer();
-        gridInputHandler = new GridInputHandler(camera, grid);
         gameWindow = new GameWindow(camera, grid);
+        gridInputHandler = new GridInputHandler(camera, grid, gameWindow);
 
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.input.setInputProcessor(gridInputHandler);
         resourceManager = new ResourceManager();
         topBarRenderer = new TopBarRenderer();
-
-        // Startressourcen zum Testen
+        closeButtonRenderer = new CloseButtonRenderer();
+        // Startressourcen
         resourceManager.add(ResourceType.WOOD, 100);
     }
     @Override
@@ -61,15 +62,18 @@ public class Main extends ApplicationAdapter {
      * Koordiniert den Zeichenvorgang durch Übergabe der Grafik-Ressourcen an den GridRenderer.
      * Stellt sicher, dass sowohl geometrische Formen als auch Texturen im korrekten Kontext gerendert werden.
      */
+    @Override
     public void render() {
         Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         shapeRenderer.setProjectionMatrix(camera.combined);
-        topBarRenderer.render(shapeRenderer, batch, gameWindow, resourceManager);
-        gridRenderer.render(shapeRenderer, batch, grid, gameWindow, houseTexture, gridInputHandler.isHouseSelected());
-    }
+        batch.setProjectionMatrix(camera.combined);
 
+        gridRenderer.render(shapeRenderer, batch, grid, gameWindow, houseTexture, gridInputHandler.isHouseSelected());
+        topBarRenderer.render(shapeRenderer, batch, gameWindow, resourceManager);
+        closeButtonRenderer.render(shapeRenderer, gameWindow);
+    }
     @Override
     public void dispose() {
         shapeRenderer.dispose();

@@ -18,20 +18,27 @@ public class GridRenderer {
         renderSidebar(shapeRenderer, batch, houseTex, isSelected);
         renderGrid(shapeRenderer, grid, window);
         renderBuildings(batch, grid, window, houseTex);
-        renderUI(shapeRenderer, window);
     }
+
+    /**
+     * Zeichnet die Sidebar so, dass sie unterhalb der Topbar endet.
+     * Verwendet die TOP_BAR_HEIGHT zur dynamischen Berechnung der verbleibenden vertikalen Fläche.
+     */
     private void renderSidebar(ShapeRenderer shapeRenderer, SpriteBatch batch, Texture houseTex, boolean isSelected) {
+        int sidebarHeight = Gdx.graphics.getHeight() - GameWindow.TOP_BAR_HEIGHT;
+
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.DARK_GRAY);
-        shapeRenderer.rect(0, 0, GameWindow.SIDEBAR_WIDTH, Gdx.graphics.getHeight());
+        shapeRenderer.rect(0, 0, GameWindow.SIDEBAR_WIDTH, sidebarHeight);
+
         if (isSelected) {
             shapeRenderer.setColor(Color.GOLD);
-            shapeRenderer.rect(10, Gdx.graphics.getHeight() - 90, 60, 60);
+            shapeRenderer.rect(10, sidebarHeight - 90, 60, 60);
         }
         shapeRenderer.end();
 
         batch.begin();
-        batch.draw(houseTex, 20, Gdx.graphics.getHeight() - 80, 40, 40);
+        batch.draw(houseTex, 20, sidebarHeight - 80, 40, 40);
         batch.end();
     }
 
