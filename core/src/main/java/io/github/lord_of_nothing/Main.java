@@ -40,18 +40,20 @@ public class Main extends ApplicationAdapter {
         camera = new OrthographicCamera();
         houseTexture = new Texture("buildings/House1.png");
 
+        resourceManager = new ResourceManager();
+        resourceManager.add(ResourceType.WOOD, 100);
+
         grid = new Grid();
         gridRenderer = new GridRenderer();
         gameWindow = new GameWindow(camera, grid);
-        gridInputHandler = new GridInputHandler(camera, grid, gameWindow);
+
+        topBarRenderer = new TopBarRenderer();
+        closeButtonRenderer = new CloseButtonRenderer();
+
+        gridInputHandler = new GridInputHandler(camera, grid, gameWindow, resourceManager);
 
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.input.setInputProcessor(gridInputHandler);
-        resourceManager = new ResourceManager();
-        topBarRenderer = new TopBarRenderer();
-        closeButtonRenderer = new CloseButtonRenderer();
-        // Startressourcen
-        resourceManager.add(ResourceType.WOOD, 100);
     }
     @Override
     public void resize(int width, int height) {
@@ -70,7 +72,7 @@ public class Main extends ApplicationAdapter {
         shapeRenderer.setProjectionMatrix(camera.combined);
         batch.setProjectionMatrix(camera.combined);
 
-        gridRenderer.render(shapeRenderer, batch, grid, gameWindow, houseTexture, gridInputHandler.isHouseSelected());
+        gridRenderer.render(shapeRenderer, batch, grid, gameWindow, houseTexture, gridInputHandler.isHouseSelected(), resourceManager);
         topBarRenderer.render(shapeRenderer, batch, gameWindow, resourceManager);
         closeButtonRenderer.render(shapeRenderer, gameWindow);
     }

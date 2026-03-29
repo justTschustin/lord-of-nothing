@@ -18,10 +18,13 @@ public class GridInputHandler extends InputAdapter {
     private int gridPixelWidth;
     private int gridPixelHeight;
     private io.github.lord_of_nothing.buildings.Building pendingBuilding = null;
-    public GridInputHandler(OrthographicCamera camera, Grid grid, GameWindow window) {
+    private final io.github.lord_of_nothing.resources.ResourceManager resourceManager;
+
+    public GridInputHandler(OrthographicCamera camera, Grid grid, GameWindow window, io.github.lord_of_nothing.resources.ResourceManager resourceManager) {
         this.camera = camera;
         this.grid = grid;
         this.window = window;
+        this.resourceManager = resourceManager;
     }
 
 
@@ -75,9 +78,12 @@ public class GridInputHandler extends InputAdapter {
         int tileY = (int) ((touchPos.y - offsetY) / tileSize);
 
         if (grid.isInside(tileX, tileY) && pendingBuilding != null) {
-            grid.setBuilding(tileX, tileY, pendingBuilding);
-            pendingBuilding = null;
-            return true;
+            int cost = pendingBuilding.getCost(io.github.lord_of_nothing.resources.ResourceType.WOOD);
+            if (resourceManager.tryConsume(io.github.lord_of_nothing.resources.ResourceType.WOOD, cost)) {
+                grid.setBuilding(tileX, tileY, pendingBuilding);
+                pendingBuilding = null;
+                return true;
+            }
         }
         return false;
     }

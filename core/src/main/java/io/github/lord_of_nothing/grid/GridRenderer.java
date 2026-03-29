@@ -14,31 +14,38 @@ public class GridRenderer {
      * Visualisiert den aktuellen Zustand des Grids, inklusive Hover-Effekt, Gebäuden und UI-Elementen.
      * Kombiniert ShapeRendering für Geometrie und SpriteBatch für Texturen in einer koordinierten Render-Sequenz.
      */
-    public void render(ShapeRenderer shapeRenderer, SpriteBatch batch, Grid grid, GameWindow window, Texture houseTex, boolean isSelected) {
-        renderSidebar(shapeRenderer, batch, houseTex, isSelected);
+    public void render(ShapeRenderer shapeRenderer, SpriteBatch batch, Grid grid, GameWindow window, Texture houseTex, boolean isSelected, io.github.lord_of_nothing.resources.ResourceManager resourceManager) {
+        renderSidebar(shapeRenderer, batch, houseTex, isSelected, resourceManager);
         renderGrid(shapeRenderer, grid, window);
         renderBuildings(batch, grid, window, houseTex);
     }
 
+
     /**
      * Zeichnet die Sidebar so, dass sie unterhalb der Topbar endet.
      * Verwendet die TOP_BAR_HEIGHT zur dynamischen Berechnung der verbleibenden vertikalen Fläche.
+     * Muss noch aufgeteilt werden.
      */
-    private void renderSidebar(ShapeRenderer shapeRenderer, SpriteBatch batch, Texture houseTex, boolean isSelected) {
-        int sidebarHeight = Gdx.graphics.getHeight() - GameWindow.TOP_BAR_HEIGHT;
+    private void renderSidebar(ShapeRenderer shapeRenderer, SpriteBatch batch, Texture houseTex, boolean isSelected, io.github.lord_of_nothing.resources.ResourceManager rm) {
+        int sidebarHeight = com.badlogic.gdx.Gdx.graphics.getHeight() - io.github.lord_of_nothing.GameWindow.TOP_BAR_HEIGHT;
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(Color.DARK_GRAY);
-        shapeRenderer.rect(0, 0, GameWindow.SIDEBAR_WIDTH, sidebarHeight);
-
+        shapeRenderer.begin(com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(com.badlogic.gdx.graphics.Color.DARK_GRAY);
+        shapeRenderer.rect(0, 0, io.github.lord_of_nothing.GameWindow.SIDEBAR_WIDTH, sidebarHeight);
         if (isSelected) {
-            shapeRenderer.setColor(Color.GOLD);
+            shapeRenderer.setColor(com.badlogic.gdx.graphics.Color.GOLD);
             shapeRenderer.rect(10, sidebarHeight - 90, 60, 60);
         }
         shapeRenderer.end();
 
+        boolean canAfford = rm.hasEnough(io.github.lord_of_nothing.resources.ResourceType.WOOD, 10);
+
         batch.begin();
+        if (!canAfford) {
+            batch.setColor(com.badlogic.gdx.graphics.Color.RED);
+        }
         batch.draw(houseTex, 20, sidebarHeight - 80, 40, 40);
+        batch.setColor(com.badlogic.gdx.graphics.Color.WHITE);
         batch.end();
     }
 
@@ -73,12 +80,5 @@ public class GridRenderer {
             }
         }
         batch.end();
-    }
-
-    private void renderUI(ShapeRenderer shapeRenderer, GameWindow window) {
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(Color.RED);
-        shapeRenderer.rect(window.getCloseButtonX(), window.getCloseButtonY(), GameWindow.CLOSE_BUTTON_SIZE, GameWindow.CLOSE_BUTTON_SIZE);
-        shapeRenderer.end();
     }
 }

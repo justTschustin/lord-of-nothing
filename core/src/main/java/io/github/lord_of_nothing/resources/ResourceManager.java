@@ -25,4 +25,16 @@ public class ResourceManager {
     public boolean hasEnough(ResourceType type, int amount) {
         return getAmount(type) >= amount;
     }
+
+    /**
+     * Reduziert den Bestand einer Ressource, sofern genügend Einheiten vorhanden sind.
+     * @return true, wenn die Transaktion erfolgreich war, andernfalls false.
+     */
+    public boolean tryConsume(ResourceType type, int amount) {
+        if (hasEnough(type, amount)) {
+            add(type, -amount);
+            return true;
+        }
+        return false;
+    }
 }
