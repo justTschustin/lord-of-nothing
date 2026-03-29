@@ -12,9 +12,11 @@ public class GameWindow {
     private static final int HUD_SIDE_MARGIN = 20;
     public static final int TOP_BAR_HEIGHT = 40;
 
+    public static final int SIDEBAR_WIDTH = 200;
     private final OrthographicCamera camera;
     private final Grid grid;
-
+    public static final int CLOSE_BUTTON_SIZE = 40;
+    public static final int CLOSE_BUTTON_MARGIN = 10;
     private int tileSize;
     private int gridPixelWidth;
     private int gridPixelHeight;
@@ -68,4 +70,8 @@ public class GameWindow {
      * Liefert die vertikale Startposition der Topbar basierend auf der aktuellen Fensterhöhe.
      */
     public int getTopBarY() { return Gdx.graphics.getHeight() - TOP_BAR_HEIGHT; }
+
+    public int getCloseButtonX() { return Gdx.graphics.getWidth() - CLOSE_BUTTON_SIZE - CLOSE_BUTTON_MARGIN; }
+
+    public int getCloseButtonY() { return Gdx.graphics.getHeight() - CLOSE_BUTTON_SIZE - CLOSE_BUTTON_MARGIN; }
 }
