@@ -6,6 +6,7 @@ public class Tile {
      * Gibt das Gebäude auf diesem Feld zurück oder null, falls das Feld leer ist.
      */
     public static final int BASE_TILE_SIZE = 32;
+    private TileType type = TileType.GRASS;
     private boolean hasBuilding = false;
     private final int x;
     private final int y;
@@ -18,18 +19,24 @@ public class Tile {
     public void setHas(boolean hasHouse) { this.hasBuilding = hasHouse; }
 
     /**
-     * Gibt das Gebäude auf diesem Feld zurück oder null, falls das Feld leer ist.
-     */
+Returns the building on this tile, or null if there is none.     */
     public io.github.lord_of_nothing.buildings.Building getBuilding() { return building; }
     /**
-     * Platziert ein beliebiges Gebäude auf dem Tile.
-     */
+Places a building on this tile.
+     * @param building The building to place.*/
     public void setBuilding(io.github.lord_of_nothing.buildings.Building building) { this.building = building; }
     /**
-     * Prüft, ob das Feld mit einem Gebäude belegt ist.
+Checks if this tile has a building.
      */
     public boolean hasBuilding() { return building != null; }
-
+    /**
+     * Returns the terrain type of this tile.
+     */
+    public TileType getType() { return type; }
+    /**
+     * Changes the terrain type of this tile.
+     */
+    public void setType(TileType type) { this.type = type; }
     public int getX() {
         return x;
     }

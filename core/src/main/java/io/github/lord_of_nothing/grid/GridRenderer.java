@@ -14,8 +14,9 @@ public class GridRenderer {
      * Visualisiert den aktuellen Zustand des Grids, inklusive Hover-Effekt, Gebäuden und UI-Elementen.
      * Kombiniert ShapeRendering für Geometrie und SpriteBatch für Texturen in einer koordinierten Render-Sequenz.
      */
-    public void render(ShapeRenderer shapeRenderer, SpriteBatch batch, Grid grid, GameWindow window, Texture houseTex, boolean isSelected, io.github.lord_of_nothing.resources.ResourceManager resourceManager) {
-        renderSidebar(shapeRenderer, batch, houseTex, isSelected, resourceManager);
+    public void render(ShapeRenderer shapeRenderer, SpriteBatch batch, Grid grid, GameWindow window, Texture houseTex, Texture grassTex, boolean isSelected, io.github.lord_of_nothing.resources.ResourceManager rm) {
+        renderBackground(batch, grid, window, grassTex);
+        renderSidebar(shapeRenderer, batch, houseTex, isSelected, rm);
         renderGrid(shapeRenderer, grid, window);
         renderBuildings(batch, grid, window, houseTex);
     }
@@ -77,6 +78,25 @@ public class GridRenderer {
                         window.getOffsetY() + y * window.getTileSize(),
                         window.getTileSize(), window.getTileSize());
                 }
+            }
+        }
+        batch.end();
+    }
+
+    /**
+     * Paints the background of the grid using sprites.
+     * Iterates over each tile in the grid and draws a texture according to its position.
+     * Currently uses a single grass texture for all tiles.
+     */
+    private void renderBackground(SpriteBatch batch, Grid grid, GameWindow window, Texture grassTex) {
+        batch.begin();
+        for (int x = 0; x < grid.getWidth(); x++) {
+            for (int y = 0; y < grid.getHeight(); y++) {
+//add getTile(x, y).getType() when further terrain types are added
+                batch.draw(grassTex,
+                    window.getOffsetX() + x * window.getTileSize(),
+                    window.getOffsetY() + y * window.getTileSize(),
+                    window.getTileSize(), window.getTileSize());
             }
         }
         batch.end();
