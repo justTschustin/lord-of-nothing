@@ -1,10 +1,11 @@
 package io.github.lord_of_nothing.grid;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import io.github.lord_of_nothing.GameWindow;
+import io.github.lord_of_nothing.buildings.Building;
+import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
 
 import java.util.Map;
@@ -20,10 +21,9 @@ public class GridInputHandler extends InputAdapter {
     private int offsetY;
     private int gridPixelWidth;
     private int gridPixelHeight;
-    private io.github.lord_of_nothing.buildings.Building pendingBuilding = null;
-    private final io.github.lord_of_nothing.resources.ResourceManager resourceManager;
-
-    public GridInputHandler(OrthographicCamera camera, Grid grid, GameWindow window, io.github.lord_of_nothing.resources.ResourceManager resourceManager) {
+    private Building pendingBuilding = null;
+    private final ResourceManager resourceManager;
+    public GridInputHandler(OrthographicCamera camera, Grid grid, GameWindow window, ResourceManager resourceManager) {
         this.camera = camera;
         this.grid = grid;
         this.window = window;
@@ -69,9 +69,9 @@ public class GridInputHandler extends InputAdapter {
 
         return false;
     }
-    ///
-    /// Handles interaction with the close button.
-    ///
+    /**
+    Handles interaction with the close button.
+     */
     private boolean handleCloseButton(float x, float y) {
         if (x >= window.getCloseButtonX() && x <= window.getCloseButtonX() + GameWindow.CLOSE_BUTTON_SIZE &&
             y >= window.getCloseButtonY() && y <= window.getCloseButtonY() + GameWindow.CLOSE_BUTTON_SIZE) {
@@ -80,9 +80,9 @@ public class GridInputHandler extends InputAdapter {
         }
         return false;
     }
-    ///
-    /// Handles interaction with the sidebar for selecting buildings.
-    ///
+   /**
+   Handles interaction with the sidebar for selecting buildings.
+    */
     private boolean handleSidebarInteraction(float x, float y) {
         if (x < GameWindow.SIDEBAR_WIDTH) {
             if (y > com.badlogic.gdx.Gdx.graphics.getHeight() - GameWindow.TOP_BAR_HEIGHT - 100) {
@@ -92,9 +92,9 @@ public class GridInputHandler extends InputAdapter {
         }
         return false;
     }
-    ///
-    /// Handles interaction with the grid for placing buildings.
-    ///
+    /**
+    Handles interaction with the grid for placing buildings.
+     */
     private boolean handleGridPlacement(float x, float y) {
         int tileX = (int) ((x - offsetX) / tileSize);
         int tileY = (int) ((y - offsetY) / tileSize);
@@ -109,11 +109,11 @@ public class GridInputHandler extends InputAdapter {
         }
         return false;
     }
-    ///
-    /// Checks if the player can afford the building costs.
-    ///
-    private boolean canAfford(io.github.lord_of_nothing.buildings.Building building) {
-        for (java.util.Map.Entry<io.github.lord_of_nothing.resources.ResourceType, Integer> entry : building.getCosts().entrySet()) {
+    /**
+    Checks if the player can afford the building costs.
+     */
+    private boolean canAfford(Building building) {
+        for (java.util.Map.Entry<ResourceType, Integer> entry : building.getCosts().entrySet()) {
             if (!resourceManager.hasEnough(entry.getKey(), entry.getValue())) return false;
         }
         return true;
@@ -122,8 +122,8 @@ public class GridInputHandler extends InputAdapter {
     /**
      * Subtracts the costs of the building from the ResourceManager.
      */
-    private void consumeCosts(io.github.lord_of_nothing.buildings.Building building) {
-        for (java.util.Map.Entry<io.github.lord_of_nothing.resources.ResourceType, Integer> entry : building.getCosts().entrySet()) {
+    private void consumeCosts(Building building) {
+        for (java.util.Map.Entry<ResourceType, Integer> entry : building.getCosts().entrySet()) {
             resourceManager.tryConsume(entry.getKey(), entry.getValue());
         }
     }
