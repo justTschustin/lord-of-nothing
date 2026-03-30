@@ -10,6 +10,10 @@ buildscript {
   }
 }
 
+plugins {
+  id 'com.diffplug.spotless' version '6.25.0' apply false
+}
+
 allprojects {
   apply plugin: 'eclipse'
   apply plugin: 'idea'
@@ -25,6 +29,7 @@ allprojects {
 configure(subprojects) {
   apply plugin: 'java-library'
   apply plugin: 'checkstyle'
+  apply plugin: 'com.diffplug.spotless'
 
   java.sourceCompatibility = 8
 
