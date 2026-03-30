@@ -18,6 +18,7 @@ public class Main extends ApplicationAdapter {
     private GridInputHandler gridInputHandler;
     private GameWindow gameWindow;
 
+    {}
     @Override
     public void create() {
         shapeRenderer = new ShapeRenderer();
