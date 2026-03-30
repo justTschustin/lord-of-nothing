@@ -1,16 +1,17 @@
 package io.github.lord_of_nothing.buildings;
+import io.github.lord_of_nothing.resources.ResourceType;
+import java.util.EnumMap;
+import java.util.Map;
 
 /**
- * Abstrakte Basisklasse für alle Gebäudetypen im Spiel.
- * Erlaubt die generische Behandlung verschiedener Bauwerke auf dem Grid.
+ * Defines the requirements for a building, via mapping.
  */
 public abstract class Building {
-    public abstract String getTexturePath();
-    /**
-     * Definiert die Ressourcenanforderungen für den Bau eines Gebäudes.
-     * Gibt standardmäßig 0 zurück, sofern nicht in Unterklassen überschrieben.
-     */
-    public int getCost(io.github.lord_of_nothing.resources.ResourceType type) {
-        return 0;
+    protected final Map<ResourceType, Integer> costs = new EnumMap<>(ResourceType.class);
+
+    public Map<ResourceType, Integer> getCosts() {
+        return costs;
     }
+
+    public abstract String getTexturePath();
 }

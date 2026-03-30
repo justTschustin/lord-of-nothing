@@ -5,6 +5,9 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import io.github.lord_of_nothing.GameWindow;
+import io.github.lord_of_nothing.resources.ResourceType;
+
+import java.util.Map;
 
 public class GridInputHandler extends InputAdapter {
     private final GameWindow window;
@@ -53,33 +56,52 @@ public class GridInputHandler extends InputAdapter {
         return true;
     }
     /**
-     * Verarbeitet Klicks: Momentan wird der Sidebar wird ein Gebäude gewählt, auf dem Grid wird das gewählte Gebäude platziert und danach abgewählt, oder das GAme über den Button geschlossen.#
-     * Die Funktion sollte später noch runtergebrochen werden, wenn noch mehr funktionen hinzugefügt werden.
+     * Handles every click on the screen.
      */
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         touchPos.set(screenX, screenY, 0);
         camera.unproject(touchPos);
-        //Close button
-        if (touchPos.x >= window.getCloseButtonX() && touchPos.x <= window.getCloseButtonX() + GameWindow.CLOSE_BUTTON_SIZE &&
-            touchPos.y >= window.getCloseButtonY() && touchPos.y <= window.getCloseButtonY() + GameWindow.CLOSE_BUTTON_SIZE) {
+
+        if (handleCloseButton(touchPos.x, touchPos.y)) return true;
+        if (handleSidebarInteraction(touchPos.x, touchPos.y)) return true;
+        if (handleGridPlacement(touchPos.x, touchPos.y)) return true;
+
+        return false;
+    }
+    ///
+    /// Handles interaction with the close button.
+    ///
+    private boolean handleCloseButton(float x, float y) {
+        if (x >= window.getCloseButtonX() && x <= window.getCloseButtonX() + GameWindow.CLOSE_BUTTON_SIZE &&
+            y >= window.getCloseButtonY() && y <= window.getCloseButtonY() + GameWindow.CLOSE_BUTTON_SIZE) {
             com.badlogic.gdx.Gdx.app.exit();
             return true;
         }
-        //Sidebar selection
-        if (touchPos.x < GameWindow.SIDEBAR_WIDTH) {
-            if (touchPos.y > Gdx.graphics.getHeight() - 100) {
+        return false;
+    }
+    ///
+    /// Handles interaction with the sidebar for selecting buildings.
+    ///
+    private boolean handleSidebarInteraction(float x, float y) {
+        if (x < GameWindow.SIDEBAR_WIDTH) {
+            if (y > com.badlogic.gdx.Gdx.graphics.getHeight() - GameWindow.TOP_BAR_HEIGHT - 100) {
                 pendingBuilding = (pendingBuilding == null) ? new io.github.lord_of_nothing.buildings.House() : null;
             }
             return true;
         }
-        //Grid selection
-        int tileX = (int) ((touchPos.x - offsetX) / tileSize);
-        int tileY = (int) ((touchPos.y - offsetY) / tileSize);
+        return false;
+    }
+    ///
+    /// Handles interaction with the grid for placing buildings.
+    ///
+    private boolean handleGridPlacement(float x, float y) {
+        int tileX = (int) ((x - offsetX) / tileSize);
+        int tileY = (int) ((y - offsetY) / tileSize);
 
         if (grid.isInside(tileX, tileY) && pendingBuilding != null) {
-            int cost = pendingBuilding.getCost(io.github.lord_of_nothing.resources.ResourceType.WOOD);
-            if (resourceManager.tryConsume(io.github.lord_of_nothing.resources.ResourceType.WOOD, cost)) {
+            if (canAfford(pendingBuilding)) {
+                consumeCosts(pendingBuilding);
                 grid.setBuilding(tileX, tileY, pendingBuilding);
                 pendingBuilding = null;
                 return true;
@@ -87,6 +109,23 @@ public class GridInputHandler extends InputAdapter {
         }
         return false;
     }
+    ///
+    /// Checks if the player can afford the building costs.
+    ///
+    private boolean canAfford(io.github.lord_of_nothing.buildings.Building building) {
+        for (java.util.Map.Entry<io.github.lord_of_nothing.resources.ResourceType, Integer> entry : building.getCosts().entrySet()) {
+            if (!resourceManager.hasEnough(entry.getKey(), entry.getValue())) return false;
+        }
+        return true;
+    }
 
+    /**
+     * Subtracts the costs of the building from the ResourceManager.
+     */
+    private void consumeCosts(io.github.lord_of_nothing.buildings.Building building) {
+        for (java.util.Map.Entry<io.github.lord_of_nothing.resources.ResourceType, Integer> entry : building.getCosts().entrySet()) {
+            resourceManager.tryConsume(entry.getKey(), entry.getValue());
+        }
+    }
     public boolean isHouseSelected() { return pendingBuilding != null; }
 }
