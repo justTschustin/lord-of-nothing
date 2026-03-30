@@ -11,8 +11,14 @@ import static java.awt.SystemColor.window;
 public class GridRenderer {
 
     /**
-     * Visualisiert den aktuellen Zustand des Grids, inklusive Hover-Effekt, Gebäuden und UI-Elementen.
-     * Kombiniert ShapeRendering für Geometrie und SpriteBatch für Texturen in einer koordinierten Render-Sequenz.
+     * <summary>Main entry point for rendering the grid, sidebar, and all placed buildings.</summary>
+     * @param shapeRenderer The renderer used for geometric UI and grid shapes.
+     * @param batch The sprite batch used for drawing textures.
+     * @param grid The data model containing tiles and building information.
+     * @param window The window context for coordinate calculations.
+     * @param houseTex The primary texture used for rendering buildings.
+     * @param isSelected Flag indicating if a building is currently selected in the UI.
+     * @param resourceManager The manager used to validate costs for UI feedback.
      */
     public void render(ShapeRenderer shapeRenderer, SpriteBatch batch, Grid grid, GameWindow window, Texture houseTex, boolean isSelected, io.github.lord_of_nothing.resources.ResourceManager resourceManager) {
         renderSidebar(shapeRenderer, batch, houseTex, isSelected, resourceManager);
@@ -22,9 +28,12 @@ public class GridRenderer {
 
 
     /**
-     * Zeichnet die Sidebar so, dass sie unterhalb der Topbar endet.
-     * Verwendet die TOP_BAR_HEIGHT zur dynamischen Berechnung der verbleibenden vertikalen Fläche.
-     * Muss noch aufgeteilt werden.
+     * <summary>Draws the sidebar background and the interactive building selection button.</summary>
+     * @param shapeRenderer Renderer for the sidebar and selection highlight shapes.
+     * @param batch SpriteBatch for drawing the building icons.
+     * @param houseTex Texture to be displayed as a selectable icon.
+     * @param isSelected Current selection state to determine highlight rendering.
+     * @param rm Manager to check if the player can afford the building (visual feedback).
      */
     private void renderSidebar(ShapeRenderer shapeRenderer, SpriteBatch batch, Texture houseTex, boolean isSelected, io.github.lord_of_nothing.resources.ResourceManager rm) {
         int sidebarHeight = com.badlogic.gdx.Gdx.graphics.getHeight() - io.github.lord_of_nothing.GameWindow.TOP_BAR_HEIGHT;
@@ -48,7 +57,12 @@ public class GridRenderer {
         batch.setColor(com.badlogic.gdx.graphics.Color.WHITE);
         batch.end();
     }
-
+    /**
+     * <summary>Renders the grid terrain background and the mouse hover highlight effect.</summary>
+     * @param shapeRenderer Renderer for the tile shapes and hover rectangles.
+     * @param grid Grid model to retrieve hovered coordinates.
+     * @param window Context for tile size and screen offsets.
+     */
     private void renderGrid(ShapeRenderer shapeRenderer, Grid grid, GameWindow window) {
         int tileSize = window.getTileSize();
         int offsetX = window.getOffsetX();
@@ -67,7 +81,13 @@ public class GridRenderer {
         }
         shapeRenderer.end();
     }
-
+    /**
+     * <summary>Iterates through the grid to draw all placed buildings using the SpriteBatch.</summary>
+     * @param batch SpriteBatch used to render building textures.
+     * @param grid The game grid containing tile building data.
+     * @param window Context providing tile size and positioning offsets.
+     * @param houseTex The texture to draw for each building found on a tile.
+     */
     private void renderBuildings(SpriteBatch batch, Grid grid, GameWindow window, Texture houseTex) {
         batch.begin();
         for (int x = 0; x < grid.getWidth(); x++) {
