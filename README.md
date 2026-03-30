@@ -12,6 +12,13 @@
   - cannot push directly onto main
 - always work on branches, merge onto main after code review (probably from Justin)
 
+## Run Linter/Formatter Tests
+```bash
+./gradlew spotlessApply
+./gradlew spotlessCheck
+./gradlew check
+``` 
+
 
 
 
