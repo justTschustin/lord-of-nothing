@@ -16,9 +16,9 @@ public class GridRenderer {
      */
     public void render(ShapeRenderer shapeRenderer, SpriteBatch batch, Grid grid, GameWindow window, Texture houseTex, Texture grassTex, boolean isSelected, io.github.lord_of_nothing.resources.ResourceManager rm) {
         renderBackground(batch, grid, window, grassTex);
-        renderSidebar(shapeRenderer, batch, houseTex, isSelected, rm);
-        renderGrid(shapeRenderer, grid, window);
+        renderGridShapes(shapeRenderer, grid, window);
         renderBuildings(batch, grid, window, houseTex);
+        renderSidebar(shapeRenderer, batch, houseTex, isSelected, rm);
     }
 
 
@@ -100,5 +100,21 @@ public class GridRenderer {
             }
         }
         batch.end();
+    }
+    /**
+     * Renders the hover overlay and grid lines using the ShapeRenderer.
+     * Removed the olive background rectangle to allow the terrain sprites to be visible.
+     */
+    private void renderGridShapes(ShapeRenderer shapeRenderer, Grid grid, GameWindow window) {
+        int tileSize = window.getTileSize();
+        int offsetX = window.getOffsetX();
+        int offsetY = window.getOffsetY();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        if (grid.getHoveredX() != -1) {
+            shapeRenderer.setColor(0.5f, 0.5f, 0.5f, 0.4f);
+            shapeRenderer.rect(offsetX + grid.getHoveredX() * tileSize, offsetY + grid.getHoveredY() * tileSize, tileSize, tileSize);
+        }
+        shapeRenderer.end();
     }
 }
