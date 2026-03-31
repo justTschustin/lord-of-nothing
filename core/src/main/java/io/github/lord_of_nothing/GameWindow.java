@@ -10,6 +10,8 @@ public class GameWindow {
     private static final int HUD_BOTTOM_HEIGHT = 120;
     private static final int HUD_TOP_HEIGHT = 40;
     private static final int HUD_SIDE_MARGIN = 20;
+    public static final int TOP_BAR_HEIGHT = 40;
+
     public static final int SIDEBAR_WIDTH = 200;
     private final OrthographicCamera camera;
     private final Grid grid;
@@ -64,7 +66,16 @@ public class GameWindow {
         return offsetY;
     }
 
+    /**
+     * Liefert die vertikale Startposition der Topbar basierend auf der aktuellen Fensterhöhe.
+     */
+    public int getTopBarY() { return Gdx.graphics.getHeight() - TOP_BAR_HEIGHT; }
+
     public int getCloseButtonX() { return Gdx.graphics.getWidth() - CLOSE_BUTTON_SIZE - CLOSE_BUTTON_MARGIN; }
 
-    public int getCloseButtonY() { return Gdx.graphics.getHeight() - CLOSE_BUTTON_SIZE - CLOSE_BUTTON_MARGIN; }
-}
+    /**
+     * Berechnet die Y-Position des Buttons so, dass er innerhalb der Topbar zentriert erscheint.
+     */
+    public int getCloseButtonY() {
+        return getTopBarY() + (TOP_BAR_HEIGHT - CLOSE_BUTTON_SIZE) / 2;
+    }}
