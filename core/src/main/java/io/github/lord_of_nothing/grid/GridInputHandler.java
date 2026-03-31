@@ -1,5 +1,6 @@
 package io.github.lord_of_nothing.grid;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
@@ -63,9 +64,7 @@ public class GridInputHandler extends InputAdapter {
 
         if (handleCloseButton(touchPos.x, touchPos.y)) {return true;}
         if (handleSidebarInteraction(touchPos.x, touchPos.y)) {return true;}
-        if (handleGridPlacement(touchPos.x, touchPos.y)) {return true;}
-
-        return false;
+        return handleGridPlacement(touchPos.x, touchPos.y);
     }
     /**
     Handles interaction with the close button.
@@ -78,15 +77,25 @@ public class GridInputHandler extends InputAdapter {
         }
         return false;
     }
-   /**
-   Handles interaction with the sidebar for selecting buildings.
-    */
+    /**
+     * <summary>Updates sidebar interaction to handle selection for buildings based on their slot coordinates.</summary>
+     * @param x Touch X-coordinate. @param y Touch Y-coordinate.
+     */
     private boolean handleSidebarInteraction(float x, float y) {
         if (x < GameWindow.SIDEBAR_WIDTH) {
-            if (y > com.badlogic.gdx.Gdx.graphics.getHeight() - GameWindow.TOP_BAR_HEIGHT - 100) {
-                pendingBuilding = (pendingBuilding == null) ? new io.github.lord_of_nothing.buildings.House() : null;
+            int sidebarHeight = Gdx.graphics.getHeight() - GameWindow.TOP_BAR_HEIGHT;
+
+            // Slot 1: House (centered around sidebarHeight - 100)
+            if (y > sidebarHeight - 110 && y < sidebarHeight - 40) {
+                pendingBuilding = (pendingBuilding instanceof io.github.lord_of_nothing.buildings.House) ? null : new io.github.lord_of_nothing.buildings.House();
+                return true;
             }
-            return true;
+
+            // Slot 2: Sawmill (centered around sidebarHeight - 210)
+            if (y > sidebarHeight - 210 && y < sidebarHeight - 140) {
+                pendingBuilding = (pendingBuilding instanceof io.github.lord_of_nothing.buildings.Sawmill) ? null : new io.github.lord_of_nothing.buildings.Sawmill();
+                return true;
+            }
         }
         return false;
     }
@@ -127,4 +136,13 @@ public class GridInputHandler extends InputAdapter {
         }
     }
     public boolean isHouseSelected() { return pendingBuilding != null; }
+
+    /**
+     * <summary>Returns the building currently selected for placement.</summary>
+     * @return The pending building instance or null if none is selected.
+     */
+    public Building getPendingBuilding() {
+        return pendingBuilding;
+    }
 }
+

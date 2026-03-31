@@ -1,16 +1,22 @@
 package io.github.lord_of_nothing.buildings;
 
+import io.github.lord_of_nothing.resources.ResourceType;
+
 /**
- * Repräsentiert ein einfaches Wohnhaus.
- * Verweist auf den spezifischen Pfad der Bildressource in den Assets.
+ * <summary>Represents a standard 1x1 residential building with wood costs.</summary>
  */
 public class House extends Building {
+
+    /**
+     * <summary>Initializes the house with 1x1 dimensions and sets the resource costs.</summary>
+     */
     public House() {
-        costs.put(io.github.lord_of_nothing.resources.ResourceType.WOOD, 10);
+        super(1, 1); // Explicitly call the Building constructor
+        costs.put(ResourceType.WOOD, 10);
     }
 
     @Override
-    public String getTexturePath() {
-        return "buildings/House1.png";
+    public String getBuildingTypeKey() {
+        return "house";
     }
 }

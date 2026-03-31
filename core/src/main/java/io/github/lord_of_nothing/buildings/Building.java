@@ -14,7 +14,8 @@ public abstract class Building {
     private int rootX, rootY;
 
     /**
-     * <summary>Returns a unique identifier for the building type to resolve textures generically.</summary>
+     * <summary>Returns the unique key used to identify the building type, e.g., for texture lookups.</summary>
+     * @return A string key identifying the building type.
      */
     public abstract String getBuildingTypeKey();
 
@@ -28,8 +29,6 @@ public abstract class Building {
         this.width = width;
         this.height = height;
     }
-
-    public abstract String getTexturePath();
 
     public int getWidth() {
         return width;
