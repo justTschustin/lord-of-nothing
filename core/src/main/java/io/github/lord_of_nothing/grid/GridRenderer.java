@@ -1,11 +1,12 @@
 package io.github.lord_of_nothing.grid;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.lord_of_nothing.GameWindow;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import io.github.lord_of_nothing.resources.ResourceManager;
+
 import static java.awt.SystemColor.window;
 
 public class GridRenderer {
@@ -20,7 +21,7 @@ public class GridRenderer {
      * @param isSelected Flag indicating if a building is currently selected in the UI.
      * @param resourceManager The manager used to validate costs for UI feedback.
      */
-    public void render(ShapeRenderer shapeRenderer, SpriteBatch batch, Grid grid, GameWindow window, Texture houseTex, Texture grassTex, boolean isSelected, io.github.lord_of_nothing.resources.ResourceManager rm) {
+    public void render(ShapeRenderer shapeRenderer, SpriteBatch batch, Grid grid, GameWindow window, Texture houseTex, Texture grassTex, boolean isSelected, ResourceManager rm) {
         renderBackground(batch, grid, window, grassTex);
         renderGridShapes(shapeRenderer, grid, window);
         renderBuildings(batch, grid, window, houseTex);

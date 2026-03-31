@@ -8,8 +8,6 @@ import io.github.lord_of_nothing.buildings.Building;
 import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
 
-import java.util.Map;
-
 public class GridInputHandler extends InputAdapter {
     private final GameWindow window;
     private final OrthographicCamera camera;
@@ -63,9 +61,9 @@ public class GridInputHandler extends InputAdapter {
         touchPos.set(screenX, screenY, 0);
         camera.unproject(touchPos);
 
-        if (handleCloseButton(touchPos.x, touchPos.y)) return true;
-        if (handleSidebarInteraction(touchPos.x, touchPos.y)) return true;
-        if (handleGridPlacement(touchPos.x, touchPos.y)) return true;
+        if (handleCloseButton(touchPos.x, touchPos.y)) {return true;}
+        if (handleSidebarInteraction(touchPos.x, touchPos.y)) {return true;}
+        if (handleGridPlacement(touchPos.x, touchPos.y)) {return true;}
 
         return false;
     }
@@ -114,7 +112,7 @@ public class GridInputHandler extends InputAdapter {
      */
     private boolean canAfford(Building building) {
         for (java.util.Map.Entry<ResourceType, Integer> entry : building.getCosts().entrySet()) {
-            if (!resourceManager.hasEnough(entry.getKey(), entry.getValue())) return false;
+            if (!resourceManager.hasEnough(entry.getKey(), entry.getValue())){return true;}
         }
         return true;
     }
