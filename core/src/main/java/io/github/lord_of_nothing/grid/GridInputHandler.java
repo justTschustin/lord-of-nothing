@@ -97,16 +97,17 @@ public class GridInputHandler extends InputAdapter {
         int tileX = (int) ((x - offsetX) / tileSize);
         int tileY = (int) ((y - offsetY) / tileSize);
 
-        if (grid.isInside(tileX, tileY) && pendingBuilding != null) {
+        if (pendingBuilding != null && grid.canPlace(tileX, tileY, pendingBuilding.getWidth(), pendingBuilding.getHeight())) {
             if (canAfford(pendingBuilding)) {
                 consumeCosts(pendingBuilding);
-                grid.setBuilding(tileX, tileY, pendingBuilding);
+                grid.placeBuilding(tileX, tileY, pendingBuilding);
                 pendingBuilding = null;
                 return true;
             }
         }
         return false;
     }
+
     /**
     Checks if the player can afford the building costs.
      */
