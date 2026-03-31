@@ -8,7 +8,6 @@ import io.github.lord_of_nothing.buildings.Building;
 public class Tile {
     public static final int BASE_TILE_SIZE = 32;
     private TileType type = TileType.GRASS;
-    private boolean hasBuilding = false;
     private final int x;
     private final int y;
     private Building building = null;
@@ -52,11 +51,4 @@ public class Tile {
      * Changes the terrain type of this tile.
      */
     public void setType(TileType type) { this.type = type; }
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
 }
