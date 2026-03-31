@@ -59,7 +59,7 @@ public class Grid {
     public boolean canPlace(int x, int y, int w, int h) {
         for (int ix = x; ix < x + w; ix++) {
             for (int iy = y; iy < y + h; iy++) {
-                if (!isInside(ix, iy) || getTile(ix, iy).hasBuilding()) return false;
+                if (!isInside(ix, iy) || getTile(ix, iy).hasBuilding()) {return false;}
             }
         }
         return true;
