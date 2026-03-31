@@ -10,6 +10,11 @@ public class Sawmill extends Building {
         costs.put(ResourceType.WOOD, 20);
     }
 
+    /**
+     * <summary>Implementation of the type key for sawmills.</summary>
+     */
     @Override
-    public String getTexturePath() { return "buildings/sawmill.png"; }
+    public String getBuildingTypeKey() {
+        return "sawmill";
+    }
 }
