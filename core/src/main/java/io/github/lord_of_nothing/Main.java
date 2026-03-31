@@ -55,11 +55,13 @@ public class Main extends ApplicationAdapter {
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.input.setInputProcessor(gridInputHandler);
     }
+
     @Override
     public void resize(int width, int height) {
         gameWindow.resize(width, height);
         gridInputHandler.updateLayout(gameWindow);
     }
+
     /**
      * Koordiniert den Zeichenvorgang durch Übergabe der Grafik-Ressourcen an den GridRenderer.
      * Stellt sicher, dass sowohl geometrische Formen als auch Texturen im korrekten Kontext gerendert werden.
@@ -76,6 +78,7 @@ public class Main extends ApplicationAdapter {
         topBarRenderer.render(shapeRenderer, batch, gameWindow, resourceManager);
         closeButtonRenderer.render(shapeRenderer, gameWindow);
     }
+
     @Override
     public void dispose() {
         shapeRenderer.dispose();
