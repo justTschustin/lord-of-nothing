@@ -27,12 +27,13 @@ public class GameWindow {
         this.camera = camera;
         this.grid = grid;
     }
+
     public void resize(int width, int height) {
         camera.setToOrtho(false, width, height);
         camera.update();
 
-        int availableWidth = width - (HUD_SIDE_MARGIN * 2);
-        int availableHeight = height - HUD_BOTTOM_HEIGHT - HUD_TOP_HEIGHT;
+        int availableWidth = width - SIDEBAR_WIDTH;
+        int availableHeight = height - TOP_BAR_HEIGHT;
 
         int scaleX = availableWidth / (grid.getWidth() * Tile.BASE_TILE_SIZE);
         int scaleY = availableHeight / (grid.getHeight() * Tile.BASE_TILE_SIZE);
@@ -42,8 +43,14 @@ public class GameWindow {
         gridPixelWidth = grid.getWidth() * tileSize;
         gridPixelHeight = grid.getHeight() * tileSize;
 
-        offsetX = HUD_SIDE_MARGIN + (availableWidth - gridPixelWidth) / 2;
-        offsetY = HUD_BOTTOM_HEIGHT + (availableHeight - gridPixelHeight) / 2;
+        offsetX = Math.max(
+            SIDEBAR_WIDTH,
+            SIDEBAR_WIDTH + (availableWidth - gridPixelWidth) / 2
+        );
+        offsetY = Math.min(
+            (availableHeight - gridPixelHeight) / 2,    // centered
+            availableHeight - gridPixelHeight           // flush against top menu bar
+        );
     }
 
     public int getTileSize() {
