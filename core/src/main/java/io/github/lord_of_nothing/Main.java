@@ -28,6 +28,7 @@ public class Main extends ApplicationAdapter {
     private ResourceManager resourceManager;
     private TopBarRenderer topBarRenderer;
     private Texture houseTexture;
+    private Texture grassTexture;
 
     /**
      * Initialisiert die Kernkomponenten, lädt Grafikressourcen und konfiguriert die Eingabeverarbeitung.
@@ -39,6 +40,7 @@ public class Main extends ApplicationAdapter {
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
         houseTexture = new Texture("buildings/House1.png");
+        grassTexture = new Texture("tiles/Floor_Grass.png");
 
         resourceManager = new ResourceManager();
         resourceManager.add(ResourceType.WOOD, 100);
@@ -74,7 +76,7 @@ public class Main extends ApplicationAdapter {
         shapeRenderer.setProjectionMatrix(camera.combined);
         batch.setProjectionMatrix(camera.combined);
 
-        gridRenderer.render(shapeRenderer, batch, grid, gameWindow, houseTexture, gridInputHandler.isHouseSelected(), resourceManager);
+        gridRenderer.render(shapeRenderer, batch, grid, gameWindow, houseTexture, grassTexture, gridInputHandler.isHouseSelected(), resourceManager);
         topBarRenderer.render(shapeRenderer, batch, gameWindow, resourceManager);
         closeButtonRenderer.render(shapeRenderer, gameWindow);
     }
@@ -82,6 +84,7 @@ public class Main extends ApplicationAdapter {
     @Override
     public void dispose() {
         shapeRenderer.dispose();
+        grassTexture.dispose();
         topBarRenderer.dispose();
     }
 }

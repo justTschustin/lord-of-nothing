@@ -20,10 +20,11 @@ public class GridRenderer {
      * @param isSelected Flag indicating if a building is currently selected in the UI.
      * @param resourceManager The manager used to validate costs for UI feedback.
      */
-    public void render(ShapeRenderer shapeRenderer, SpriteBatch batch, Grid grid, GameWindow window, Texture houseTex, boolean isSelected, io.github.lord_of_nothing.resources.ResourceManager resourceManager) {
-        renderSidebar(shapeRenderer, batch, houseTex, isSelected, resourceManager);
-        renderGrid(shapeRenderer, grid, window);
+    public void render(ShapeRenderer shapeRenderer, SpriteBatch batch, Grid grid, GameWindow window, Texture houseTex, Texture grassTex, boolean isSelected, io.github.lord_of_nothing.resources.ResourceManager rm) {
+        renderBackground(batch, grid, window, grassTex);
+        renderGridShapes(shapeRenderer, grid, window);
         renderBuildings(batch, grid, window, houseTex);
+        renderSidebar(shapeRenderer, batch, houseTex, isSelected, rm);
     }
 
 
@@ -100,5 +101,40 @@ public class GridRenderer {
             }
         }
         batch.end();
+    }
+
+    /**
+     * Paints the background of the grid using sprites.
+     * Iterates over each tile in the grid and draws a texture according to its position.
+     * Currently uses a single grass texture for all tiles.
+     */
+    private void renderBackground(SpriteBatch batch, Grid grid, GameWindow window, Texture grassTex) {
+        batch.begin();
+        for (int x = 0; x < grid.getWidth(); x++) {
+            for (int y = 0; y < grid.getHeight(); y++) {
+//add getTile(x, y).getType() when further terrain types are added
+                batch.draw(grassTex,
+                    window.getOffsetX() + x * window.getTileSize(),
+                    window.getOffsetY() + y * window.getTileSize(),
+                    window.getTileSize(), window.getTileSize());
+            }
+        }
+        batch.end();
+    }
+    /**
+     * Renders the hover overlay and grid lines using the ShapeRenderer.
+     * Removed the olive background rectangle to allow the terrain sprites to be visible.
+     */
+    private void renderGridShapes(ShapeRenderer shapeRenderer, Grid grid, GameWindow window) {
+        int tileSize = window.getTileSize();
+        int offsetX = window.getOffsetX();
+        int offsetY = window.getOffsetY();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        if (grid.getHoveredX() != -1) {
+            shapeRenderer.setColor(0.5f, 0.5f, 0.5f, 0.4f);
+            shapeRenderer.rect(offsetX + grid.getHoveredX() * tileSize, offsetY + grid.getHoveredY() * tileSize, tileSize, tileSize);
+        }
+        shapeRenderer.end();
     }
 }
