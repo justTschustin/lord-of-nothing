@@ -66,12 +66,12 @@ public class GridRenderer {
     private void renderSidebarIcon(SpriteBatch batch, Texture tex, int x, int y, ResourceManager rm, Building b) {
         boolean canAfford = true;
         for (Map.Entry<ResourceType, Integer> cost : b.getCosts().entrySet()) {
-            if (!rm.hasEnough(cost.getKey(), cost.getValue())) canAfford = false;
+            if (!rm.hasEnough(cost.getKey(), cost.getValue())) {canAfford = false;}
         }
 
-        if (!canAfford) batch.setColor(Color.RED);
-        if (tex != null) batch.draw(tex, x, y, 40, 40);
-        batch.setColor(Color.WHITE);
+        if (!canAfford) {batch.setColor(Color.RED);}
+        if (tex != null) {batch.draw(tex, x, y, 40, 40);
+        batch.setColor(Color.WHITE);}
     }
 
     /**
