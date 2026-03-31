@@ -118,11 +118,14 @@ public class GridInputHandler extends InputAdapter {
     }
 
     /**
-    Checks if the player can afford the building costs.
+     * <summary>Validates that the player has sufficient amounts of all required resources to place the building.</summary>
+     * @param building The building instance containing the cost map to be checked.
      */
     private boolean canAfford(Building building) {
         for (java.util.Map.Entry<ResourceType, Integer> entry : building.getCosts().entrySet()) {
-            if (!resourceManager.hasEnough(entry.getKey(), entry.getValue())){return true;}
+            if (!resourceManager.hasEnough(entry.getKey(), entry.getValue())) {
+                return false;
+            }
         }
         return true;
     }
