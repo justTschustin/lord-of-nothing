@@ -11,11 +11,11 @@ import java.util.Map;
 public abstract class Building {
     private final int width;
     private final int height;
-    private int rootX, rootY;
+    private int anchorX, anchorY;
 
     /**
-     * <summary>Returns the unique key used to identify the building type, e.g., for texture lookups.</summary>
-     * @return A string key identifying the building type.
+     * Returns the unique key used to identify the building type, e.g., for texture lookups.</summary>
+     * @return string key identifying the building type.
      */
     public abstract String getBuildingTypeKey();
 
@@ -24,7 +24,11 @@ public abstract class Building {
     public Map<ResourceType, Integer> getCosts() {
         return costs;
     }
-
+    /**
+     * Initializes a building with a specific footprint size on the game grid.
+     * @param width The number of tiles the building occupies horizontally.
+     * @param height The number of tiles the building occupies vertically.
+     */
     public Building(int width, int height) {
         this.width = width;
         this.height = height;
@@ -39,12 +43,18 @@ public abstract class Building {
     }
 
     public void setRootPosition(int x, int y) {
-        this.rootX = x;
-        this.rootY = y;
+        this.anchorX = x;
+        this.anchorY = y;
     }
 
-    public boolean isRoot(int x, int y) {
-        return this.rootX == x && this.rootY == y;
+    /**
+     * Identifies if the given coordinates represent the primary anchor point used for rendering multi-tile structures.
+     * This check prevents the renderer from drawing a large building multiple times when iterating over its occupied tiles.
+     * It returns true only for the specific origin coordinate assigned during the placement process on the grid.
+     * <param name="x">The grid X-coordinate to check.</param> <param name="y">The grid Y-coordinate to check.</param>
+     */
+    public boolean isAnchorPoint(int x, int y) {
+        return this.anchorX == x && this.anchorY == y;
     }
 
 }

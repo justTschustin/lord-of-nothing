@@ -13,6 +13,7 @@ import io.github.lord_of_nothing.grid.Grid;
 import io.github.lord_of_nothing.grid.GridInputHandler;
 import io.github.lord_of_nothing.grid.GridRenderer;
 import io.github.lord_of_nothing.hud.CloseButtonRenderer;
+import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.hud.TopBarRenderer;
 import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
@@ -32,6 +33,8 @@ public class Main extends ApplicationAdapter {
     private TopBarRenderer topBarRenderer;
     private Texture houseTexture;
     private Texture grassTexture;
+    private Sidebar sidebar;
+
 
     /**
      * Initialisiert die Kernkomponenten, lädt Grafikressourcen und konfiguriert die Eingabeverarbeitung.
@@ -54,11 +57,12 @@ public class Main extends ApplicationAdapter {
         buildingTextures = new HashMap<>();
         buildingTextures.put("house", new Texture("buildings/House1.png"));
         buildingTextures.put("sawmill", new Texture("buildings/Placeholder_2x1.png"));
+        sidebar = new Sidebar();
 
         topBarRenderer = new TopBarRenderer();
         closeButtonRenderer = new CloseButtonRenderer();
 
-        gridInputHandler = new GridInputHandler(camera, grid, gameWindow, resourceManager);
+        gridInputHandler = new GridInputHandler(camera, grid, gameWindow, resourceManager, sidebar);
 
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.input.setInputProcessor(gridInputHandler);

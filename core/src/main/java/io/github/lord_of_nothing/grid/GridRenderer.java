@@ -27,38 +27,8 @@ public class GridRenderer {
         renderBackground(batch, grid, window, grassTex);
         renderGridShapes(shapeRenderer, grid, window);
         renderBuildings(batch, grid, window, buildingTextures);
-        renderSidebar(shapeRenderer, batch, buildingTextures, pendingBuilding, rm);
     }
 
-    /**
-     * <summary>Renders the sidebar UI with slots for House and Sawmill, including selection and cost highlights.</summary>
-     */
-    private void renderSidebar(ShapeRenderer shapeRenderer, SpriteBatch batch, Map<String, Texture> buildingTextures, Building pendingBuilding, ResourceManager rm) {
-        int sidebarHeight = Gdx.graphics.getHeight() - GameWindow.TOP_BAR_HEIGHT;
-
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(Color.DARK_GRAY);
-        shapeRenderer.rect(0, 0, GameWindow.SIDEBAR_WIDTH, sidebarHeight);
-
-        // Slot positions
-        int houseY = sidebarHeight - 100;
-        int sawmillY = sidebarHeight - 200;
-
-        // Highlight selection
-        if (pendingBuilding instanceof House) {
-            shapeRenderer.setColor(Color.GOLD);
-            shapeRenderer.rect(10, houseY - 10, 60, 60);
-        } else if (pendingBuilding instanceof Sawmill) {
-            shapeRenderer.setColor(Color.GOLD);
-            shapeRenderer.rect(10, sawmillY - 10, 60, 60);
-        }
-        shapeRenderer.end();
-
-        batch.begin();
-        renderSidebarIcon(batch, buildingTextures.get("house"), 20, houseY, rm, new House());
-        renderSidebarIcon(batch, buildingTextures.get("sawmill"), 20, sawmillY, rm, new Sawmill());
-        batch.end();
-    }
 
     /**
      * <summary>Helper to render a single sidebar icon with resource-based color tinting.</summary>
@@ -82,7 +52,7 @@ public class GridRenderer {
         for (int x = 0; x < grid.getWidth(); x++) {
             for (int y = 0; y < grid.getHeight(); y++) {
                 Tile tile = grid.getTile(x, y);
-                if (tile.hasBuilding() && tile.getBuilding().isRoot(x, y)) {
+                if (tile.hasBuilding() && tile.getBuilding().isAnchorPoint(x, y)) {
                     Building b = tile.getBuilding();
                     Texture tex = buildingTextures.get(b.getBuildingTypeKey());
                     if (tex != null) {

@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.buildings.Building;
+import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
 
@@ -22,11 +23,13 @@ public class GridInputHandler extends InputAdapter {
     private int gridPixelHeight;
     private Building pendingBuilding = null;
     private final ResourceManager resourceManager;
-    public GridInputHandler(OrthographicCamera camera, Grid grid, GameWindow window, ResourceManager resourceManager) {
+    private final Sidebar sidebar;
+    public GridInputHandler(OrthographicCamera camera, Grid grid, GameWindow window, ResourceManager resourceManager, Sidebar sidebar) {
         this.camera = camera;
         this.grid = grid;
         this.window = window;
         this.resourceManager = resourceManager;
+        this.sidebar = sidebar;
     }
 
 
@@ -77,27 +80,24 @@ public class GridInputHandler extends InputAdapter {
         }
         return false;
     }
+
     /**
-     * <summary>Updates sidebar interaction to handle selection for buildings based on their slot coordinates.</summary>
-     * @param x Touch X-coordinate. @param y Touch Y-coordinate.
+     Handles the selection logic by either deselecting the current building or instantiating a new one based on the sidebar click.
+     The else block facilitates both the initial selection and the switching between different building types.
      */
     private boolean handleSidebarInteraction(float x, float y) {
-        if (x < GameWindow.SIDEBAR_WIDTH) {
-            int sidebarHeight = Gdx.graphics.getHeight() - GameWindow.TOP_BAR_HEIGHT;
-
-            // Slot 1: House (centered around sidebarHeight - 100)
-            if (y > sidebarHeight - 110 && y < sidebarHeight - 40) {
-                pendingBuilding = (pendingBuilding instanceof io.github.lord_of_nothing.buildings.House) ? null : new io.github.lord_of_nothing.buildings.House();
-                return true;
+        Building clicked = sidebar.getBuildingAt(x, y);
+        if (clicked != null) {
+            // Toggle the building selection
+            if (pendingBuilding != null && pendingBuilding.getBuildingTypeKey().equals(clicked.getBuildingTypeKey())) {
+                pendingBuilding = null;
+            } else {
+                if (clicked instanceof io.github.lord_of_nothing.buildings.House) pendingBuilding = new io.github.lord_of_nothing.buildings.House();
+                else if (clicked instanceof io.github.lord_of_nothing.buildings.Sawmill) pendingBuilding = new io.github.lord_of_nothing.buildings.Sawmill();
             }
-
-            // Slot 2: Sawmill (centered around sidebarHeight - 210)
-            if (y > sidebarHeight - 210 && y < sidebarHeight - 140) {
-                pendingBuilding = (pendingBuilding instanceof io.github.lord_of_nothing.buildings.Sawmill) ? null : new io.github.lord_of_nothing.buildings.Sawmill();
-                return true;
-            }
+            return true;
         }
-        return false;
+        return x < GameWindow.SIDEBAR_WIDTH;
     }
     /**
     Handles interaction with the grid for placing buildings.
