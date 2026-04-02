@@ -1,6 +1,5 @@
 package io.github.lord_of_nothing.grid;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
@@ -93,9 +92,9 @@ public class GridInputHandler extends InputAdapter {
                 pendingBuilding = null;
             } else {
                 if (clicked instanceof io.github.lord_of_nothing.buildings.House) pendingBuilding = new io.github.lord_of_nothing.buildings.House();
-                else if (clicked instanceof io.github.lord_of_nothing.buildings.Sawmill) pendingBuilding = new io.github.lord_of_nothing.buildings.Sawmill();
+                else if (clicked instanceof io.github.lord_of_nothing.buildings.Sawmill) {pendingBuilding = new io.github.lord_of_nothing.buildings.Sawmill();}
             }
-            return true;
+            {return true;}
         }
         return x < GameWindow.SIDEBAR_WIDTH;
     }

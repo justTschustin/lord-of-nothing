@@ -41,12 +41,12 @@ public class SidebarRenderer {
 
             boolean canAfford = true;
             for (Map.Entry<ResourceType, Integer> entry : b.getCosts().entrySet()) {
-                if (!rm.hasEnough(entry.getKey(), entry.getValue())) canAfford = false;
+                if (!rm.hasEnough(entry.getKey(), entry.getValue())) {canAfford = false;}
             }
 
             batch.setColor(canAfford ? Color.WHITE : Color.RED);
             Texture tex = textures.get(b.getBuildingTypeKey());
-            if (tex != null) batch.draw(tex, 20, slotY, 40, 40);
+            if (tex != null) {batch.draw(tex, 20, slotY, 40, 40);}
         }
         batch.setColor(Color.WHITE);
         batch.end();

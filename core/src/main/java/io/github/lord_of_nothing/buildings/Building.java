@@ -14,7 +14,7 @@ public abstract class Building {
     private int anchorX, anchorY;
 
     /**
-     * Returns the unique key used to identify the building type, e.g., for texture lookups.</summary>
+     * Returns the unique key used to identify the building type, e.g., for texture lookups.
      * @return string key identifying the building type.
      */
     public abstract String getBuildingTypeKey();
@@ -51,7 +51,7 @@ public abstract class Building {
      * Identifies if the given coordinates represent the primary anchor point used for rendering multi-tile structures.
      * This check prevents the renderer from drawing a large building multiple times when iterating over its occupied tiles.
      * It returns true only for the specific origin coordinate assigned during the placement process on the grid.
-     * <param name="x">The grid X-coordinate to check.</param> <param name="y">The grid Y-coordinate to check.</param>
+     * <param name="x">The grid X-coordinate to check <param name="y">The grid Y-coordinate to check.
      */
     public boolean isAnchorPoint(int x, int y) {
         return this.anchorX == x && this.anchorY == y;
