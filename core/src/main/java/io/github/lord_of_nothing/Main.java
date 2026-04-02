@@ -2,6 +2,7 @@ package io.github.lord_of_nothing;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -14,6 +15,7 @@ import io.github.lord_of_nothing.grid.GridInputHandler;
 import io.github.lord_of_nothing.grid.GridRenderer;
 import io.github.lord_of_nothing.hud.CloseButtonRenderer;
 import io.github.lord_of_nothing.hud.Sidebar;
+import io.github.lord_of_nothing.hud.SidebarRenderer;
 import io.github.lord_of_nothing.hud.TopBarRenderer;
 import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
@@ -34,6 +36,7 @@ public class Main extends ApplicationAdapter {
     private Texture houseTexture;
     private Texture grassTexture;
     private Sidebar sidebar;
+    private SidebarRenderer sidebarRenderer;
 
 
     /**
@@ -58,6 +61,7 @@ public class Main extends ApplicationAdapter {
         buildingTextures.put("house", new Texture("buildings/House1.png"));
         buildingTextures.put("sawmill", new Texture("buildings/Placeholder_2x1.png"));
         sidebar = new Sidebar();
+        sidebarRenderer = new SidebarRenderer();
 
         topBarRenderer = new TopBarRenderer();
         closeButtonRenderer = new CloseButtonRenderer();
@@ -85,17 +89,8 @@ public class Main extends ApplicationAdapter {
         shapeRenderer.setProjectionMatrix(camera.combined);
         batch.setProjectionMatrix(camera.combined);
 
-        gridRenderer.render(
-            shapeRenderer,
-            batch,
-            grid,
-            gameWindow,
-            buildingTextures,
-            grassTexture,
-            gridInputHandler.getPendingBuilding(),
-            resourceManager
-        );
-
+        gridRenderer.render(shapeRenderer, batch, grid, gameWindow, buildingTextures, grassTexture, gridInputHandler.getPendingBuilding(), resourceManager);
+        sidebarRenderer.render(shapeRenderer, batch, sidebar, buildingTextures, gridInputHandler.getPendingBuilding(), resourceManager);
         topBarRenderer.render(shapeRenderer, batch, gameWindow, resourceManager);
         closeButtonRenderer.render(shapeRenderer, gameWindow);
     }
