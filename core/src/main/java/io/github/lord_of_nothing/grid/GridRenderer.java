@@ -41,7 +41,7 @@ public class GridRenderer {
 
         if (!canAfford) {batch.setColor(Color.RED);}
         if (tex != null) {batch.draw(tex, x, y, 40, 40);
-        batch.setColor(Color.WHITE);}
+            batch.setColor(Color.WHITE);}
     }
 
     /**

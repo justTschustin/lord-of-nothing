@@ -116,7 +116,6 @@ public class GridInputHandler extends InputAdapter {
         }
         return false;
     }
-
     /**
      * <summary>Validates that the player has sufficient amounts of all required resources to place the building.</summary>
      * @param building The building instance containing the cost map to be checked.
@@ -148,4 +147,3 @@ public class GridInputHandler extends InputAdapter {
         return pendingBuilding;
     }
 }
-

@@ -2,7 +2,6 @@ package io.github.lord_of_nothing;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -79,7 +78,7 @@ public class Main extends ApplicationAdapter {
     }
 
     /**
-     * <summary>Updates the render call to pass the generic texture map and the currently selected building object.</summary>
+     * Updates the render call to pass the generic texture map and the currently selected building object.
      */
     @Override
     public void render() {
