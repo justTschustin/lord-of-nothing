@@ -25,11 +25,11 @@ public class Sidebar {
     public List<Building> getTemplates() { return templates; }
 
     public Building getBuildingAt(float x, float y) {
-        if (x > GameWindow.SIDEBAR_WIDTH) return null;
+        if (x > GameWindow.SIDEBAR_WIDTH) {return null;}
         int startY = Gdx.graphics.getHeight() - GameWindow.TOP_BAR_HEIGHT;
         for (int i = 0; i < templates.size(); i++) {
             float slotY = startY - (i + 1) * (SLOT_SIZE + PADDING);
-            if (y >= slotY && y <= slotY + SLOT_SIZE) return templates.get(i);
+            if (y >= slotY && y <= slotY + SLOT_SIZE) {return templates.get(i);}
         }
         return null;
     }

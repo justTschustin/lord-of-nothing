@@ -91,7 +91,7 @@ public class GridInputHandler extends InputAdapter {
             if (pendingBuilding != null && pendingBuilding.getBuildingTypeKey().equals(clicked.getBuildingTypeKey())) {
                 pendingBuilding = null;
             } else {
-                if (clicked instanceof io.github.lord_of_nothing.buildings.House) pendingBuilding = new io.github.lord_of_nothing.buildings.House();
+                if (clicked instanceof io.github.lord_of_nothing.buildings.House) {pendingBuilding = new io.github.lord_of_nothing.buildings.House();}
                 else if (clicked instanceof io.github.lord_of_nothing.buildings.Sawmill) {pendingBuilding = new io.github.lord_of_nothing.buildings.Sawmill();}
             }
             {return true;}
