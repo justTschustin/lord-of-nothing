@@ -66,6 +66,9 @@ public class GridInputHandler extends InputAdapter {
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
+        if (paused) {
+            return false;
+        }
         touchPos.set(screenX, screenY, 0);
         camera.unproject(touchPos);
 
