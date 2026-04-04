@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.lord_of_nothing.events.EventBus;
 import io.github.lord_of_nothing.events.PauseGameEvent;
+import io.github.lord_of_nothing.events.ResumeGameEvent;
 import io.github.lord_of_nothing.grid.Grid;
 import io.github.lord_of_nothing.grid.GridInputHandler;
 import io.github.lord_of_nothing.grid.GridRenderer;
@@ -70,7 +71,7 @@ public class Main extends ApplicationAdapter {
         topBarRenderer = new TopBarRenderer();
         eventBus = new EventBus();
 
-        gridInputHandler = new GridInputHandler(camera, grid, gameWindow, resourceManager, sidebar, eventBus);
+        gridInputHandler = new GridInputHandler(camera, grid, resourceManager, sidebar, eventBus);
 
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.input.setInputProcessor(gridInputHandler);
@@ -78,7 +79,10 @@ public class Main extends ApplicationAdapter {
         paused = false;
         eventBus.subscribe(event -> {
             if (event instanceof PauseGameEvent) {
-                toggleGamePause();
+                pauseGame();
+            }
+            if (event instanceof ResumeGameEvent) {
+                resumeGame();
             }
         });
     }
@@ -102,19 +106,21 @@ public class Main extends ApplicationAdapter {
 
         gridRenderer.render(shapeRenderer, batch, grid, gameWindow, buildingTextures, grassTexture, gridInputHandler.getPendingBuilding(), resourceManager);
         sidebarRenderer.render(shapeRenderer, batch, sidebar, buildingTextures, gridInputHandler.getPendingBuilding(), resourceManager);
-        topBarRenderer.render(shapeRenderer, batch, gameWindow, resourceManager, eventBus);
+        topBarRenderer.render(shapeRenderer, batch, gameWindow, resourceManager, eventBus, paused);
     }
 
-    public void toggleGamePause() {
-        paused = !paused;
-        System.out.println("Pause state: " + paused);
+    public void pauseGame() {
+        paused = true;
+    }
+
+    public void resumeGame() {
+        paused = false;
     }
 
     @Override
     public void resume() {
-        paused = false;
+        resumeGame();
     }
-
 
     @Override
     public void dispose() {

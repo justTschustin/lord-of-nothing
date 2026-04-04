@@ -11,6 +11,7 @@ import io.github.lord_of_nothing.ui.UiElement;
 public abstract class Button implements UiElement {
     protected Rectangle bounds;
     protected Runnable onClick;
+    private boolean enabled = true;
 
     public Button(
             float x,
@@ -36,15 +37,30 @@ public abstract class Button implements UiElement {
         this.bounds.set(x, y, width, height);
     }
 
+    public float getX() { return bounds.x; }
+    public float getY() { return bounds.y; }
+    public float getWidth() { return bounds.width; }
+    public float getHeight() { return bounds.height; }
+
     @Override
     public void onClick() {
-        if (onClick != null) {
+        if (enabled && onClick != null) {
             onClick.run();
         }
     }
 
     @Override
     public boolean contains(float x, float y) {
-        return bounds.contains(x, y);
+        return enabled && bounds.contains(x, y);
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }
