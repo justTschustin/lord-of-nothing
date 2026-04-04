@@ -5,11 +5,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.buildings.Building;
-import io.github.lord_of_nothing.events.EventBus;
-import io.github.lord_of_nothing.events.PauseGameEvent;
-import io.github.lord_of_nothing.events.ResumeGameEvent;
-import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 import io.github.lord_of_nothing.hud.Sidebar;
+import io.github.lord_of_nothing.events.*;
 import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
 import io.github.lord_of_nothing.ui.UiElement;
@@ -50,7 +47,11 @@ public class GridInputHandler extends InputAdapter {
             if (event instanceof PauseGameEvent) {
                 paused = true;
             }
-            if (event instanceof ResumeGameEvent) {
+            if (
+                event instanceof ResumeGameEvent
+                    || event instanceof StartGameEvent
+                    || event instanceof BackToMainMenuEvent
+            ) {
                 paused = false;
             }
         });

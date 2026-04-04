@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.button.PauseButton;
 import io.github.lord_of_nothing.events.EventBus;
+import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
 
@@ -23,6 +24,13 @@ public class TopBarRenderer {
     private static final float PAUSE_BUTTON_WIDTH = 70f;
     private static final float PAUSE_BUTTON_HEIGHT = 24f;
     private static final float PAUSE_BUTTON_MARGIN = 10f;
+
+    public void registerUiElements(GameWindow window, EventBus eventBus) {
+        setPauseButtonVariables(window, eventBus);
+        if (pauseButton != null) {
+            eventBus.publish(new UiElementCreatedEvent(pauseButton));
+        }
+    }
 
     public void render(
         ShapeRenderer shapeRenderer,
