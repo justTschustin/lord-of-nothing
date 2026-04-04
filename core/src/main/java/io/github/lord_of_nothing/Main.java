@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.lord_of_nothing.events.EventBus;
+import io.github.lord_of_nothing.events.BackToMainMenuEvent;
 import io.github.lord_of_nothing.events.PauseGameEvent;
 import io.github.lord_of_nothing.events.ResumeGameEvent;
 import io.github.lord_of_nothing.events.StartGameEvent;
@@ -88,6 +89,9 @@ public class Main extends ApplicationAdapter {
             if (event instanceof StartGameEvent) {
                 startGame();
             }
+            if (event instanceof BackToMainMenuEvent) {
+                returnToMainMenu();
+            }
             if (event instanceof PauseGameEvent) {
                 pauseGame();
             }
@@ -125,8 +129,19 @@ public class Main extends ApplicationAdapter {
 
     private void startGame() {
         gameStarted = true;
+        paused = false;
         gridInputHandler.clearUiElements();
         gridInputHandler.setGameplayEnabled(true);
+        topBarRenderer.registerUiElements(gameWindow, eventBus);
+    }
+
+    private void returnToMainMenu() {
+        gameStarted = false;
+        paused = false;
+        gridInputHandler.clearUiElements();
+        gridInputHandler.setGameplayEnabled(false);
+        mainMenu.dispose();
+        mainMenu = new MainMenu(eventBus);
     }
 
     public void pauseGame() {
