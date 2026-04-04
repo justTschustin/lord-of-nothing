@@ -5,12 +5,17 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.buildings.Building;
+import io.github.lord_of_nothing.events.EventBus;
+import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
+import io.github.lord_of_nothing.ui.UiElement;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GridInputHandler extends InputAdapter {
-    private final GameWindow window;
     private final OrthographicCamera camera;
     private final Grid grid;
     private final Vector3 touchPos = new Vector3();
@@ -22,13 +27,23 @@ public class GridInputHandler extends InputAdapter {
     private int gridPixelHeight;
     private Building pendingBuilding = null;
     private final ResourceManager resourceManager;
+    private final List<UiElement> uiElements = new ArrayList<>();
     private final Sidebar sidebar;
-    public GridInputHandler(OrthographicCamera camera, Grid grid, GameWindow window, ResourceManager resourceManager, Sidebar sidebar) {
+
+    public GridInputHandler(OrthographicCamera camera, Grid grid, GameWindow window, ResourceManager resourceManager, Sidebar sidebar, EventBus eventBus) {
         this.camera = camera;
         this.grid = grid;
-        this.window = window;
         this.resourceManager = resourceManager;
         this.sidebar = sidebar;
+
+        eventBus.subscribe(event -> {
+            if (event instanceof UiElementCreatedEvent) {
+                UiElement element = ((UiElementCreatedEvent) event).getElement();
+                if (!uiElements.contains(element)) {
+                    uiElements.add(element);
+                }
+            }
+        });
     }
 
 
@@ -62,9 +77,15 @@ public class GridInputHandler extends InputAdapter {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         touchPos.set(screenX, screenY, 0);
+        // Convert Screen Coordinates to World Coordinates
         camera.unproject(touchPos);
 
-        if (handleCloseButton(touchPos.x, touchPos.y)) {return true;}
+        for (UiElement element : uiElements) {
+            if (element.contains(touchPos.x, touchPos.y)) {
+                element.onClick();
+                return true;
+            }
+        }
         if (handleSidebarInteraction(touchPos.x, touchPos.y)) {return true;}
         return handleGridPlacement(touchPos.x, touchPos.y);
     }
@@ -125,6 +146,7 @@ public class GridInputHandler extends InputAdapter {
             if (!resourceManager.hasEnough(entry.getKey(), entry.getValue())) {
                 return false;
             }
+            if (!resourceManager.hasEnough(entry.getKey(), entry.getValue())) { return false; }
         }
         return true;
     }
