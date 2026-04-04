@@ -32,6 +32,7 @@ public class GridInputHandler extends InputAdapter {
     private final List<UiElement> uiElements = new ArrayList<>();
     private final Sidebar sidebar;
     private boolean paused;
+    private boolean gameplayEnabled;
 
     public GridInputHandler(OrthographicCamera camera, Grid grid, ResourceManager resourceManager, Sidebar sidebar, EventBus eventBus) {
         this.camera = camera;
@@ -64,9 +65,17 @@ public class GridInputHandler extends InputAdapter {
         this.gridPixelHeight = window.getGridPixelHeight();
     }
 
+    public void setGameplayEnabled(boolean gameplayEnabled) {
+        this.gameplayEnabled = gameplayEnabled;
+    }
+
+    public void clearUiElements() {
+        uiElements.clear();
+    }
+
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
-        if (paused) {
+        if (paused || !gameplayEnabled) {
             return false;
         }
         touchPos.set(screenX, screenY, 0);
@@ -92,17 +101,22 @@ public class GridInputHandler extends InputAdapter {
         // Convert Screen Coordinates to World Coordinates
         camera.unproject(touchPos);
 
-        for (UiElement element : uiElements) {
-            if (element.isEnabled() && element.contains(touchPos.x, touchPos.y)) {
+        return handleUiClicks(touchPos.x, touchPos.y)
+            || paused
+            || !gameplayEnabled
+            || handleSidebarInteraction(touchPos.x, touchPos.y)
+            || handleGridPlacement(touchPos.x, touchPos.y);
+    }
+
+    private boolean handleUiClicks(float x, float y) {
+        return uiElements.stream()
+            .filter(element -> element.contains(x, y))
+            .findFirst()
+            .map(element -> {
                 element.onClick();
                 return true;
-            }
-        }
-        if (paused) { return true; }
-        if (handleSidebarInteraction(touchPos.x, touchPos.y)) {return true;}
-        if (handleGridPlacement(touchPos.x, touchPos.y)) {return true;}
-
-        return false;
+            })
+            .orElse(false);
     }
 
     /**
