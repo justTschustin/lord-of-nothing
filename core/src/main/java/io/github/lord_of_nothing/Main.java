@@ -9,10 +9,11 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import io.github.lord_of_nothing.events.EventBus;
+import io.github.lord_of_nothing.events.PauseGameEvent;
 import io.github.lord_of_nothing.grid.Grid;
 import io.github.lord_of_nothing.grid.GridInputHandler;
 import io.github.lord_of_nothing.grid.GridRenderer;
-import io.github.lord_of_nothing.hud.CloseButtonRenderer;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.hud.SidebarRenderer;
 import io.github.lord_of_nothing.hud.TopBarRenderer;
@@ -21,7 +22,6 @@ import io.github.lord_of_nothing.resources.ResourceType;
 
 public class Main extends ApplicationAdapter {
     private ShapeRenderer shapeRenderer;
-    private CloseButtonRenderer closeButtonRenderer;
     private OrthographicCamera camera;
     private SpriteBatch batch;
     private Map<String, Texture> buildingTextures;
@@ -37,6 +37,10 @@ public class Main extends ApplicationAdapter {
     private Sidebar sidebar;
     private SidebarRenderer sidebarRenderer;
 
+
+    private EventBus eventBus;
+
+    private boolean paused;
 
     /**
      * Initialisiert die Kernkomponenten, lädt Grafikressourcen und konfiguriert die Eingabeverarbeitung.
@@ -64,12 +68,19 @@ public class Main extends ApplicationAdapter {
         sidebarRenderer = new SidebarRenderer();
 
         topBarRenderer = new TopBarRenderer();
-        closeButtonRenderer = new CloseButtonRenderer();
+        eventBus = new EventBus();
 
-        gridInputHandler = new GridInputHandler(camera, grid, gameWindow, resourceManager, sidebar);
+        gridInputHandler = new GridInputHandler(camera, grid, gameWindow, resourceManager, sidebar, eventBus);
 
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.input.setInputProcessor(gridInputHandler);
+
+        paused = false;
+        eventBus.subscribe(event -> {
+            if (event instanceof PauseGameEvent) {
+                toggleGamePause();
+            }
+        });
     }
 
     @Override
@@ -91,8 +102,17 @@ public class Main extends ApplicationAdapter {
 
         gridRenderer.render(shapeRenderer, batch, grid, gameWindow, buildingTextures, grassTexture, gridInputHandler.getPendingBuilding(), resourceManager);
         sidebarRenderer.render(shapeRenderer, batch, sidebar, buildingTextures, gridInputHandler.getPendingBuilding(), resourceManager);
-        topBarRenderer.render(shapeRenderer, batch, gameWindow, resourceManager);
-        closeButtonRenderer.render(shapeRenderer, gameWindow);
+        topBarRenderer.render(shapeRenderer, batch, gameWindow, resourceManager, eventBus);
+    }
+
+    public void toggleGamePause() {
+        paused = !paused;
+        System.out.println("Pause state: " + paused);
+    }
+
+    @Override
+    public void resume() {
+        paused = false;
     }
 
 
