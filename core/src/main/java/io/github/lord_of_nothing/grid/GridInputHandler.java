@@ -6,6 +6,8 @@ import com.badlogic.gdx.math.Vector3;
 import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.buildings.Building;
 import io.github.lord_of_nothing.events.EventBus;
+import io.github.lord_of_nothing.events.PauseGameEvent;
+import io.github.lord_of_nothing.events.ResumeGameEvent;
 import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.resources.ResourceManager;
@@ -29,8 +31,9 @@ public class GridInputHandler extends InputAdapter {
     private final ResourceManager resourceManager;
     private final List<UiElement> uiElements = new ArrayList<>();
     private final Sidebar sidebar;
+    private boolean paused;
 
-    public GridInputHandler(OrthographicCamera camera, Grid grid, GameWindow window, ResourceManager resourceManager, Sidebar sidebar, EventBus eventBus) {
+    public GridInputHandler(OrthographicCamera camera, Grid grid, ResourceManager resourceManager, Sidebar sidebar, EventBus eventBus) {
         this.camera = camera;
         this.grid = grid;
         this.resourceManager = resourceManager;
@@ -42,6 +45,12 @@ public class GridInputHandler extends InputAdapter {
                 if (!uiElements.contains(element)) {
                     uiElements.add(element);
                 }
+            }
+            if (event instanceof PauseGameEvent) {
+                paused = true;
+            }
+            if (event instanceof ResumeGameEvent) {
+                paused = false;
             }
         });
     }
@@ -81,23 +90,15 @@ public class GridInputHandler extends InputAdapter {
         camera.unproject(touchPos);
 
         for (UiElement element : uiElements) {
-            if (element.contains(touchPos.x, touchPos.y)) {
+            if (element.isEnabled() && element.contains(touchPos.x, touchPos.y)) {
                 element.onClick();
                 return true;
             }
         }
+        if (paused) { return true; }
         if (handleSidebarInteraction(touchPos.x, touchPos.y)) {return true;}
-        return handleGridPlacement(touchPos.x, touchPos.y);
-    }
-    /**
-    Handles interaction with the close button.
-     */
-    private boolean handleCloseButton(float x, float y) {
-        if (x >= window.getCloseButtonX() && x <= window.getCloseButtonX() + GameWindow.CLOSE_BUTTON_SIZE &&
-            y >= window.getCloseButtonY() && y <= window.getCloseButtonY() + GameWindow.CLOSE_BUTTON_SIZE) {
-            com.badlogic.gdx.Gdx.app.exit();
-            return true;
-        }
+        if (handleGridPlacement(touchPos.x, touchPos.y)) {return true;}
+
         return false;
     }
 
@@ -116,7 +117,7 @@ public class GridInputHandler extends InputAdapter {
                 else if (clicked instanceof io.github.lord_of_nothing.buildings.Sawmill) {pendingBuilding = new io.github.lord_of_nothing.buildings.Sawmill();}
                 else if (clicked instanceof io.github.lord_of_nothing.buildings.Quarry) {pendingBuilding = new io.github.lord_of_nothing.buildings.Quarry();}
             }
-            {return true;}
+            return true;
         }
         return x < GameWindow.SIDEBAR_WIDTH;
     }

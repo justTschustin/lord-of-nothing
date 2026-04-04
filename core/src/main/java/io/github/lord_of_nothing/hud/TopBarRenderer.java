@@ -17,6 +17,7 @@ import io.github.lord_of_nothing.resources.ResourceType;
  */
 public class TopBarRenderer {
     private final BitmapFont font = new BitmapFont();
+    private final PauseOverlay pauseOverlay = new PauseOverlay();
     private PauseButton pauseButton;
 
     private static final float PAUSE_BUTTON_WIDTH = 70f;
@@ -28,7 +29,8 @@ public class TopBarRenderer {
         SpriteBatch batch,
         GameWindow window,
         ResourceManager resourceManager,
-        EventBus eventBus
+        EventBus eventBus,
+        boolean paused
     ) {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.BLACK);
@@ -36,6 +38,8 @@ public class TopBarRenderer {
         shapeRenderer.end();
 
         setPauseButtonVariables(window, eventBus);
+        pauseButton.setEnabled(!paused);
+        pauseOverlay.setActive(paused);
 
         batch.begin();
         int spacing = 150;
@@ -46,6 +50,10 @@ public class TopBarRenderer {
         }
         pauseButton.render(batch);
         batch.end();
+
+        if (paused) {
+            pauseOverlay.render(shapeRenderer, batch, eventBus);
+        }
     }
 
     private void setPauseButtonVariables(GameWindow window, EventBus eventBus) {

@@ -12,10 +12,6 @@ public class PauseButton extends TextButton {
         float h,
         EventBus eventBus
     ) {
-        super(x, y, w, h, eventBus, "Pause",
-            () -> {
-                System.out.println("Button clicked");
-                eventBus.publish(new PauseGameEvent());
-            });
+        super(x, y, w, h, eventBus, "Pause", () -> eventBus.publish(new PauseGameEvent()));
     }
 }
