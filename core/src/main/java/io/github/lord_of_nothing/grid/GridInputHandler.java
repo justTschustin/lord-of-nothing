@@ -8,6 +8,7 @@ import io.github.lord_of_nothing.buildings.Building;
 import io.github.lord_of_nothing.buildings.House;
 import io.github.lord_of_nothing.buildings.Quarry;
 import io.github.lord_of_nothing.buildings.Sawmill;
+import io.github.lord_of_nothing.buildings.Field;
 import io.github.lord_of_nothing.events.BackToMainMenuEvent;
 import io.github.lord_of_nothing.events.EventBus;
 import io.github.lord_of_nothing.events.PauseGameEvent;
@@ -16,6 +17,7 @@ import io.github.lord_of_nothing.events.StartGameEvent;
 import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 import io.github.lord_of_nothing.game.ResourceStateMutator;
 import io.github.lord_of_nothing.hud.TileInspectorBar;
+import io.github.lord_of_nothing.buildings.*;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.resources.ResourceType;
 import io.github.lord_of_nothing.ui.UiElement;
@@ -219,6 +221,7 @@ public class GridInputHandler extends InputAdapter {
                 if (clicked instanceof House) {pendingBuilding = new House();}
                 else if (clicked instanceof Sawmill) {pendingBuilding = new Sawmill();}
                 else if (clicked instanceof Quarry) {pendingBuilding = new Quarry();}
+                else if (clicked instanceof Field) {pendingBuilding = new Field();}
             }
             return true;
         }
