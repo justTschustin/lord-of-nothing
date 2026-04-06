@@ -93,6 +93,7 @@ public class GridInputHandler extends InputAdapter {
             } else {
                 if (clicked instanceof io.github.lord_of_nothing.buildings.House) {pendingBuilding = new io.github.lord_of_nothing.buildings.House();}
                 else if (clicked instanceof io.github.lord_of_nothing.buildings.Sawmill) {pendingBuilding = new io.github.lord_of_nothing.buildings.Sawmill();}
+                else if (clicked instanceof io.github.lord_of_nothing.buildings.Quarry) {pendingBuilding = new io.github.lord_of_nothing.buildings.Quarry();}
             }
             {return true;}
         }

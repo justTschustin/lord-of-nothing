@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.buildings.Building;
 import io.github.lord_of_nothing.buildings.House;
+import io.github.lord_of_nothing.buildings.Quarry;
 import io.github.lord_of_nothing.buildings.Sawmill;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ public class Sidebar {
     public Sidebar() {
         templates.add(new House());
         templates.add(new Sawmill());
+        templates.add(new Quarry());
     }
 
     public List<Building> getTemplates() { return templates; }
