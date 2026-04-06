@@ -4,7 +4,7 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import io.github.lord_of_nothing.GameWindow;
-import io.github.lord_of_nothing.buildings.Building;
+import io.github.lord_of_nothing.buildings.*;
 import io.github.lord_of_nothing.hud.InfoSidebar;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.resources.ResourceManager;
@@ -111,9 +111,10 @@ public class GridInputHandler extends InputAdapter {
             if (pendingBuilding != null && pendingBuilding.getBuildingTypeKey().equals(clicked.getBuildingTypeKey())) {
                 pendingBuilding = null;
             } else {
-                if (clicked instanceof io.github.lord_of_nothing.buildings.House) {pendingBuilding = new io.github.lord_of_nothing.buildings.House();}
-                else if (clicked instanceof io.github.lord_of_nothing.buildings.Sawmill) {pendingBuilding = new io.github.lord_of_nothing.buildings.Sawmill();}
-                else if (clicked instanceof io.github.lord_of_nothing.buildings.Quarry) {pendingBuilding = new io.github.lord_of_nothing.buildings.Quarry();}
+                if (clicked instanceof House) {pendingBuilding = new io.github.lord_of_nothing.buildings.House();}
+                else if (clicked instanceof Sawmill) {pendingBuilding = new io.github.lord_of_nothing.buildings.Sawmill();}
+                else if (clicked instanceof Quarry) {pendingBuilding = new io.github.lord_of_nothing.buildings.Quarry();}
+                else if (clicked instanceof Field) {pendingBuilding = new io.github.lord_of_nothing.buildings.Field();}
             }
             {return true;}
         }
