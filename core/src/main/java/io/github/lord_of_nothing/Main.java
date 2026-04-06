@@ -25,8 +25,9 @@ import io.github.lord_of_nothing.game.GameStateHandler;
 import io.github.lord_of_nothing.game.TickHandler;
 import io.github.lord_of_nothing.grid.GridInputHandler;
 import io.github.lord_of_nothing.grid.GridRenderer;
-import io.github.lord_of_nothing.hud.TileInspectorBar;
-import io.github.lord_of_nothing.hud.TileInspectorRenderer;
+import io.github.lord_of_nothing.hud.CloseButtonRenderer;
+import io.github.lord_of_nothing.hud.InfoSidebar;
+import io.github.lord_of_nothing.hud.InfoSidebarRenderer;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.hud.SidebarRenderer;
 import io.github.lord_of_nothing.hud.TopBarRenderer;
@@ -53,8 +54,8 @@ public class Main extends ApplicationAdapter {
     private Texture grassTexture;
     private Sidebar sidebar;
     private SidebarRenderer sidebarRenderer;
-    private TileInspectorBar tileInspectorBar;
-    private TileInspectorRenderer tileInspectorRenderer;
+    private InfoSidebar infoSidebar;
+    private InfoSidebarRenderer infoSidebarRenderer;
 
 
     private EventBus eventBus;
@@ -86,8 +87,8 @@ public class Main extends ApplicationAdapter {
         buildingTextures.put("quarry", new Texture("buildings/Placeholder_2x2_1.png"));
         sidebar = new Sidebar();
         sidebarRenderer = new SidebarRenderer();
-        tileInspectorBar = new TileInspectorBar();
-        tileInspectorRenderer = new TileInspectorRenderer();
+        infoSidebar = new InfoSidebar();
+        infoSidebarRenderer = new InfoSidebarRenderer();
 
         topBarRenderer = new TopBarRenderer();
         eventBus = new EventBus();
@@ -97,10 +98,11 @@ public class Main extends ApplicationAdapter {
         gridInputHandler = new GridInputHandler(
             camera,
             gameStateHandler.getCurrentGrid(),
-            gameStateHandler,
+            gameWindow,
             sidebar,
+            gameStateHandler,
             eventBus,
-            tileInspectorBar
+            infoSidebar
         );
         gridInputHandler.setGameplayEnabled(false);
 
@@ -205,7 +207,8 @@ public class Main extends ApplicationAdapter {
             gameStateHandler.getCurrentGrid(),
             gameWindow,
             buildingTextures,
-            grassTexture
+            grassTexture,
+            gridInputHandler.getPendingBuilding()
         );
         sidebarRenderer.render(
             shapeRenderer,
@@ -215,6 +218,7 @@ public class Main extends ApplicationAdapter {
             gridInputHandler.getPendingBuilding(),
             gameStateHandler
         );
+        infoSidebarRenderer.render(shapeRenderer, batch, gameWindow, infoSidebar, buildingTextures);
         topBarRenderer.render(
             shapeRenderer,
             batch,
@@ -225,7 +229,7 @@ public class Main extends ApplicationAdapter {
             eventBus,
             flowState.getScreenState() == ScreenState.PAUSED
         );
-        tileInspectorRenderer.render(shapeRenderer, batch, gameWindow, tileInspectorBar, buildingTextures);
+        closeButtonRenderer.render(shapeRenderer, gameWindow);
     }
 
     /**
@@ -248,7 +252,7 @@ public class Main extends ApplicationAdapter {
         shapeRenderer.dispose();
         batch.dispose();
         grassTexture.dispose();
-        tileInspectorRenderer.dispose();
+        infoSidebarRenderer.dispose();
         topBarRenderer.dispose();
         settingsFlowCoordinator.dispose();
         menuFlowCoordinator.dispose();

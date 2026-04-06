@@ -131,7 +131,27 @@ public class GameWindow {
     public float getRightSidebarWidth() { return Gdx.graphics.getWidth() * 0.20f; }
 
     /**
-     Calculates the height required for the info panel to span from the screen center to the bottom of the top bar.
+     * Delivers the X-Position of the close button.
+     */
+    public int getCloseButtonX() { return Gdx.graphics.getWidth() - CLOSE_BUTTON_SIZE - CLOSE_BUTTON_MARGIN; }
+
+    /**
+     * Delivers the Y-Position of the close button.
+     */
+    public float getInfoPanelHeight() {
+        return getTopBarY() - getInfoPanelY();
+    }
+    public int getCloseButtonY() {
+        return getTopBarY() + (TOP_BAR_HEIGHT - CLOSE_BUTTON_SIZE) / 2;
+    }
+
+    /**
+     * Calculates dimensions for the right info panel using relative screen percentages
+     */
+    public float getRightSidebarWidth() { return Gdx.graphics.getWidth() * 0.20f; }
+
+    /**
+     * Calculates the height required for the info panel to span from the screen center to the bottom of the top bar.
      * @return The calculated height preventing overlap with the top bar.
      */
     public float getInfoPanelHeight() {

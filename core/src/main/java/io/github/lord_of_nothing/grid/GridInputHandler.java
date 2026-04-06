@@ -15,7 +15,7 @@ import io.github.lord_of_nothing.events.ResumeGameEvent;
 import io.github.lord_of_nothing.events.StartGameEvent;
 import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 import io.github.lord_of_nothing.game.ResourceStateMutator;
-import io.github.lord_of_nothing.hud.TileInspectorBar;
+import io.github.lord_of_nothing.hud.InfoSidebar;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.resources.ResourceType;
 import io.github.lord_of_nothing.ui.UiElement;
@@ -43,7 +43,7 @@ public class GridInputHandler extends InputAdapter {
     private final Sidebar sidebar;
     private boolean paused;
     private boolean gameplayEnabled;
-    private final TileInspectorBar tileInspectorBar;
+    private final InfoSidebar infoSidebar;
 
     /**
      * Creates the input handler and subscribes to relevant flow/UI events.
@@ -53,20 +53,23 @@ public class GridInputHandler extends InputAdapter {
      * @param resources resource state mutator used for cost checks
      * @param sidebar sidebar model used for template selection
      * @param eventBus event bus used to track UI creation and pause state
+     * @param infoSidebar sidebar model used for displaying tile information
      */
     public GridInputHandler(
         OrthographicCamera camera,
         Grid grid,
-        ResourceStateMutator resources,
+        GameWindow window,
+        ResourceManager resourceManager,
         Sidebar sidebar,
+        ResourceStateMutator resources,
         EventBus eventBus,
-        TileInspectorBar tileInspectorBar
+        InfoSidebar infoSidebar
     ) {
         this.camera = camera;
         this.grid = grid;
         this.resources = resources;
         this.sidebar = sidebar;
-        this.tileInspectorBar = tileInspectorBar;
+        this.infoSidebar = infoSidebar;
 
         eventBus.subscribe(event -> {
             if (event instanceof UiElementCreatedEvent) {
@@ -160,10 +163,11 @@ public class GridInputHandler extends InputAdapter {
         camera.unproject(touchPos);
 
         // Close panel if clicking anywhere left of the right margin start
-        if (tileInspectorBar.isOpen()) {
-            tileInspectorBar.close();
+        if (infoSidebar.isOpen() && touchPos.x < window.getRightMarginX()) {
+            infoSidebar.close();
         }
 
+        if (handleCloseButton(touchPos.x, touchPos.y)) {return true;}
         if (handleSidebarInteraction(touchPos.x, touchPos.y)) {return true;}
 
         int tileX = (int) ((touchPos.x - offsetX) / tileSize);
@@ -172,7 +176,7 @@ public class GridInputHandler extends InputAdapter {
         if (grid.isInside(tileX, tileY) && getPendingBuilding() == null) {
             io.github.lord_of_nothing.grid.Tile tile = grid.getTile(tileX, tileY);
             if (tile.hasBuilding()) {
-                tileInspectorBar.select(tile.getBuilding());
+                infoSidebar.select(tile.getBuilding());
                 return true;
             }
         }
