@@ -21,9 +21,21 @@ public abstract class Button implements UiElement {
             EventBus eventBus,
             Runnable onClick
     ) {
+        this(x, y, width, height, eventBus, onClick, true);
+    }
+
+    public Button(
+            float x,
+            float y,
+            float width,
+            float height,
+            EventBus eventBus,
+            Runnable onClick,
+            boolean publishUiElement
+    ) {
         this.bounds = new Rectangle(x, y, width, height);
         this.onClick = onClick;
-        if (eventBus != null) {
+        if (publishUiElement && eventBus != null) {
             eventBus.publish(new UiElementCreatedEvent(this));
         }
     }

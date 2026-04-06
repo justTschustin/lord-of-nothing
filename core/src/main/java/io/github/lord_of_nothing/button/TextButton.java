@@ -32,6 +32,20 @@ public class TextButton extends Button {
         this.text = text;
     }
 
+    public TextButton(
+        float x,
+        float y,
+        float width,
+        float height,
+        EventBus eventBus,
+        String text,
+        Runnable onClick,
+        boolean publishUiElement
+    ) {
+        super(x, y, width, height, eventBus, onClick, publishUiElement);
+        this.text = text;
+    }
+
     @Override
     public void render(SpriteBatch batch) {
         Color previous = batch.getColor();

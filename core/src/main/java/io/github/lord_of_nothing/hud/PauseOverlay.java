@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.lord_of_nothing.button.BackToMainMenuButton;
 import io.github.lord_of_nothing.button.ExitButton;
+import io.github.lord_of_nothing.button.SettingsButton;
 import io.github.lord_of_nothing.button.ResumeButton;
 import io.github.lord_of_nothing.events.EventBus;
 import io.github.lord_of_nothing.events.UiElementCreatedEvent;
@@ -16,6 +17,7 @@ public class PauseOverlay {
     private static final float BUTTON_GAP = 12f;
 
     private ResumeButton resumeButton;
+    private SettingsButton settingsButton;
     private BackToMainMenuButton backToMainMenuButton;
     private ExitButton exitButton;
     private boolean shouldRegisterUiElements = true;
@@ -23,6 +25,9 @@ public class PauseOverlay {
     public void setActive(boolean active) {
         if (resumeButton != null) {
             resumeButton.setEnabled(active);
+        }
+        if (settingsButton != null) {
+            settingsButton.setEnabled(active);
         }
         if (exitButton != null) {
             exitButton.setEnabled(active);
@@ -39,6 +44,7 @@ public class PauseOverlay {
         setButtonLayout(eventBus);
         registerUiElementsIfNeeded(eventBus);
         resumeButton.setEnabled(true);
+        settingsButton.setEnabled(true);
         backToMainMenuButton.setEnabled(true);
         exitButton.setEnabled(true);
 
@@ -46,6 +52,7 @@ public class PauseOverlay {
 
         batch.begin();
         resumeButton.render(batch);
+        settingsButton.render(batch);
         backToMainMenuButton.render(batch);
         exitButton.render(batch);
         batch.end();
@@ -56,13 +63,20 @@ public class PauseOverlay {
         float centerY = Gdx.graphics.getHeight() / 2f;
         float x = centerX - BUTTON_WIDTH / 2f;
         float resumeY = centerY + BUTTON_HEIGHT + BUTTON_GAP;
-        float mainMenuY = centerY;
-        float exitY = centerY - BUTTON_HEIGHT - BUTTON_GAP;
+        float settingsY = centerY;
+        float mainMenuY = centerY - BUTTON_HEIGHT - BUTTON_GAP;
+        float exitY = mainMenuY - BUTTON_HEIGHT - BUTTON_GAP;
 
         if (resumeButton == null) {
             resumeButton = new ResumeButton(x, resumeY, BUTTON_WIDTH, BUTTON_HEIGHT, eventBus);
         } else {
             resumeButton.setBounds(x, resumeY, BUTTON_WIDTH, BUTTON_HEIGHT);
+        }
+
+        if (settingsButton == null) {
+            settingsButton = new SettingsButton(x, settingsY, BUTTON_WIDTH, BUTTON_HEIGHT, eventBus);
+        } else {
+            settingsButton.setBounds(x, settingsY, BUTTON_WIDTH, BUTTON_HEIGHT);
         }
 
         if (backToMainMenuButton == null) {
@@ -86,6 +100,9 @@ public class PauseOverlay {
         if (resumeButton != null) {
             eventBus.publish(new UiElementCreatedEvent(resumeButton));
         }
+        if (settingsButton != null) {
+            eventBus.publish(new UiElementCreatedEvent(settingsButton));
+        }
         if (backToMainMenuButton != null) {
             eventBus.publish(new UiElementCreatedEvent(backToMainMenuButton));
         }
@@ -93,6 +110,10 @@ public class PauseOverlay {
             eventBus.publish(new UiElementCreatedEvent(exitButton));
         }
         shouldRegisterUiElements = false;
+    }
+
+    public void invalidateUiElements() {
+        shouldRegisterUiElements = true;
     }
 
     private void renderOverlay(ShapeRenderer shapeRenderer) {

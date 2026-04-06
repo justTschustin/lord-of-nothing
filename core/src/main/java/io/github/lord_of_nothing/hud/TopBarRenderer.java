@@ -64,6 +64,10 @@ public class TopBarRenderer {
         }
     }
 
+    public void invalidatePauseOverlayUiElements() {
+        pauseOverlay.invalidateUiElements();
+    }
+
     private void setPauseButtonVariables(GameWindow window, EventBus eventBus) {
         float x = Gdx.graphics.getWidth() - PAUSE_BUTTON_WIDTH - PAUSE_BUTTON_MARGIN;
         float y = window.getTopBarY() + (GameWindow.TOP_BAR_HEIGHT - PAUSE_BUTTON_HEIGHT) / 2f;
