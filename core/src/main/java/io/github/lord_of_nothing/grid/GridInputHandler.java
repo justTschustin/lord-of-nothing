@@ -20,6 +20,7 @@ import java.util.Map;
  * Handles mouse input for UI clicks, sidebar selection, and building placement.
  */
 public class GridInputHandler extends InputAdapter {
+    private final GameWindow window;
     private final OrthographicCamera camera;
     private final Grid grid;
     private final Vector3 touchPos = new Vector3();
