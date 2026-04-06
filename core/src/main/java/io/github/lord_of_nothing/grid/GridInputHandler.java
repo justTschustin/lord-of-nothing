@@ -249,7 +249,7 @@ public class GridInputHandler extends InputAdapter {
     /**
      * Validates that the player has sufficient amounts of all required resources to place the building.
      *
-     *  @param building The building instance containing the cost map to be checked.
+     * @param building The building instance containing the cost map to be checked.
      * @return {@code true} if all required resources are available
      */
     private boolean canAfford(Building building) {
