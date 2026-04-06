@@ -17,7 +17,7 @@ public class InfoSidebarRenderer {
     private final BitmapFont font = new BitmapFont();
 
     public void render(ShapeRenderer sr, SpriteBatch batch, GameWindow window, InfoSidebar state, Map<String, Texture> textures) {
-        if (!state.isOpen()) return;
+        if (!state.isOpen()) {return;}
 
         float x = window.getRightMarginX();
         float y = window.getInfoPanelY();
