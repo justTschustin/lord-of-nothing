@@ -12,7 +12,12 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.lord_of_nothing.grid.Grid;
 import io.github.lord_of_nothing.grid.GridInputHandler;
 import io.github.lord_of_nothing.grid.GridRenderer;
-import io.github.lord_of_nothing.hud.*;
+import io.github.lord_of_nothing.hud.InfoSidebar;
+import io.github.lord_of_nothing.hud.InfoSidebarRenderer;
+import io.github.lord_of_nothing.hud.Sidebar;
+import io.github.lord_of_nothing.hud.SidebarRenderer;
+import io.github.lord_of_nothing.hud.CloseButtonRenderer;
+import io.github.lord_of_nothing.hud.TopBarRenderer;
 import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
 
