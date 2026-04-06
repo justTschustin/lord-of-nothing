@@ -4,10 +4,7 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import io.github.lord_of_nothing.GameWindow;
-import io.github.lord_of_nothing.buildings.Building;
-import io.github.lord_of_nothing.buildings.House;
-import io.github.lord_of_nothing.buildings.Quarry;
-import io.github.lord_of_nothing.buildings.Sawmill;
+import io.github.lord_of_nothing.buildings.*;
 import io.github.lord_of_nothing.events.BackToMainMenuEvent;
 import io.github.lord_of_nothing.events.EventBus;
 import io.github.lord_of_nothing.events.PauseGameEvent;
@@ -223,6 +220,7 @@ public class GridInputHandler extends InputAdapter {
                 if (clicked instanceof House) {pendingBuilding = new House();}
                 else if (clicked instanceof Sawmill) {pendingBuilding = new Sawmill();}
                 else if (clicked instanceof Quarry) {pendingBuilding = new Quarry();}
+                else if (clicked instanceof Field) {pendingBuilding = new Field();}
             }
             return true;
         }
