@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.buildings.Building;
+import io.github.lord_of_nothing.hud.InfoSidebar;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
@@ -23,12 +24,14 @@ public class GridInputHandler extends InputAdapter {
     private Building pendingBuilding = null;
     private final ResourceManager resourceManager;
     private final Sidebar sidebar;
-    public GridInputHandler(OrthographicCamera camera, Grid grid, GameWindow window, ResourceManager resourceManager, Sidebar sidebar) {
+    private final InfoSidebar infoSidebar;
+    public GridInputHandler(OrthographicCamera camera, Grid grid, GameWindow window, ResourceManager resourceManager, Sidebar sidebar, InfoSidebar infoSidebar) {
         this.camera = camera;
         this.grid = grid;
         this.window = window;
         this.resourceManager = resourceManager;
         this.sidebar = sidebar;
+        this.infoSidebar = infoSidebar;
     }
 
 
@@ -64,10 +67,27 @@ public class GridInputHandler extends InputAdapter {
         touchPos.set(screenX, screenY, 0);
         camera.unproject(touchPos);
 
+        // Close panel if clicking anywhere left of the right margin start
+        if (infoSidebar.isOpen() && touchPos.x < window.getRightMarginX()) {
+            infoSidebar.close();
+        }
+
         if (handleCloseButton(touchPos.x, touchPos.y)) {return true;}
         if (handleSidebarInteraction(touchPos.x, touchPos.y)) {return true;}
+
+        int tileX = (int) ((touchPos.x - offsetX) / tileSize);
+        int tileY = (int) ((touchPos.y - offsetY) / tileSize);
+        // Open panel if a building is clicked and no new building is being placed
+        if (grid.isInside(tileX, tileY) && getPendingBuilding() == null) {
+            io.github.lord_of_nothing.grid.Tile tile = grid.getTile(tileX, tileY);
+            if (tile.hasBuilding()) {
+                infoSidebar.select(tile.getBuilding());
+                return true;
+            }
+        }
         return handleGridPlacement(touchPos.x, touchPos.y);
     }
+
     /**
     Handles interaction with the close button.
      */
@@ -99,6 +119,7 @@ public class GridInputHandler extends InputAdapter {
         }
         return x < GameWindow.SIDEBAR_WIDTH;
     }
+
     /**
     Handles interaction with the grid for placing buildings.
      */

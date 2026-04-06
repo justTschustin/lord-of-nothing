@@ -12,6 +12,7 @@ public abstract class Building {
     private final int width;
     private final int height;
     private int anchorX, anchorY;
+    private int level = 1;
 
     /**
      * Returns the unique key used to identify the building type, e.g., for texture lookups.
@@ -56,5 +57,10 @@ public abstract class Building {
     public boolean isAnchorPoint(int x, int y) {
         return this.anchorX == x && this.anchorY == y;
     }
+
+    /**
+     * Returns the current progression level of the building.
+     */
+    public int getLevel() { return level; }
 
 }

@@ -67,15 +67,41 @@ public class GameWindow {
     }
 
     /**
-     * Liefert die vertikale Startposition der Topbar basierend auf der aktuellen Fensterhöhe.
+     * Delivers the Y-Position of the top bar.
      */
     public int getTopBarY() { return Gdx.graphics.getHeight() - TOP_BAR_HEIGHT; }
+
+    /**
+     * Delivers the X-Position of the close button.
+     */
 
     public int getCloseButtonX() { return Gdx.graphics.getWidth() - CLOSE_BUTTON_SIZE - CLOSE_BUTTON_MARGIN; }
 
     /**
-     * Berechnet die Y-Position des Buttons so, dass er innerhalb der Topbar zentriert erscheint.
+     * Delivers the Y-Position of the close button.
      */
     public int getCloseButtonY() {
         return getTopBarY() + (TOP_BAR_HEIGHT - CLOSE_BUTTON_SIZE) / 2;
-    }}
+    }
+
+    /**
+     * <summary>Calculates dimensions for the right info panel using relative screen percentages.</summary>
+     */
+    public float getRightSidebarWidth() { return Gdx.graphics.getWidth() * 0.20f; }
+    public float getInfoPanelHeight() { return Gdx.graphics.getHeight() * 0.50f; }
+    public float getRightSidebarX() { return Gdx.graphics.getWidth() - getRightSidebarWidth(); }
+
+    /**
+     * <summary>Calculates the horizontal start and width of the right margin area to prevent grid overlap.</summary>
+     */
+    public int getRightMarginX() { return offsetX + gridPixelWidth; }
+    public int getRightMarginWidth() { return Gdx.graphics.getWidth() - getRightMarginX(); }
+
+    /**
+     * <summary>Determines the Y-position to align the info panel with the top edge of the playable grid.</summary>
+     */
+    public int getInfoPanelY() {
+        return (int)(offsetY + gridPixelHeight - getInfoPanelHeight());
+    }
+
+}

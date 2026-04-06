@@ -12,10 +12,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.lord_of_nothing.grid.Grid;
 import io.github.lord_of_nothing.grid.GridInputHandler;
 import io.github.lord_of_nothing.grid.GridRenderer;
-import io.github.lord_of_nothing.hud.CloseButtonRenderer;
-import io.github.lord_of_nothing.hud.Sidebar;
-import io.github.lord_of_nothing.hud.SidebarRenderer;
-import io.github.lord_of_nothing.hud.TopBarRenderer;
+import io.github.lord_of_nothing.hud.*;
 import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
 
@@ -36,6 +33,8 @@ public class Main extends ApplicationAdapter {
     private Texture grassTexture;
     private Sidebar sidebar;
     private SidebarRenderer sidebarRenderer;
+    private InfoSidebar infoSidebar;
+    private InfoSidebarRenderer infoSidebarRenderer;
 
 
     /**
@@ -62,11 +61,13 @@ public class Main extends ApplicationAdapter {
         buildingTextures.put("quarry", new Texture("buildings/Placeholder_2x2_1.png"));
         sidebar = new Sidebar();
         sidebarRenderer = new SidebarRenderer();
+        infoSidebar = new InfoSidebar();
+        infoSidebarRenderer = new InfoSidebarRenderer();
 
         topBarRenderer = new TopBarRenderer();
         closeButtonRenderer = new CloseButtonRenderer();
 
-        gridInputHandler = new GridInputHandler(camera, grid, gameWindow, resourceManager, sidebar);
+        gridInputHandler = new GridInputHandler(camera, grid, gameWindow, resourceManager, sidebar, infoSidebar);
 
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.input.setInputProcessor(gridInputHandler);
@@ -91,6 +92,7 @@ public class Main extends ApplicationAdapter {
 
         gridRenderer.render(shapeRenderer, batch, grid, gameWindow, buildingTextures, grassTexture, gridInputHandler.getPendingBuilding(), resourceManager);
         sidebarRenderer.render(shapeRenderer, batch, sidebar, buildingTextures, gridInputHandler.getPendingBuilding(), resourceManager);
+        infoSidebarRenderer.render(shapeRenderer, batch, gameWindow, infoSidebar, buildingTextures);
         topBarRenderer.render(shapeRenderer, batch, gameWindow, resourceManager);
         closeButtonRenderer.render(shapeRenderer, gameWindow);
     }
@@ -100,6 +102,7 @@ public class Main extends ApplicationAdapter {
     public void dispose() {
         shapeRenderer.dispose();
         grassTexture.dispose();
+        infoSidebarRenderer.dispose();
         topBarRenderer.dispose();
     }
 }
