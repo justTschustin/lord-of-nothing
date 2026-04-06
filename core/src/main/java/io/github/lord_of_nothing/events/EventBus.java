@@ -2,7 +2,6 @@ package io.github.lord_of_nothing.events;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 public class EventBus {
