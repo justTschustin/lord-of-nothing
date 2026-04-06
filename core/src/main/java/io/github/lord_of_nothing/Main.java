@@ -1,5 +1,7 @@
 package io.github.lord_of_nothing;
 
+import java.util.HashMap;
+import java.util.Map;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -11,6 +13,8 @@ import io.github.lord_of_nothing.grid.Grid;
 import io.github.lord_of_nothing.grid.GridInputHandler;
 import io.github.lord_of_nothing.grid.GridRenderer;
 import io.github.lord_of_nothing.hud.CloseButtonRenderer;
+import io.github.lord_of_nothing.hud.Sidebar;
+import io.github.lord_of_nothing.hud.SidebarRenderer;
 import io.github.lord_of_nothing.hud.TopBarRenderer;
 import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
@@ -20,6 +24,7 @@ public class Main extends ApplicationAdapter {
     private CloseButtonRenderer closeButtonRenderer;
     private OrthographicCamera camera;
     private SpriteBatch batch;
+    private Map<String, Texture> buildingTextures;
 
     private Grid grid;
     private GridRenderer gridRenderer;
@@ -29,6 +34,9 @@ public class Main extends ApplicationAdapter {
     private TopBarRenderer topBarRenderer;
     private Texture houseTexture;
     private Texture grassTexture;
+    private Sidebar sidebar;
+    private SidebarRenderer sidebarRenderer;
+
 
     /**
      * Initialisiert die Kernkomponenten, lädt Grafikressourcen und konfiguriert die Eingabeverarbeitung.
@@ -48,11 +56,16 @@ public class Main extends ApplicationAdapter {
         grid = new Grid();
         gridRenderer = new GridRenderer();
         gameWindow = new GameWindow(camera, grid);
+        buildingTextures = new HashMap<>();
+        buildingTextures.put("house", new Texture("buildings/House1.png"));
+        buildingTextures.put("sawmill", new Texture("buildings/Placeholder_2x1.png"));
+        sidebar = new Sidebar();
+        sidebarRenderer = new SidebarRenderer();
 
         topBarRenderer = new TopBarRenderer();
         closeButtonRenderer = new CloseButtonRenderer();
 
-        gridInputHandler = new GridInputHandler(camera, grid, gameWindow, resourceManager);
+        gridInputHandler = new GridInputHandler(camera, grid, gameWindow, resourceManager, sidebar);
 
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.input.setInputProcessor(gridInputHandler);
@@ -65,8 +78,7 @@ public class Main extends ApplicationAdapter {
     }
 
     /**
-     * Koordiniert den Zeichenvorgang durch Übergabe der Grafik-Ressourcen an den GridRenderer.
-     * Stellt sicher, dass sowohl geometrische Formen als auch Texturen im korrekten Kontext gerendert werden.
+     * Updates the render call to pass the generic texture map and the currently selected building object.
      */
     @Override
     public void render() {
@@ -76,10 +88,12 @@ public class Main extends ApplicationAdapter {
         shapeRenderer.setProjectionMatrix(camera.combined);
         batch.setProjectionMatrix(camera.combined);
 
-        gridRenderer.render(shapeRenderer, batch, grid, gameWindow, houseTexture, grassTexture, gridInputHandler.isHouseSelected(), resourceManager);
+        gridRenderer.render(shapeRenderer, batch, grid, gameWindow, buildingTextures, grassTexture, gridInputHandler.getPendingBuilding(), resourceManager);
+        sidebarRenderer.render(shapeRenderer, batch, sidebar, buildingTextures, gridInputHandler.getPendingBuilding(), resourceManager);
         topBarRenderer.render(shapeRenderer, batch, gameWindow, resourceManager);
         closeButtonRenderer.render(shapeRenderer, gameWindow);
     }
+
 
     @Override
     public void dispose() {
