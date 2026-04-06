@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.buildings.Building;
+import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
 
@@ -21,11 +22,13 @@ public class GridInputHandler extends InputAdapter {
     private int gridPixelHeight;
     private Building pendingBuilding = null;
     private final ResourceManager resourceManager;
-    public GridInputHandler(OrthographicCamera camera, Grid grid, GameWindow window, ResourceManager resourceManager) {
+    private final Sidebar sidebar;
+    public GridInputHandler(OrthographicCamera camera, Grid grid, GameWindow window, ResourceManager resourceManager, Sidebar sidebar) {
         this.camera = camera;
         this.grid = grid;
         this.window = window;
         this.resourceManager = resourceManager;
+        this.sidebar = sidebar;
     }
 
 
@@ -63,9 +66,7 @@ public class GridInputHandler extends InputAdapter {
 
         if (handleCloseButton(touchPos.x, touchPos.y)) {return true;}
         if (handleSidebarInteraction(touchPos.x, touchPos.y)) {return true;}
-        if (handleGridPlacement(touchPos.x, touchPos.y)) {return true;}
-
-        return false;
+        return handleGridPlacement(touchPos.x, touchPos.y);
     }
     /**
     Handles interaction with the close button.
@@ -78,17 +79,24 @@ public class GridInputHandler extends InputAdapter {
         }
         return false;
     }
-   /**
-   Handles interaction with the sidebar for selecting buildings.
-    */
+
+    /**
+     Handles the selection logic by either deselecting the current building or instantiating a new one based on the sidebar click.
+     The else block facilitates both the initial selection and the switching between different building types.
+     */
     private boolean handleSidebarInteraction(float x, float y) {
-        if (x < GameWindow.SIDEBAR_WIDTH) {
-            if (y > com.badlogic.gdx.Gdx.graphics.getHeight() - GameWindow.TOP_BAR_HEIGHT - 100) {
-                pendingBuilding = (pendingBuilding == null) ? new io.github.lord_of_nothing.buildings.House() : null;
+        Building clicked = sidebar.getBuildingAt(x, y);
+        if (clicked != null) {
+            // Toggle the building selection
+            if (pendingBuilding != null && pendingBuilding.getBuildingTypeKey().equals(clicked.getBuildingTypeKey())) {
+                pendingBuilding = null;
+            } else {
+                if (clicked instanceof io.github.lord_of_nothing.buildings.House) {pendingBuilding = new io.github.lord_of_nothing.buildings.House();}
+                else if (clicked instanceof io.github.lord_of_nothing.buildings.Sawmill) {pendingBuilding = new io.github.lord_of_nothing.buildings.Sawmill();}
             }
-            return true;
+            {return true;}
         }
-        return false;
+        return x < GameWindow.SIDEBAR_WIDTH;
     }
     /**
     Handles interaction with the grid for placing buildings.
@@ -97,10 +105,10 @@ public class GridInputHandler extends InputAdapter {
         int tileX = (int) ((x - offsetX) / tileSize);
         int tileY = (int) ((y - offsetY) / tileSize);
 
-        if (grid.isInside(tileX, tileY) && pendingBuilding != null) {
+        if (pendingBuilding != null && grid.canPlace(tileX, tileY, pendingBuilding.getWidth(), pendingBuilding.getHeight())) {
             if (canAfford(pendingBuilding)) {
                 consumeCosts(pendingBuilding);
-                grid.setBuilding(tileX, tileY, pendingBuilding);
+                grid.placeBuilding(tileX, tileY, pendingBuilding);
                 pendingBuilding = null;
                 return true;
             }
@@ -108,11 +116,14 @@ public class GridInputHandler extends InputAdapter {
         return false;
     }
     /**
-    Checks if the player can afford the building costs.
+     * <summary>Validates that the player has sufficient amounts of all required resources to place the building.</summary>
+     * @param building The building instance containing the cost map to be checked.
      */
     private boolean canAfford(Building building) {
         for (java.util.Map.Entry<ResourceType, Integer> entry : building.getCosts().entrySet()) {
-            if (!resourceManager.hasEnough(entry.getKey(), entry.getValue())){return true;}
+            if (!resourceManager.hasEnough(entry.getKey(), entry.getValue())) {
+                return false;
+            }
         }
         return true;
     }
@@ -126,4 +137,12 @@ public class GridInputHandler extends InputAdapter {
         }
     }
     public boolean isHouseSelected() { return pendingBuilding != null; }
+
+    /**
+     * <summary>Returns the building currently selected for placement.</summary>
+     * @return The pending building instance or null if none is selected.
+     */
+    public Building getPendingBuilding() {
+        return pendingBuilding;
+    }
 }
