@@ -29,6 +29,7 @@ import io.github.lord_of_nothing.hud.SidebarRenderer;
 import io.github.lord_of_nothing.hud.TopBarRenderer;
 import io.github.lord_of_nothing.menu.MainMenu;
 import io.github.lord_of_nothing.menu.SettingsMenu;
+import io.github.lord_of_nothing.hud.*;
 import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
 import io.github.lord_of_nothing.settings.GameSettings;
@@ -52,6 +53,8 @@ public class Main extends ApplicationAdapter {
     private Texture grassTexture;
     private Sidebar sidebar;
     private SidebarRenderer sidebarRenderer;
+    private InfoSidebar infoSidebar;
+    private InfoSidebarRenderer infoSidebarRenderer;
 
 
     private EventBus eventBus;
@@ -83,12 +86,14 @@ public class Main extends ApplicationAdapter {
         buildingTextures.put("quarry", new Texture("buildings/Placeholder_2x2_1.png"));
         sidebar = new Sidebar();
         sidebarRenderer = new SidebarRenderer();
+        infoSidebar = new InfoSidebar();
+        infoSidebarRenderer = new InfoSidebarRenderer();
 
         topBarRenderer = new TopBarRenderer();
         eventBus = new EventBus();
         flowState = new FlowState();
 
-        gridInputHandler = new GridInputHandler(camera, grid, resourceManager, sidebar, eventBus);
+        gridInputHandler = new GridInputHandler(camera, grid, resourceManager, sidebar, eventBus, infoSidebar);
         gridInputHandler.setGameplayEnabled(false);
 
         MainMenu mainMenu = new MainMenu(eventBus);
@@ -183,6 +188,7 @@ public class Main extends ApplicationAdapter {
             eventBus,
             flowState.getScreenState() == ScreenState.PAUSED
         );
+        infoSidebarRenderer.render(shapeRenderer, batch, gameWindow, infoSidebar, buildingTextures);
     }
 
     /**
@@ -205,6 +211,7 @@ public class Main extends ApplicationAdapter {
         shapeRenderer.dispose();
         batch.dispose();
         grassTexture.dispose();
+        infoSidebarRenderer.dispose();
         topBarRenderer.dispose();
         settingsFlowCoordinator.dispose();
         menuFlowCoordinator.dispose();

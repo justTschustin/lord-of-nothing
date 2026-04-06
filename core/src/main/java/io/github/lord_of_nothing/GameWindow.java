@@ -113,4 +113,37 @@ public class GameWindow {
      * @return top bar y coordinate
      */
     public int getTopBarY() { return Gdx.graphics.getHeight() - TOP_BAR_HEIGHT; }
+
+    /**
+     * Delivers the X-Position of the close button.
+     */
+
+    public int getCloseButtonX() { return Gdx.graphics.getWidth() - CLOSE_BUTTON_SIZE - CLOSE_BUTTON_MARGIN; }
+
+    /**
+     * Delivers the Y-Position of the close button.
+     */
+    public int getCloseButtonY() {
+        return getTopBarY() + (TOP_BAR_HEIGHT - CLOSE_BUTTON_SIZE) / 2;
+    }
+
+    /**
+     * Calculates dimensions for the right info panel using relative screen percentages
+     */
+    public float getRightSidebarWidth() { return Gdx.graphics.getWidth() * 0.20f; }
+    public float getInfoPanelHeight() { return Gdx.graphics.getHeight() * 0.50f; }
+    public float getRightSidebarX() { return Gdx.graphics.getWidth() - getRightSidebarWidth(); }
+
+    /**
+     * Calculates the horizontal start and width of the right margin area to prevent grid overlap
+     */
+    public int getRightMarginX() { return offsetX + gridPixelWidth; }
+    public int getRightMarginWidth() { return Gdx.graphics.getWidth() - getRightMarginX(); }
+
+    /**
+     * Determines the Y-position to align the info panel with the top edge of the playable grid
+     */
+    public int getInfoPanelY() {
+        return (int)(offsetY + gridPixelHeight - getInfoPanelHeight());
+    }
 }
