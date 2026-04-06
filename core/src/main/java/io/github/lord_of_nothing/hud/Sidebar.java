@@ -1,8 +1,11 @@
 package io.github.lord_of_nothing.hud;
 
-import com.badlogic.gdx.Gdx;
-import io.github.lord_of_nothing.GameWindow;
-import io.github.lord_of_nothing.buildings.*;
+import io.github.lord_of_nothing.buildings.Building;
+import io.github.lord_of_nothing.buildings.House;
+import io.github.lord_of_nothing.buildings.Field;
+import io.github.lord_of_nothing.buildings.Sawmill;
+import io.github.lord_of_nothing.buildings.Quarry;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +43,7 @@ public class Sidebar {
      * @return selected building template or {@code null}
      */
     public Building getBuildingAt(float x, float y) {
-        if (x > io.github.lord_of_nothing.GameWindow.SIDEBAR_WIDTH) return null;
+        if (x > io.github.lord_of_nothing.GameWindow.SIDEBAR_WIDTH) {return null;}
 
         int startY = com.badlogic.gdx.Gdx.graphics.getHeight() - io.github.lord_of_nothing.GameWindow.TOP_BAR_HEIGHT;
 
