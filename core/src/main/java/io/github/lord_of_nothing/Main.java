@@ -58,7 +58,7 @@ public class Main extends ApplicationAdapter {
         gameWindow = new GameWindow(camera, grid);
         buildingTextures = new HashMap<>();
         buildingTextures.put("house", new Texture("buildings/House1.png"));
-        buildingTextures.put("sawmill", new Texture("buildings/Placeholder_2x1.png"));
+        buildingTextures.put("sawmill", new Texture("buildings/Sawmill.png"));
         sidebar = new Sidebar();
         sidebarRenderer = new SidebarRenderer();
 
