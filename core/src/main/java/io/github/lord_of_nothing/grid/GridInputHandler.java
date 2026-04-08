@@ -5,14 +5,23 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.buildings.Building;
+import io.github.lord_of_nothing.buildings.House;
+import io.github.lord_of_nothing.buildings.Quarry;
+import io.github.lord_of_nothing.buildings.Sawmill;
+import io.github.lord_of_nothing.events.BackToMainMenuEvent;
+import io.github.lord_of_nothing.events.EventBus;
+import io.github.lord_of_nothing.events.PauseGameEvent;
+import io.github.lord_of_nothing.events.ResumeGameEvent;
+import io.github.lord_of_nothing.events.StartGameEvent;
+import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 import io.github.lord_of_nothing.hud.Sidebar;
-import io.github.lord_of_nothing.events.*;
 import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
 import io.github.lord_of_nothing.ui.UiElement;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class GridInputHandler extends InputAdapter {
     private final OrthographicCamera camera;
@@ -31,7 +40,13 @@ public class GridInputHandler extends InputAdapter {
     private boolean paused;
     private boolean gameplayEnabled;
 
-    public GridInputHandler(OrthographicCamera camera, Grid grid, ResourceManager resourceManager, Sidebar sidebar, EventBus eventBus) {
+    public GridInputHandler(
+        OrthographicCamera camera,
+        Grid grid,
+        ResourceManager resourceManager,
+        Sidebar sidebar,
+        EventBus eventBus
+    ) {
         this.camera = camera;
         this.grid = grid;
         this.resourceManager = resourceManager;
@@ -131,9 +146,9 @@ public class GridInputHandler extends InputAdapter {
             if (pendingBuilding != null && pendingBuilding.getBuildingTypeKey().equals(clicked.getBuildingTypeKey())) {
                 pendingBuilding = null;
             } else {
-                if (clicked instanceof io.github.lord_of_nothing.buildings.House) {pendingBuilding = new io.github.lord_of_nothing.buildings.House();}
-                else if (clicked instanceof io.github.lord_of_nothing.buildings.Sawmill) {pendingBuilding = new io.github.lord_of_nothing.buildings.Sawmill();}
-                else if (clicked instanceof io.github.lord_of_nothing.buildings.Quarry) {pendingBuilding = new io.github.lord_of_nothing.buildings.Quarry();}
+                if (clicked instanceof House) {pendingBuilding = new House();}
+                else if (clicked instanceof Sawmill) {pendingBuilding = new Sawmill();}
+                else if (clicked instanceof Quarry) {pendingBuilding = new Quarry();}
             }
             return true;
         }
@@ -161,7 +176,7 @@ public class GridInputHandler extends InputAdapter {
      * @param building The building instance containing the cost map to be checked.
      */
     private boolean canAfford(Building building) {
-        for (java.util.Map.Entry<ResourceType, Integer> entry : building.getCosts().entrySet()) {
+        for (Map.Entry<ResourceType, Integer> entry : building.getCosts().entrySet()) {
             if (!resourceManager.hasEnough(entry.getKey(), entry.getValue())) {
                 return false;
             }
@@ -174,7 +189,7 @@ public class GridInputHandler extends InputAdapter {
      * Subtracts the costs of the building from the ResourceManager.
      */
     private void consumeCosts(Building building) {
-        for (java.util.Map.Entry<ResourceType, Integer> entry : building.getCosts().entrySet()) {
+        for (Map.Entry<ResourceType, Integer> entry : building.getCosts().entrySet()) {
             resourceManager.tryConsume(entry.getKey(), entry.getValue());
         }
     }

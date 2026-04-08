@@ -46,7 +46,7 @@ public class Grid {
     /**
      * Places any buildng on set coordinates.
      */
-    public void setBuilding(int x, int y, io.github.lord_of_nothing.buildings.Building building) {
+    public void setBuilding(int x, int y, Building building) {
         if (isInside(x, y)) {
             tiles[x][y].setBuilding(building);
         }

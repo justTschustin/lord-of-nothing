@@ -20,7 +20,16 @@ public class GridRenderer {
      * @param shapeRenderer Geometry renderer. @param batch Sprite renderer. @param grid Grid data. @param window Layout context.
      * @param buildingTextures Map of textures for buildings. @param grassTex Terrain texture. @param pendingBuilding Currently selected building. @param rm Resource state.
      */
-    public void render(ShapeRenderer shapeRenderer, SpriteBatch batch, Grid grid, GameWindow window, Map<String, Texture> buildingTextures, Texture grassTex, Building pendingBuilding, ResourceManager rm) {
+    public void render(
+        ShapeRenderer shapeRenderer,
+        SpriteBatch batch,
+        Grid grid,
+        GameWindow window,
+        Map<String, Texture> buildingTextures,
+        Texture grassTex,
+        Building pendingBuilding,
+        ResourceManager rm
+    ) {
         renderBackground(batch, grid, window, grassTex);
         renderGridShapes(shapeRenderer, grid, window);
         renderBuildings(batch, grid, window, buildingTextures);
@@ -44,7 +53,12 @@ public class GridRenderer {
     /**
      * Generic building renderer that draws buildings at their root tile using their specified dimensions.
      */
-    private void renderBuildings(SpriteBatch batch, Grid grid, GameWindow window, Map<String, Texture> buildingTextures) {
+    private void renderBuildings(
+        SpriteBatch batch,
+        Grid grid,
+        GameWindow window,
+        Map<String, Texture> buildingTextures
+    ) {
         batch.begin();
         for (int x = 0; x < grid.getWidth(); x++) {
             for (int y = 0; y < grid.getHeight(); y++) {
