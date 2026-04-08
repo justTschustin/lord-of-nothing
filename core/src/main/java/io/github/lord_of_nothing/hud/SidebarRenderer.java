@@ -16,7 +16,14 @@ import java.util.Map;
  * Renders the sidebar background and building slots dynamically based on the Sidebar model.
  */
 public class SidebarRenderer {
-    public void render(ShapeRenderer sr, SpriteBatch batch, Sidebar sidebar, Map<String, Texture> textures, Building pending, ResourceManager rm) {
+    public void render(
+        ShapeRenderer sr,
+        SpriteBatch batch,
+        Sidebar sidebar,
+        Map<String, Texture> textures,
+        Building pending,
+        ResourceManager rm
+    ) {
         int startY = Gdx.graphics.getHeight() - GameWindow.TOP_BAR_HEIGHT;
 
         sr.begin(ShapeRenderer.ShapeType.Filled);
