@@ -146,7 +146,7 @@ public class GameWindow {
     }
 
     /**
-     * Calculates dimensions for the right info panel using relative screen percentages
+     * Calculates dimensions for the right info panel using relative screen percentages.
      */
     public float getRightSidebarWidth() { return Gdx.graphics.getWidth() * 0.20f; }
 
@@ -162,6 +162,9 @@ public class GameWindow {
 
     /**
      * Calculates the horizontal start and width of the right margin area to prevent grid overlap
+     */
+    /**
+     * Calculates the horizontal start and width of the right margin area to prevent grid overlap.
      */
     public float getRightMarginX() { return offsetX + gridPixelWidth; }
     public float getRightMarginWidth() { return Math.max(0, Gdx.graphics.getWidth() - getRightMarginX()); }
