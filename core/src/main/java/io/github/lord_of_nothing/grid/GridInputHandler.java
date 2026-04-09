@@ -176,6 +176,11 @@ public class GridInputHandler extends InputAdapter {
             if (canAfford(pendingBuilding)) {
                 consumeCosts(pendingBuilding);
                 grid.placeBuilding(tileX, tileY, pendingBuilding);
+                if (pendingBuilding.getCitizenCapacity() > 0) {
+                    resourceManager.add(ResourceType.CITIZENS_CAPACITY, pendingBuilding.getCitizenCapacity());
+                    resourceManager.add(ResourceType.CITIZENS_TOTAL, pendingBuilding.getCitizenCapacity());
+                    resourceManager.add(ResourceType.CITIZENS_AVAILABLE, pendingBuilding.getCitizenCapacity());
+                }
                 pendingBuilding = null;
                 return true;
             }
