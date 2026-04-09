@@ -3,7 +3,7 @@ package io.github.lord_of_nothing.buildings;
 import io.github.lord_of_nothing.resources.ResourceType;
 
 /**
- * Initializes a large-scale stone extraction site with a 4x4 footprint on the grid and costs of 30 wood.
+ * Initializes a large-scale stone extraction site with a 2x2 footprint on the grid and costs of 30 wood.
  */
 public class Quarry extends Building {
     public Quarry() {
@@ -12,7 +12,7 @@ public class Quarry extends Building {
     }
 
     /**
-     * <summary>Implementation of the type key for quarries.</summary>
+     * Implementation of the type key for quarries.
      */
     @Override
     public String getBuildingTypeKey() {

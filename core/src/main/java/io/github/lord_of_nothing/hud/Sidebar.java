@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <summary>Manages a dynamic list of available buildings and calculates their UI slot positions.</summary>
+ * Manages a dynamic list of available buildings and calculates their UI slot positions.
  */
 public class Sidebar {
     private final List<Building> templates = new ArrayList<>();

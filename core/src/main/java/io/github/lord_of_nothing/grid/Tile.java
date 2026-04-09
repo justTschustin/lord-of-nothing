@@ -3,7 +3,7 @@ package io.github.lord_of_nothing.grid;
 import io.github.lord_of_nothing.buildings.Building;
 
 /**
- * <summary>Represents a single cell within the game grid, capable of holding a building instance.</summary>
+ * Represents a single cell within the game grid, capable of holding a building instance.
  */
 public class Tile {
     public static final int BASE_TILE_SIZE = 32;
@@ -13,7 +13,7 @@ public class Tile {
     private Building building = null;
 
     /**
-     * <summary>Initializes a new tile at the specified grid coordinates.</summary>
+     * Initializes a new tile at the specified grid coordinates.
      * @param x The horizontal index of the tile in the grid.
      * @param y The vertical index of the tile in the grid.
      */
@@ -23,7 +23,7 @@ public class Tile {
     }
 
     /**
-     * <summary>Checks if the tile is occupied by a building by verifying the building reference.</summary>
+     * Checks if the tile is occupied by a building by verifying the building reference.
      * @return True if a building instance is present, false if the tile is empty.
      */
     public boolean hasBuilding() {
@@ -31,7 +31,7 @@ public class Tile {
     }
 
     /**
-     * <summary>Gets the building currently placed on this tile.</summary>
+     * Gets the building currently placed on this tile.
      * @return The building instance or null if unoccupied.
      */
     public Building getBuilding() {
@@ -39,7 +39,7 @@ public class Tile {
     }
 
     /**
-     * <summary>Sets a building on this tile, effectively occupying it.</summary>
+     * Sets a building on this tile, effectively occupying it.
      * @param building The building instance to be placed on this tile.
      */
     public void setBuilding(Building building) {

@@ -11,12 +11,12 @@ import io.github.lord_of_nothing.resources.ResourceType;
 import java.util.Map;
 
 /**
- * <summary>Renders the game grid, terrain, buildings, and the interactive sidebar UI.</summary>
+ * Renders the game grid, terrain, buildings, and the interactive sidebar UI.
  */
 public class GridRenderer {
 
     /**
-     * <summary>Main render loop coordinating terrain, grid shapes, buildings, and sidebar UI.</summary>
+     * Main render loop coordinating terrain, grid shapes, buildings, and sidebar UI.
      * @param shapeRenderer Geometry renderer. @param batch Sprite renderer. @param grid Grid data. @param window Layout context.
      * @param buildingTextures Map of textures for buildings. @param grassTex Terrain texture. @param pendingBuilding Currently selected building. @param rm Resource state.
      */
@@ -28,7 +28,7 @@ public class GridRenderer {
 
 
     /**
-     * <summary>Helper to render a single sidebar icon with resource-based color tinting.</summary>
+     * Helper to render a single sidebar icon with resource-based color tinting.
      */
     private void renderSidebarIcon(SpriteBatch batch, Texture tex, int x, int y, ResourceManager rm, Building b) {
         boolean canAfford = true;
@@ -42,7 +42,7 @@ public class GridRenderer {
     }
 
     /**
-     * <summary>Generic building renderer that draws buildings at their root tile using their specified dimensions.</summary>
+     * Generic building renderer that draws buildings at their root tile using their specified dimensions.
      */
     private void renderBuildings(SpriteBatch batch, Grid grid, GameWindow window, Map<String, Texture> buildingTextures) {
         batch.begin();

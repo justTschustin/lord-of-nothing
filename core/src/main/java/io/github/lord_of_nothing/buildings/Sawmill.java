@@ -11,7 +11,7 @@ public class Sawmill extends Building {
     }
 
     /**
-     * <summary>Implementation of the type key for sawmills.</summary>
+     * Implementation of the type key for sawmills.
      */
     @Override
     public String getBuildingTypeKey() {
