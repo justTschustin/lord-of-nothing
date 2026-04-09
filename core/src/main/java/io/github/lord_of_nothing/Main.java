@@ -51,7 +51,7 @@ public class Main extends ApplicationAdapter {
         grassTexture = new Texture("tiles/Floor_Grass.png");
 
         resourceManager = new ResourceManager();
-        resourceManager.add(ResourceType.WOOD, 100);
+        resourceManager.add(ResourceType.WOOD, 1000);
 
         grid = new Grid();
         gridRenderer = new GridRenderer();
@@ -59,6 +59,7 @@ public class Main extends ApplicationAdapter {
         buildingTextures = new HashMap<>();
         buildingTextures.put("house", new Texture("buildings/House1.png"));
         buildingTextures.put("sawmill", new Texture("buildings/Placeholder_2x1.png"));
+        buildingTextures.put("quarry", new Texture("buildings/Placeholder_2x2_1.png"));
         sidebar = new Sidebar();
         sidebarRenderer = new SidebarRenderer();
 
