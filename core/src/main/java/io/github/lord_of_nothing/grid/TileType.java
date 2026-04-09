@@ -1,8 +1,7 @@
 package io.github.lord_of_nothing.grid;
 
 /**
-*Defines available terrain types.
- * Further additions are possible.
+ * Enumerates terrain types that can be assigned to grid tiles.
  */
 public enum TileType {
     GRASS

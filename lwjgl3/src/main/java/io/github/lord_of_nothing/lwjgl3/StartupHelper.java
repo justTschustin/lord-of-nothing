@@ -46,6 +46,9 @@ import java.util.Locale;
  */
 public class StartupHelper {
 
+	/**
+	 * Prevents instantiation of this utility class.
+	 */
 	private StartupHelper() {}
 
 	private static final String JVM_RESTARTED_ARG = "jvmIsRestarted";
@@ -215,11 +218,23 @@ public class StartupHelper {
 		return true;
 	}
 
+	/**
+	 * Returns the platform-specific JRE error message.
+	 *
+	 * @param isMac whether the current platform is macOS
+	 * @return message describing the missing-runtime fallback requirement
+	 */
 	private static String getJreErrMsg(boolean isMac) {
 		if (isMac) return MAC_JRE_ERR_MSG;
 		else return LINUX_JRE_ERR_MSG;
 	}
 
+	/**
+	 * Returns the current process identifier using platform-specific APIs.
+	 *
+	 * @param isMac whether the current platform is macOS
+	 * @return process ID
+	 */
 	private static long getProcessID(boolean isMac) {
 		if (isMac) return LibC.getpid();
 		else return UNISTD.getpid();

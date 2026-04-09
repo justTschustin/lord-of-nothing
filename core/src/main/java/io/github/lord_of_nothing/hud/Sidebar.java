@@ -18,14 +18,29 @@ public class Sidebar {
     public static final int SLOT_SIZE = 60;
     public static final int PADDING = 20;
 
+    /**
+     * Creates a sidebar with default building templates.
+     */
     public Sidebar() {
         templates.add(new House());
         templates.add(new Sawmill());
         templates.add(new Quarry());
     }
 
+    /**
+     * Returns available building templates.
+     *
+     * @return template list
+     */
     public List<Building> getTemplates() { return templates; }
 
+    /**
+     * Returns the building template at the clicked sidebar slot.
+     *
+     * @param x click x coordinate
+     * @param y click y coordinate
+     * @return selected building template or {@code null}
+     */
     public Building getBuildingAt(float x, float y) {
         if (x > GameWindow.SIDEBAR_WIDTH) {return null;}
         int startY = Gdx.graphics.getHeight() - GameWindow.TOP_BAR_HEIGHT;

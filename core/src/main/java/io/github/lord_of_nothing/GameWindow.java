@@ -5,6 +5,9 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import io.github.lord_of_nothing.grid.Grid;
 import io.github.lord_of_nothing.grid.Tile;
 
+/**
+ * Computes viewport-dependent layout values for grid and HUD placement.
+ */
 public class GameWindow {
 
     private static final int HUD_BOTTOM_HEIGHT = 120;
@@ -23,10 +26,23 @@ public class GameWindow {
     private int offsetX;
     private int offsetY;
 
+    /**
+     * Creates a game window layout helper.
+     *
+     * @param camera camera updated during resize
+     * @param grid grid used to compute pixel dimensions
+     */
     public GameWindow(OrthographicCamera camera, Grid grid) {
         this.camera = camera;
         this.grid = grid;
     }
+
+    /**
+     * Recomputes tile scale and grid offsets after a window-size change.
+     *
+     * @param width window width in pixels
+     * @param height window height in pixels
+     */
     public void resize(int width, int height) {
         camera.setToOrtho(false, width, height);
         camera.update();
@@ -46,28 +62,55 @@ public class GameWindow {
         offsetY = HUD_BOTTOM_HEIGHT + (availableHeight - gridPixelHeight) / 2;
     }
 
+    /**
+     * Returns the rendered tile size in pixels.
+     *
+     * @return tile size in pixels
+     */
     public int getTileSize() {
         return tileSize;
     }
 
+    /**
+     * Returns the total grid width in pixels.
+     *
+     * @return grid width in pixels
+     */
     public int getGridPixelWidth() {
         return gridPixelWidth;
     }
 
+    /**
+     * Returns the total grid height in pixels.
+     *
+     * @return grid height in pixels
+     */
     public int getGridPixelHeight() {
         return gridPixelHeight;
     }
 
+    /**
+     * Returns the x offset where the grid starts.
+     *
+     * @return grid start x in pixels
+     */
     public int getOffsetX() {
         return offsetX;
     }
 
+    /**
+     * Returns the y offset where the grid starts.
+     *
+     * @return grid start y in pixels
+     */
     public int getOffsetY() {
         return offsetY;
     }
 
     /**
-     * Liefert die vertikale Startposition der Topbar basierend auf der aktuellen Fensterhöhe.
+     * Returns the y coordinate where the top bar begins.
+     *
+     * @return top bar y coordinate
      */
     public int getTopBarY() { return Gdx.graphics.getHeight() - TOP_BAR_HEIGHT; }
 }

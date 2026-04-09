@@ -11,6 +11,9 @@ import io.github.lord_of_nothing.events.EventBus;
 import io.github.lord_of_nothing.events.ToggleFullscreenEvent;
 import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 
+/**
+ * Renders and manages the settings menu UI.
+ */
 public class SettingsMenu {
     private static final float BUTTON_WIDTH = 280f;
     private static final float BUTTON_HEIGHT = 44f;
@@ -20,6 +23,11 @@ public class SettingsMenu {
     private final TextButton toggleDisplayModeButton;
     private final TextButton backButton;
 
+    /**
+     * Creates the settings menu and its buttons.
+     *
+     * @param eventBus event bus used to publish UI actions
+     */
     public SettingsMenu(EventBus eventBus) {
         float centerX = Gdx.graphics.getWidth() / 2f;
         float centerY = Gdx.graphics.getHeight() / 2f;
@@ -33,7 +41,7 @@ public class SettingsMenu {
             BUTTON_WIDTH,
             BUTTON_HEIGHT,
             eventBus,
-            "Toggle Fullscreen / Windowed",
+            "Display Mode: Windowed",
             () -> eventBus.publish(new ToggleFullscreenEvent()),
             false
         );
@@ -50,12 +58,23 @@ public class SettingsMenu {
         setButtonLayout();
     }
 
+    /**
+     * Registers menu buttons as interactive UI elements.
+     *
+     * @param eventBus event bus used for publishing UI element creation
+     */
     public void registerUiElements(EventBus eventBus) {
         setButtonLayout();
         eventBus.publish(new UiElementCreatedEvent(toggleDisplayModeButton));
         eventBus.publish(new UiElementCreatedEvent(backButton));
     }
 
+    /**
+     * Renders the settings screen and buttons.
+     *
+     * @param shapeRenderer shape renderer used for background
+     * @param batch sprite batch used for text and buttons
+     */
     public void render(ShapeRenderer shapeRenderer, SpriteBatch batch) {
         setButtonLayout();
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -66,21 +85,24 @@ public class SettingsMenu {
         batch.begin();
         font.setColor(Color.WHITE);
         font.draw(batch, "Settings", Gdx.graphics.getWidth() / 2f - 55f, Gdx.graphics.getHeight() / 2f + 130f);
-        font.draw(
-            batch,
-            Gdx.graphics.isFullscreen() ? "Current mode: Fullscreen" : "Current mode: Windowed",
-            Gdx.graphics.getWidth() / 2f - 115f,
-            Gdx.graphics.getHeight() / 2f + 95f
+        toggleDisplayModeButton.setText(
+            Gdx.graphics.isFullscreen() ? "Display Mode: Fullscreen" : "Display Mode: Windowed"
         );
         toggleDisplayModeButton.render(batch);
         backButton.render(batch);
         batch.end();
     }
 
+    /**
+     * Disposes menu-owned rendering resources.
+     */
     public void dispose() {
         font.dispose();
     }
 
+    /**
+     * Recalculates button layout based on the current window size.
+     */
     private void setButtonLayout() {
         float centerX = Gdx.graphics.getWidth() / 2f;
         float centerY = Gdx.graphics.getHeight() / 2f;

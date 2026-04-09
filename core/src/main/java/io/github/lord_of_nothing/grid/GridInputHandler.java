@@ -23,6 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Handles mouse input for UI clicks, sidebar selection, and building placement.
+ */
 public class GridInputHandler extends InputAdapter {
     private final OrthographicCamera camera;
     private final Grid grid;
@@ -40,6 +43,15 @@ public class GridInputHandler extends InputAdapter {
     private boolean paused;
     private boolean gameplayEnabled;
 
+    /**
+     * Creates the input handler and subscribes to relevant flow/UI events.
+     *
+     * @param camera world camera used for unprojecting screen coordinates
+     * @param grid grid model
+     * @param resourceManager resource manager for cost checks
+     * @param sidebar sidebar model used for template selection
+     * @param eventBus event bus used to track UI creation and pause state
+     */
     public GridInputHandler(
         OrthographicCamera camera,
         Grid grid,
@@ -73,6 +85,11 @@ public class GridInputHandler extends InputAdapter {
     }
 
 
+    /**
+     * Updates cached layout values after window resize.
+     *
+     * @param window game window layout context
+     */
     public void updateLayout(GameWindow window) {
         this.tileSize = window.getTileSize();
         this.offsetX = window.getOffsetX();
@@ -81,14 +98,29 @@ public class GridInputHandler extends InputAdapter {
         this.gridPixelHeight = window.getGridPixelHeight();
     }
 
+    /**
+     * Enables or disables gameplay interactions.
+     *
+     * @param gameplayEnabled whether gameplay interactions are enabled
+     */
     public void setGameplayEnabled(boolean gameplayEnabled) {
         this.gameplayEnabled = gameplayEnabled;
     }
 
+    /**
+     * Clears tracked UI elements.
+     */
     public void clearUiElements() {
         uiElements.clear();
     }
 
+    /**
+     * Updates hovered tile while the mouse moves.
+     *
+     * @param screenX mouse x coordinate in screen space
+     * @param screenY mouse y coordinate in screen space
+     * @return {@code true} when the event is handled
+     */
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
         if (paused || !gameplayEnabled) {
@@ -109,7 +141,13 @@ public class GridInputHandler extends InputAdapter {
         return true;
     }
     /**
-     * Handles every click on the screen.
+     * Handles clicks for UI, sidebar, and grid placement.
+     *
+     * @param screenX click x coordinate in screen space
+     * @param screenY click y coordinate in screen space
+     * @param pointer pointer index
+     * @param button mouse button index
+     * @return {@code true} when the click is consumed
      */
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
@@ -124,6 +162,13 @@ public class GridInputHandler extends InputAdapter {
             || handleGridPlacement(touchPos.x, touchPos.y);
     }
 
+    /**
+     * Dispatches a click to the first matching UI element.
+     *
+     * @param x click x coordinate in world space
+     * @param y click y coordinate in world space
+     * @return {@code true} if a UI element handled the click
+     */
     private boolean handleUiClicks(float x, float y) {
         return uiElements.stream()
             .filter(element -> element.contains(x, y))
@@ -136,8 +181,11 @@ public class GridInputHandler extends InputAdapter {
     }
 
     /**
-     Handles the selection logic by either deselecting the current building or instantiating a new one based on the sidebar click.
-     The else block facilitates both the initial selection and the switching between different building types.
+     * Handles building-template selection from the sidebar.
+     *
+     * @param x click x coordinate in world space
+     * @param y click y coordinate in world space
+     * @return {@code true} if the click was inside the sidebar area
      */
     private boolean handleSidebarInteraction(float x, float y) {
         Building clicked = sidebar.getBuildingAt(x, y);
@@ -155,7 +203,11 @@ public class GridInputHandler extends InputAdapter {
         return x < GameWindow.SIDEBAR_WIDTH;
     }
     /**
-    Handles interaction with the grid for placing buildings.
+     * Handles placement of the currently selected building on the grid.
+     *
+     * @param x click x coordinate in world space
+     * @param y click y coordinate in world space
+     * @return {@code true} if a building was placed
      */
     private boolean handleGridPlacement(float x, float y) {
         int tileX = (int) ((x - offsetX) / tileSize);
@@ -173,7 +225,9 @@ public class GridInputHandler extends InputAdapter {
     }
     /**
      * Validates that the player has sufficient amounts of all required resources to place the building.
-     * @param building The building instance containing the cost map to be checked.
+     *
+     *  @param building The building instance containing the cost map to be checked.
+     * @return {@code true} if all required resources are available
      */
     private boolean canAfford(Building building) {
         for (Map.Entry<ResourceType, Integer> entry : building.getCosts().entrySet()) {
@@ -187,12 +241,19 @@ public class GridInputHandler extends InputAdapter {
 
     /**
      * Subtracts the costs of the building from the ResourceManager.
+     *
+     * @param building building whose costs should be consumed
      */
     private void consumeCosts(Building building) {
         for (Map.Entry<ResourceType, Integer> entry : building.getCosts().entrySet()) {
             resourceManager.tryConsume(entry.getKey(), entry.getValue());
         }
     }
+    /**
+     * Returns whether any building is currently selected for placement.
+     *
+     * @return {@code true} if a building is pending placement
+     */
     public boolean isHouseSelected() { return pendingBuilding != null; }
 
     /**

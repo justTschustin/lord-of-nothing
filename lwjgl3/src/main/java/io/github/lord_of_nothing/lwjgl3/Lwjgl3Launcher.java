@@ -7,15 +7,30 @@ import io.github.lord_of_nothing.Main;
 
 /** Launches the desktop (LWJGL3) application. */
 public class Lwjgl3Launcher {
+    /**
+     * Desktop JVM entry point.
+     *
+     * @param args startup arguments
+     */
     public static void main(String[] args) {
         if (StartupHelper.startNewJvmIfRequired()) return; // This handles macOS support and helps on Windows.
         createApplication();
     }
 
+    /**
+     * Creates and starts the LWJGL3 application instance.
+     *
+     * @return created application instance
+     */
     private static Lwjgl3Application createApplication() {
         return new Lwjgl3Application(new Main(), getDefaultConfiguration());
     }
 
+    /**
+     * Builds the default desktop window configuration.
+     *
+     * @return configured LWJGL3 application configuration
+     */
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
         configuration.setTitle("Lord of Nothing");

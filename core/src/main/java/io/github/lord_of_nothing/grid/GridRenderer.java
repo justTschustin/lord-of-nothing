@@ -17,8 +17,15 @@ public class GridRenderer {
 
     /**
      * Main render loop coordinating terrain, grid shapes, buildings, and sidebar UI.
-     * @param shapeRenderer Geometry renderer. @param batch Sprite renderer. @param grid Grid data. @param window Layout context.
-     * @param buildingTextures Map of textures for buildings. @param grassTex Terrain texture. @param pendingBuilding Currently selected building. @param rm Resource state.
+     *
+     * @param shapeRenderer geometry renderer for non-textured shapes
+     * @param batch sprite renderer for textured content
+     * @param grid grid model
+     * @param window window layout context
+     * @param buildingTextures texture map keyed by building type
+     * @param grassTex grass texture used for terrain
+     * @param pendingBuilding currently selected building template
+     * @param rm current resource state
      */
     public void render(
         ShapeRenderer shapeRenderer,
@@ -37,7 +44,14 @@ public class GridRenderer {
 
 
     /**
-     * Helper to render a single sidebar icon with resource-based color tinting.
+     * Renders a sidebar icon with affordability tinting.
+     *
+     * @param batch sprite batch used for rendering
+     * @param tex icon texture
+     * @param x icon x coordinate
+     * @param y icon y coordinate
+     * @param rm current resource state
+     * @param b building template whose costs are evaluated
      */
     private void renderSidebarIcon(SpriteBatch batch, Texture tex, int x, int y, ResourceManager rm, Building b) {
         boolean canAfford = true;
@@ -52,6 +66,11 @@ public class GridRenderer {
 
     /**
      * Generic building renderer that draws buildings at their root tile using their specified dimensions.
+     *
+     * @param batch sprite batch used for rendering
+     * @param grid grid model
+     * @param window window layout context
+     * @param buildingTextures texture map keyed by building type
      */
     private void renderBuildings(
         SpriteBatch batch,
@@ -79,6 +98,14 @@ public class GridRenderer {
         batch.end();
     }
 
+    /**
+     * Draws the tiled grass background under the buildable area.
+     *
+     * @param batch sprite batch used for rendering
+     * @param grid grid model
+     * @param window window layout context
+     * @param grassTex grass texture
+     */
     private void renderBackground(SpriteBatch batch, Grid grid, GameWindow window, Texture grassTex) {
         batch.begin();
         for (int x = 0; x < grid.getWidth(); x++) {
@@ -89,6 +116,13 @@ public class GridRenderer {
         batch.end();
     }
 
+    /**
+     * Draws the hovered tile highlight.
+     *
+     * @param shapeRenderer shape renderer used for hover highlight
+     * @param grid grid model
+     * @param window window layout context
+     */
     private void renderGridShapes(ShapeRenderer shapeRenderer, Grid grid, GameWindow window) {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         if (grid.getHoveredX() != -1) {
