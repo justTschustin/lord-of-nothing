@@ -15,6 +15,11 @@ public class House extends Building {
         costs.put(ResourceType.WOOD, 10);
     }
 
+    /**
+     * Returns the texture key for this building type.
+     *
+     * @return building type key
+     */
     @Override
     public String getBuildingTypeKey() {
         return "house";
