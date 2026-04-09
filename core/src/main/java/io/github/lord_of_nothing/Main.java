@@ -116,7 +116,6 @@ public class Main extends ApplicationAdapter {
             gameSettings,
             () -> menuFlowCoordinator.registerUiElements()
         );
-        settingsFlowCoordinator.applySavedDisplayMode();
 
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.input.setInputProcessor(gridInputHandler);
@@ -140,10 +139,6 @@ public class Main extends ApplicationAdapter {
             if (event instanceof CloseSettingsMenuEvent) {
                 settingsFlowCoordinator.closeSettingsMenu();
             }
-            if (event instanceof ToggleFullscreenEvent) {
-                settingsFlowCoordinator.toggleFullscreenMode();
-                resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-            }
         });
     }
 
@@ -157,7 +152,6 @@ public class Main extends ApplicationAdapter {
     public void resize(int width, int height) {
         gameWindow.resize(width, height);
         gridInputHandler.updateLayout(gameWindow);
-        settingsFlowCoordinator.onResize(width, height);
     }
 
     /**

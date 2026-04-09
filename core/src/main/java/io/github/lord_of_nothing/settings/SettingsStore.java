@@ -47,7 +47,7 @@ public class SettingsStore {
      */
     public void save(GameSettings settings) {
         FileHandle file = Gdx.files.local(localPath);
-        file.writeString(json.prettyPrint(settings), false, "UTF-8");
+        file.writeString(json.toJson(settings), false, "UTF-8");
     }
 }
 
