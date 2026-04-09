@@ -13,7 +13,7 @@ public class Quarry extends Building {
     }
 
     /**
-     * <summary>Implementation of the type key for quarries.</summary>
+     * Implementation of the type key for quarries.
      */
     @Override
     public String getBuildingTypeKey() {

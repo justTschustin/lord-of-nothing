@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <summary>Manages a dynamic list of available buildings and calculates their UI slot positions.</summary>
+ * Manages a dynamic list of available buildings and calculates their UI slot positions.
  */
 public class Sidebar {
     private final List<Building> templates = new ArrayList<>();
@@ -29,7 +29,7 @@ public class Sidebar {
 
 
     /**
-     * <summary>Calculates the building template at the given coordinates using the exact same spacing as the renderer.</summary>
+     * Calculates the building template at the given coordinates using the exact same spacing as the renderer.
      * <remarks>Iterates through all templates to find a vertical match within the sidebar's screen area.</remarks>
      */
     public Building getBuildingAt(float x, float y) {

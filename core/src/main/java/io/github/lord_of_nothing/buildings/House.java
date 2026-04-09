@@ -3,12 +3,12 @@ package io.github.lord_of_nothing.buildings;
 import io.github.lord_of_nothing.resources.ResourceType;
 
 /**
- * <summary>Represents a standard 1x1 residential building with wood costs.</summary>
+ * Represents a standard 1x1 residential building with wood costs.
  */
 public class House extends Building {
 
     /**
-     * <summary>Initializes the house with 1x1 dimensions and sets the resource costs.</summary>
+     * Initializes the house with 1x1 dimensions and sets the resource costs.
      */
     public House() {
         super(1, 1); // Explicitly call the Building constructor
