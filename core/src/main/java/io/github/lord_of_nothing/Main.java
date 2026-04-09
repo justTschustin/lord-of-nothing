@@ -34,7 +34,6 @@ import io.github.lord_of_nothing.hud.InfoSidebar;
 import io.github.lord_of_nothing.hud.InfoSidebarRenderer;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.hud.SidebarRenderer;
-import io.github.lord_of_nothing.hud.CloseButtonRenderer;
 import io.github.lord_of_nothing.hud.TopBarRenderer;
 import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;

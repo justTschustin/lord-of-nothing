@@ -160,11 +160,10 @@ public class GridInputHandler extends InputAdapter {
         camera.unproject(touchPos);
 
         // Close panel if clicking anywhere left of the right margin start
-        if (infoSidebar.isOpen() && touchPos.x < window.getRightMarginX()) {
+        if (infoSidebar.isOpen()) {
             infoSidebar.close();
         }
 
-        if (handleCloseButton(touchPos.x, touchPos.y)) {return true;}
         if (handleSidebarInteraction(touchPos.x, touchPos.y)) {return true;}
 
         int tileX = (int) ((touchPos.x - offsetX) / tileSize);
