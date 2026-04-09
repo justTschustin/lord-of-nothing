@@ -5,11 +5,16 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.events.EventBus;
+import io.github.lord_of_nothing.events.ResolutionChangedEvent;
+import io.github.lord_of_nothing.events.ToggleFullscreenEvent;
 import io.github.lord_of_nothing.grid.GridInputHandler;
 import io.github.lord_of_nothing.hud.TopBarRenderer;
 import io.github.lord_of_nothing.menu.SettingsMenu;
 import io.github.lord_of_nothing.settings.GameSettings;
+import io.github.lord_of_nothing.settings.ResolutionSettings;
 import io.github.lord_of_nothing.settings.SettingsStore;
+
+import java.util.Map;
 
 /**
  * Coordinates entering, leaving, rendering, and persisting settings flow.
@@ -24,9 +29,6 @@ public class SettingsFlowCoordinator {
     private final SettingsStore settingsStore;
     private final GameSettings gameSettings;
     private final Runnable registerMainMenuUiElements;
-
-    private int windowedWidth;
-    private int windowedHeight;
 
     /**
      * Creates a settings-flow coordinator.
@@ -61,35 +63,22 @@ public class SettingsFlowCoordinator {
         this.settingsStore = settingsStore;
         this.gameSettings = gameSettings;
         this.registerMainMenuUiElements = registerMainMenuUiElements;
-        this.windowedWidth = gameSettings.windowedWidth;
-        this.windowedHeight = gameSettings.windowedHeight;
-    }
 
-    /**
-     * Applies saved display mode at startup.
-     */
-    public void applySavedDisplayMode() {
-        if (gameSettings.fullscreen) {
-            Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-            return;
-        }
+        applyDisplaySettings();
+        settingsMenu.syncDisplaySettings(gameSettings);
 
-        Gdx.graphics.setWindowedMode(gameSettings.windowedWidth, gameSettings.windowedHeight);
-    }
-
-    /**
-     * Tracks the latest windowed size when not in fullscreen mode.
-     *
-     * @param width current window width
-     * @param height current window height
-     */
-    public void onResize(int width, int height) {
-        if (!Gdx.graphics.isFullscreen()) {
-            windowedWidth = width;
-            windowedHeight = height;
-            gameSettings.windowedWidth = width;
-            gameSettings.windowedHeight = height;
-        }
+        eventBus.subscribe(event -> {
+            if (event instanceof ResolutionChangedEvent) {
+                Map.Entry<Integer, Integer> resolution = ResolutionSettings.getResolutionFromWidth(Integer.parseInt(((ResolutionChangedEvent) event).getResolution()));
+                gameSettings.windowedWidth = resolution.getKey();
+                gameSettings.windowedHeight = resolution.getValue();
+                saveDisplaySettings();
+                applyDisplaySettings();
+            }
+            if (event instanceof ToggleFullscreenEvent) {
+                toggleFullscreenMode();
+            }
+        });
     }
 
     /**
@@ -101,6 +90,7 @@ public class SettingsFlowCoordinator {
 
         gridInputHandler.clearUiElements();
         gridInputHandler.setGameplayEnabled(false);
+        settingsMenu.syncDisplaySettings(gameSettings);
         settingsMenu.registerUiElements(eventBus);
     }
 
@@ -131,34 +121,29 @@ public class SettingsFlowCoordinator {
      */
     public void toggleFullscreenMode() {
         if (Gdx.graphics.isFullscreen()) {
-            Gdx.graphics.setWindowedMode(windowedWidth, windowedHeight);
+            Gdx.graphics.setWindowedMode(gameSettings.windowedWidth, gameSettings.windowedHeight);
         } else {
-            windowedWidth = Gdx.graphics.getWidth();
-            windowedHeight = Gdx.graphics.getHeight();
+            gameSettings.windowedWidth = Gdx.graphics.getWidth();
+            gameSettings.windowedHeight = Gdx.graphics.getHeight();
             Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
         }
 
-        syncDisplaySettings();
-        settingsStore.save(gameSettings);
-    }
-
-    /**
-     * Synchronizes runtime display mode into the settings model.
-     */
-    public void syncDisplaySettings() {
-        gameSettings.fullscreen = Gdx.graphics.isFullscreen();
-        if (!gameSettings.fullscreen) {
-            gameSettings.windowedWidth = windowedWidth;
-            gameSettings.windowedHeight = windowedHeight;
-        }
+        saveDisplaySettings();
+        applyDisplaySettings();
     }
 
     /**
      * Persists the current display settings to storage.
      */
     public void saveDisplaySettings() {
-        syncDisplaySettings();
         settingsStore.save(gameSettings);
+    }
+
+    public void applyDisplaySettings() {
+        Gdx.graphics.setWindowedMode(gameSettings.windowedWidth, gameSettings.windowedHeight);
+        if (gameSettings.fullscreen) {
+            Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+        }
     }
 
     /**
