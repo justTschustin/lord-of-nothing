@@ -85,23 +85,30 @@ public class GameWindow {
     }
 
     /**
-     * <summary>Calculates dimensions for the right info panel using relative screen percentages.</summary>
+     * Calculates dimensions for the right info panel using relative screen percentages.
      */
     public float getRightSidebarWidth() { return Gdx.graphics.getWidth() * 0.20f; }
-    public float getInfoPanelHeight() { return Gdx.graphics.getHeight() * 0.50f; }
-    public float getRightSidebarX() { return Gdx.graphics.getWidth() - getRightSidebarWidth(); }
 
     /**
-     * <summary>Calculates the horizontal start and width of the right margin area to prevent grid overlap.</summary>
+     Calculates the height required for the info panel to span from the screen center to the bottom of the top bar.
+     * @return The calculated height preventing overlap with the top bar.
+     */
+    public float getInfoPanelHeight() {
+        return getTopBarY() - getInfoPanelY();
+    }    public float getRightSidebarX() { return Gdx.graphics.getWidth() - getRightSidebarWidth(); }
+
+    /**
+     * Calculates the horizontal start and width of the right margin area to prevent grid overlap.
      */
     public int getRightMarginX() { return offsetX + gridPixelWidth; }
     public int getRightMarginWidth() { return Gdx.graphics.getWidth() - getRightMarginX(); }
 
     /**
-     * <summary>Determines the Y-position to align the info panel with the top edge of the playable grid.</summary>
+     * Calculates the info panel's vertical start position at the exact center of the screen.
+     * @return The Y-coordinate representing the screen's vertical midpoint.
      */
-    public int getInfoPanelY() {
-        return (int)(offsetY + gridPixelHeight - getInfoPanelHeight());
+    public float getInfoPanelY() {
+        return Gdx.graphics.getHeight() / 2.0f;
     }
 
 }
