@@ -14,6 +14,7 @@ import io.github.lord_of_nothing.events.PauseGameEvent;
 import io.github.lord_of_nothing.events.ResumeGameEvent;
 import io.github.lord_of_nothing.events.StartGameEvent;
 import io.github.lord_of_nothing.events.UiElementCreatedEvent;
+import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
@@ -42,6 +43,7 @@ public class GridInputHandler extends InputAdapter {
     private final Sidebar sidebar;
     private boolean paused;
     private boolean gameplayEnabled;
+    private final TileInspectorBar tileInspectorBar;
 
     /**
      * Creates the input handler and subscribes to relevant flow/UI events.
@@ -57,12 +59,14 @@ public class GridInputHandler extends InputAdapter {
         Grid grid,
         ResourceManager resourceManager,
         Sidebar sidebar,
-        EventBus eventBus
+        EventBus eventBus,
+        TileInspectorBar tileInspectorBar
     ) {
         this.camera = camera;
         this.grid = grid;
         this.resourceManager = resourceManager;
         this.sidebar = sidebar;
+        this.tileInspectorBar = tileInspectorBar;
 
         eventBus.subscribe(event -> {
             if (event instanceof UiElementCreatedEvent) {
@@ -155,6 +159,24 @@ public class GridInputHandler extends InputAdapter {
         // Convert Screen Coordinates to World Coordinates
         camera.unproject(touchPos);
 
+        // Close panel if clicking anywhere left of the right margin start
+        if (tileInspectorBar.isOpen()) {
+            tileInspectorBar.close();
+        }
+
+        if (handleSidebarInteraction(touchPos.x, touchPos.y)) {return true;}
+
+        int tileX = (int) ((touchPos.x - offsetX) / tileSize);
+        int tileY = (int) ((touchPos.y - offsetY) / tileSize);
+        // Open panel if a building is clicked and no new building is being placed
+        if (grid.isInside(tileX, tileY) && getPendingBuilding() == null) {
+            io.github.lord_of_nothing.grid.Tile tile = grid.getTile(tileX, tileY);
+            if (tile.hasBuilding()) {
+                tileInspectorBar.select(tile.getBuilding());
+                return true;
+            }
+        }
+
         return handleUiClicks(touchPos.x, touchPos.y)
             || paused
             || !gameplayEnabled
@@ -202,6 +224,7 @@ public class GridInputHandler extends InputAdapter {
         }
         return x < GameWindow.SIDEBAR_WIDTH;
     }
+
     /**
      * Handles placement of the currently selected building on the grid.
      *
