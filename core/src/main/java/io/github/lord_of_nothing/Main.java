@@ -24,8 +24,8 @@ import io.github.lord_of_nothing.flow.SettingsFlowCoordinator;
 import io.github.lord_of_nothing.grid.Grid;
 import io.github.lord_of_nothing.grid.GridInputHandler;
 import io.github.lord_of_nothing.grid.GridRenderer;
-import io.github.lord_of_nothing.hud.InfoSidebar;
-import io.github.lord_of_nothing.hud.InfoSidebarRenderer;
+import io.github.lord_of_nothing.hud.TileInspectorBar;
+import io.github.lord_of_nothing.hud.TileInspectorRenderer;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.hud.SidebarRenderer;
 import io.github.lord_of_nothing.hud.TopBarRenderer;
@@ -54,8 +54,8 @@ public class Main extends ApplicationAdapter {
     private Texture grassTexture;
     private Sidebar sidebar;
     private SidebarRenderer sidebarRenderer;
-    private InfoSidebar infoSidebar;
-    private InfoSidebarRenderer infoSidebarRenderer;
+    private TileInspectorBar tileInspectorBar;
+    private TileInspectorRenderer tileInspectorRenderer;
 
 
     private EventBus eventBus;
@@ -87,14 +87,14 @@ public class Main extends ApplicationAdapter {
         buildingTextures.put("quarry", new Texture("buildings/Placeholder_2x2_1.png"));
         sidebar = new Sidebar();
         sidebarRenderer = new SidebarRenderer();
-        infoSidebar = new InfoSidebar();
-        infoSidebarRenderer = new InfoSidebarRenderer();
+        tileInspectorBar = new TileInspectorBar();
+        tileInspectorRenderer = new TileInspectorRenderer();
 
         topBarRenderer = new TopBarRenderer();
         eventBus = new EventBus();
         flowState = new FlowState();
 
-        gridInputHandler = new GridInputHandler(camera, grid, resourceManager, sidebar, eventBus, infoSidebar);
+        gridInputHandler = new GridInputHandler(camera, grid, resourceManager, sidebar, eventBus, tileInspectorBar);
         gridInputHandler.setGameplayEnabled(false);
 
         MainMenu mainMenu = new MainMenu(eventBus);
@@ -189,7 +189,7 @@ public class Main extends ApplicationAdapter {
             eventBus,
             flowState.getScreenState() == ScreenState.PAUSED
         );
-        infoSidebarRenderer.render(shapeRenderer, batch, gameWindow, infoSidebar, buildingTextures);
+        tileInspectorRenderer.render(shapeRenderer, batch, gameWindow, tileInspectorBar, buildingTextures);
     }
 
     /**
@@ -212,7 +212,7 @@ public class Main extends ApplicationAdapter {
         shapeRenderer.dispose();
         batch.dispose();
         grassTexture.dispose();
-        infoSidebarRenderer.dispose();
+        tileInspectorRenderer.dispose();
         topBarRenderer.dispose();
         settingsFlowCoordinator.dispose();
         menuFlowCoordinator.dispose();

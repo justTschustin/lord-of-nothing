@@ -10,13 +10,19 @@ import io.github.lord_of_nothing.buildings.Building;
 import java.util.Map;
 
 /**
- * <summary>Visualizes building details such as the sprite, type name, and level within the info panel bounds.</summary>
- * <remarks>Uses a BitmapFont for text rendering and coordinates from GameWindow for relative positioning.</remarks>
+ * Visualizes building details such as the sprite, type name, and level within the info panel bounds
+ * Uses a BitmapFont for text rendering and coordinates from GameWindow for relative positioning
  */
-public class InfoSidebarRenderer {
+public class TileInspectorRenderer {
     private final BitmapFont font = new BitmapFont();
 
-    public void render(ShapeRenderer sr, SpriteBatch batch, GameWindow window, InfoSidebar state, Map<String, Texture> textures) {
+    public void render(
+        ShapeRenderer sr,
+        SpriteBatch batch,
+        GameWindow window,
+        TileInspectorBar state,
+        Map<String, Texture> textures
+    ) {
         if (!state.isOpen()) {return;}
 
         float x = window.getRightMarginX();
