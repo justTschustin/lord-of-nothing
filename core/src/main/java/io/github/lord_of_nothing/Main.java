@@ -16,7 +16,6 @@ import io.github.lord_of_nothing.events.OpenSettingsMenuEvent;
 import io.github.lord_of_nothing.events.PauseGameEvent;
 import io.github.lord_of_nothing.events.ResumeGameEvent;
 import io.github.lord_of_nothing.events.StartGameEvent;
-import io.github.lord_of_nothing.events.ToggleFullscreenEvent;
 import io.github.lord_of_nothing.flow.FlowState;
 import io.github.lord_of_nothing.flow.GameplayFlowCoordinator;
 import io.github.lord_of_nothing.flow.MenuFlowCoordinator;
