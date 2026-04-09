@@ -53,7 +53,7 @@ public class Grid {
     }
 
     /**
-     * <summary>Checks if a building of given dimensions can be placed at the target coordinates.</summary>
+     * Checks if a building of given dimensions can be placed at the target coordinates.
      * @param x Start X-coordinate. @param y Start Y-coordinate. @param w Width. @param h Height.
      */
     public boolean canPlace(int x, int y, int w, int h) {
@@ -66,7 +66,7 @@ public class Grid {
     }
 
     /**
-     * <summary>Places a building across multiple tiles and sets the root reference for rendering.</summary>
+     * Places a building across multiple tiles and sets the root reference for rendering.
      */
     public void placeBuilding(int x, int y, Building b) {
         b.setRootPosition(x, y);

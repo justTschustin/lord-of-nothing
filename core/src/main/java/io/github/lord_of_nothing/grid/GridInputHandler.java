@@ -93,6 +93,7 @@ public class GridInputHandler extends InputAdapter {
             } else {
                 if (clicked instanceof io.github.lord_of_nothing.buildings.House) {pendingBuilding = new io.github.lord_of_nothing.buildings.House();}
                 else if (clicked instanceof io.github.lord_of_nothing.buildings.Sawmill) {pendingBuilding = new io.github.lord_of_nothing.buildings.Sawmill();}
+                else if (clicked instanceof io.github.lord_of_nothing.buildings.Quarry) {pendingBuilding = new io.github.lord_of_nothing.buildings.Quarry();}
             }
             {return true;}
         }
@@ -116,7 +117,7 @@ public class GridInputHandler extends InputAdapter {
         return false;
     }
     /**
-     * <summary>Validates that the player has sufficient amounts of all required resources to place the building.</summary>
+     * Validates that the player has sufficient amounts of all required resources to place the building.
      * @param building The building instance containing the cost map to be checked.
      */
     private boolean canAfford(Building building) {
@@ -139,7 +140,7 @@ public class GridInputHandler extends InputAdapter {
     public boolean isHouseSelected() { return pendingBuilding != null; }
 
     /**
-     * <summary>Returns the building currently selected for placement.</summary>
+     * Returns the building currently selected for placement.
      * @return The pending building instance or null if none is selected.
      */
     public Building getPendingBuilding() {
