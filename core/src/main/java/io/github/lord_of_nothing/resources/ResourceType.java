@@ -1,9 +1,11 @@
 package io.github.lord_of_nothing.resources;
 
 /**
- * Definiert alle verfügbaren Ressourcentypen im Spiel.
- * Erlaubt eine einfache Erweiterung um neue Typen wie Eisen oder Gold.
+ * Defines all available resource types in the game.
  */
 public enum ResourceType {
-    CITIZENS, WOOD, STONE, FOOD
+    WOOD, STONE, FOOD,
+    CITIZENS_TOTAL,
+    CITIZENS_AVAILABLE,
+    CITIZENS_CAPACITY
 }

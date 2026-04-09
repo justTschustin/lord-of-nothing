@@ -98,7 +98,7 @@ public class Main extends ApplicationAdapter {
 
         gridRenderer.render(shapeRenderer, batch, grid, gameWindow, buildingTextures, grassTexture, gridInputHandler.getPendingBuilding(), resourceManager);
         sidebarRenderer.render(shapeRenderer, batch, sidebar, buildingTextures, gridInputHandler.getPendingBuilding(), resourceManager);
-        infoSidebarRenderer.render(shapeRenderer, batch, gameWindow, infoSidebar, buildingTextures);
+        infoSidebarRenderer.render(shapeRenderer, batch, gameWindow, infoSidebar, buildingTextures, resourceManager);
         topBarRenderer.render(shapeRenderer, batch, gameWindow, resourceManager);
         closeButtonRenderer.render(shapeRenderer, gameWindow);
     }

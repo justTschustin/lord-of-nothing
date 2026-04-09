@@ -23,12 +23,11 @@ public class TopBarRenderer {
         shapeRenderer.end();
 
         batch.begin();
-        int spacing = 150;
-        int i = 0;
-        for (ResourceType type : ResourceType.values()) {
-            font.draw(batch, type.name() + ": " + resourceManager.getAmount(type), 20 + (i * spacing), window.getTopBarY() + 25);
-            i++;
-        }
+        float y = window.getTopBarY() + 25;
+        font.draw(batch, "WOOD: " + resourceManager.getAmount(ResourceType.WOOD), 20, y);
+        font.draw(batch, "STONE: " + resourceManager.getAmount(ResourceType.STONE), 150, y);
+        font.draw(batch, "FOOD: " + resourceManager.getAmount(ResourceType.FOOD), 280, y);
+        font.draw(batch, "CAPACITY: " + resourceManager.getAmount(ResourceType.CITIZENS_CAPACITY), 410, y);
         batch.end();
     }
 

@@ -13,6 +13,7 @@ public class House extends Building {
     public House() {
         super(1, 1); // Explicitly call the Building constructor
         costs.put(ResourceType.WOOD, 10);
+        this.setCitizenCapacity(5);
     }
 
     @Override

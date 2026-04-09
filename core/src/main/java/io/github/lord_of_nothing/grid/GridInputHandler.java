@@ -64,24 +64,33 @@ public class GridInputHandler extends InputAdapter {
         return true;
     }
     /**
-     * Handles every click on the screen.
+     * Handles touch input by distinguishing between UI interactions within the info panel and world interactions.
      */
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         touchPos.set(screenX, screenY, 0);
         camera.unproject(touchPos);
 
-        // Close panel if clicking anywhere left of the right margin start
-        if (infoSidebar.isOpen() && touchPos.x < window.getRightMarginX()) {
-            infoSidebar.close();
+        // 1. Check InfoSidebar Interaction
+        if (infoSidebar.isOpen()) {
+            // Click INSIDE the sidebar: Handle Add/Remove buttons
+            if (touchPos.x >= window.getRightMarginX()) {
+                if (handleInfoSidebarButtons(touchPos.x, touchPos.y)) return true;
+            }
+            // Click OUTSIDE the sidebar: Close it
+            else {
+                infoSidebar.close();
+                // Continue to check if another building was clicked
+            }
         }
 
-        if (handleCloseButton(touchPos.x, touchPos.y)) {return true;}
-        if (handleSidebarInteraction(touchPos.x, touchPos.y)) {return true;}
+        if (handleCloseButton(touchPos.x, touchPos.y)) return true;
+        if (handleSidebarInteraction(touchPos.x, touchPos.y)) return true;
 
+        // 2. Check World/Grid Interaction
         int tileX = (int) ((touchPos.x - offsetX) / tileSize);
         int tileY = (int) ((touchPos.y - offsetY) / tileSize);
-        // Open panel if a building is clicked and no new building is being placed
+
         if (grid.isInside(tileX, tileY) && getPendingBuilding() == null) {
             io.github.lord_of_nothing.grid.Tile tile = grid.getTile(tileX, tileY);
             if (tile.hasBuilding()) {
@@ -89,8 +98,10 @@ public class GridInputHandler extends InputAdapter {
                 return true;
             }
         }
+
         return handleGridPlacement(touchPos.x, touchPos.y);
     }
+
 
     /**
     Handles interaction with the close button.
@@ -126,6 +137,35 @@ public class GridInputHandler extends InputAdapter {
     }
 
     /**
+     * Processes button clicks specifically for worker assignment within the InfoSidebar bounds.
+     * @param x Unprojected X coordinate. @param y Unprojected Y coordinate.
+     */
+    private boolean handleInfoSidebarButtons(float x, float y) {
+        Building b = infoSidebar.getSelected();
+        if (b.getMaxWorkers() <= 0) return false;
+
+        // Check vertical button row
+        if (y < window.getInfoPanelY() + 80 && y > window.getInfoPanelY() + 60) {
+            // Add Worker: Left side of the info panel
+            if (x < window.getRightMarginX() + 100) {
+                if (resourceManager.getAmount(ResourceType.CITIZENS_AVAILABLE) > 0 && b.getCurrentWorkers() < b.getMaxWorkers()) {
+                    b.addWorker();
+                    resourceManager.add(ResourceType.CITIZENS_AVAILABLE, -1);
+                }
+            }
+            // Remove Worker: Right side of the info panel
+            else {
+                if (b.getCurrentWorkers() > 0) {
+                    b.removeWorker();
+                    resourceManager.add(ResourceType.CITIZENS_AVAILABLE, 1);
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
     Handles interaction with the grid for placing buildings.
      */
     private boolean handleGridPlacement(float x, float y) {
@@ -136,6 +176,11 @@ public class GridInputHandler extends InputAdapter {
             if (canAfford(pendingBuilding)) {
                 consumeCosts(pendingBuilding);
                 grid.placeBuilding(tileX, tileY, pendingBuilding);
+                if (pendingBuilding.getCitizenCapacity() > 0) {
+                    resourceManager.add(ResourceType.CITIZENS_CAPACITY, pendingBuilding.getCitizenCapacity());
+                    resourceManager.add(ResourceType.CITIZENS_TOTAL, pendingBuilding.getCitizenCapacity());
+                    resourceManager.add(ResourceType.CITIZENS_AVAILABLE, pendingBuilding.getCitizenCapacity());
+                }
                 pendingBuilding = null;
                 return true;
             }
@@ -166,10 +211,20 @@ public class GridInputHandler extends InputAdapter {
     public boolean isHouseSelected() { return pendingBuilding != null; }
 
     /**
-     * <summary>Returns the building currently selected for placement.</summary>
+     * Returns the building currently selected for placement.
      * @return The pending building instance or null if none is selected.
      */
     public Building getPendingBuilding() {
         return pendingBuilding;
+    }
+
+    /**
+     * Increments both capacity and available worker pool when a residential building is placed.
+     */
+    private void handleBuildingEffects(Building b) {
+        if (b.getCitizenCapacity() > 0) {
+            resourceManager.add(ResourceType.CITIZENS_CAPACITY, b.getCitizenCapacity());
+            resourceManager.add(ResourceType.CITIZENS_AVAILABLE, b.getCitizenCapacity());
+        }
     }
 }
