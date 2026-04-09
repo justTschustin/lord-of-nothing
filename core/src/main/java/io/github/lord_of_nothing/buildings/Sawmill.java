@@ -11,6 +11,7 @@ public class Sawmill extends Building {
     public Sawmill() {
         super(2, 1);
         costs.put(ResourceType.WOOD, 20);
+        this.setMaxWorkers(2);
     }
 
     /**

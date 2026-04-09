@@ -69,17 +69,18 @@ public class TopBarRenderer {
         pauseOverlay.setActive(paused);
 
         batch.begin();
+        float y = window.getTopBarY() + 25;
+        font.draw(batch, "WOOD: " + resources.getResourceAmount(ResourceType.WOOD), 20, y);
+        font.draw(batch, "STONE: " + resources.getResourceAmount(ResourceType.STONE), 150, y);
+        font.draw(batch, "FOOD: " + resources.getResourceAmount(ResourceType.FOOD), 280, y);
+        font.draw(batch, "CAPACITY: " + resources.getResourceAmount(ResourceType.CITIZENS_CAPACITY), 410, y);
         int spacing = 150;
-        int i = 0;
-        for (ResourceType type : ResourceType.values()) {
-            font.draw(batch, type.name() + ": " + resources.getResourceAmount(type), 20 + (i * spacing), window.getTopBarY() + 25);
-            i++;
-        }
+        int i = 4; // Represents the count of resources explicitly drawn above for positioning the next element
         font.draw(
             batch,
             "Day: " + currentIngameDay + " Time: " + currentIngameHour + ":00",
             20 + (i * spacing),
-            window.getTopBarY() + 25
+            y
         );
         pauseButton.render(batch);
         batch.end();

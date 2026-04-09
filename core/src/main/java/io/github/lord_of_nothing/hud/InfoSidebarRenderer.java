@@ -7,6 +7,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.buildings.Building;
+import io.github.lord_of_nothing.resources.ResourceManager;
+import io.github.lord_of_nothing.resources.ResourceType;
+
 import java.util.Map;
 
 /**
@@ -16,18 +19,22 @@ import java.util.Map;
 public class InfoSidebarRenderer {
     private final BitmapFont font = new BitmapFont();
 
-    public void render(ShapeRenderer sr, SpriteBatch batch, GameWindow window, InfoSidebar state, Map<String, Texture> textures) {
+    /**
+     * <summary>Visualizes building details and worker management by accessing the global resource manager.</summary>
+     * @param rm The resource manager used to display the current pool of available citizens.
+     */
+    public void render(ShapeRenderer sr, SpriteBatch batch, GameWindow window, InfoSidebar state, Map<String, Texture> textures, ResourceManager rm) {
         if (!state.isOpen()) {return;}
 
         float x = window.getRightMarginX();
-        float y = window.getInfoPanelY();
+        float yBase = window.getInfoPanelY(); // Variable zu yBase umbenannt
         float w = window.getRightMarginWidth();
         float h = window.getInfoPanelHeight();
 
         // 1. Background
         sr.begin(ShapeRenderer.ShapeType.Filled);
         sr.setColor(0.15f, 0.15f, 0.15f, 0.85f);
-        sr.rect(x, y, w, h);
+        sr.rect(x, yBase, w, h);
         sr.end();
 
         Building b = state.getSelected();
@@ -36,7 +43,7 @@ public class InfoSidebarRenderer {
         // 2. Sprite (centered in top part of panel)
         float spriteSize = w * 0.5f;
         float spriteX = x + (w - spriteSize) / 2f;
-        float spriteY = y + h - spriteSize - 20;
+        float spriteY = yBase + h - spriteSize - 20;
         batch.draw(textures.get(b.getBuildingTypeKey()), spriteX, spriteY, spriteSize, spriteSize);
 
         // 3. Text (Name + Level)
@@ -44,6 +51,14 @@ public class InfoSidebarRenderer {
         String infoText = b.getBuildingTypeKey().toUpperCase() + " LVL " + b.getLevel();
         font.draw(batch, infoText, x + 20, spriteY - 20);
 
+        // 4. Workers & Available pool
+        if (b.getMaxWorkers() > 0) {
+            String workerInfo = "Workers: " + b.getCurrentWorkers() + "/" + b.getMaxWorkers();
+            String availInfo = "Available: " + rm.getAmount(ResourceType.CITIZENS_AVAILABLE);
+
+            font.draw(batch, workerInfo + "  (" + availInfo + ")", x + 20, yBase + 100);
+            font.draw(batch, "[+] Add        [-] Remove", x + 20, yBase + 70);
+        }
         batch.end();
     }
 
