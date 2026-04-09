@@ -53,7 +53,9 @@ public class ResolutionSelector extends DropDownSelect {
 
     @Override
     public void onClick() {
-        if (!enabled) return;
+        if (!enabled) {
+            return;
+        }
 
         // If an option row was clicked, select it
         if (hoveredOptionIndex >= 0) {

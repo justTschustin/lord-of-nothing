@@ -50,7 +50,9 @@ public class DropDownSelect implements UiElement {
     }
 
     public String getSelectedLabel() {
-        if (selectedIndex < 0 || selectedIndex >= labels.size()) return null;
+        if (selectedIndex < 0 || selectedIndex >= labels.size()) {
+            return null;
+        }
         return labels.get(selectedIndex);
     }
 
@@ -92,7 +94,9 @@ public class DropDownSelect implements UiElement {
 
     @Override
     public boolean contains(float x, float y) {
-        if (!enabled) return false;
+        if (!enabled) {
+            return false;
+        }
 
         hoveredOptionIndex = -1;
 
@@ -102,7 +106,9 @@ public class DropDownSelect implements UiElement {
         }
 
         // Expanded options
-        if (!open) return false;
+        if (!open) {
+            return false;
+        }
 
         for (int i = 0; i < labels.size(); i++) {
             float optionY = bounds.y - ((i + 1) * OPTION_HEIGHT);
@@ -123,7 +129,9 @@ public class DropDownSelect implements UiElement {
      */
     @Override
     public void onClick() {
-        if (!enabled) return;
+        if (!enabled) {
+            return;
+        }
 
         // If an option row was clicked, select it
         if (hoveredOptionIndex >= 0) {
@@ -153,7 +161,9 @@ public class DropDownSelect implements UiElement {
             font.draw(batch, GLYPH_LAYOUT, textX, textY);
         }
 
-        if (!open) return;
+        if (!open) {
+            return;
+        }
 
         for (int i = 0; i < labels.size(); i++) {
             float optionY = bounds.y - ((i + 1) * OPTION_HEIGHT);
