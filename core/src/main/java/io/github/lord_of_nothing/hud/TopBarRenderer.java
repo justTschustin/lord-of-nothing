@@ -13,8 +13,7 @@ import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
 
 /**
- * Übernimmt die visuelle Darstellung der Ressourcenleiste am oberen Bildschirmrand.
- * Zeichnet den Hintergrund der Bar und die aktuellen Werte aus dem ResourceManager.
+ * Renders the top resource bar and its pause controls.
  */
 public class TopBarRenderer {
     private final BitmapFont font = new BitmapFont();
@@ -25,6 +24,12 @@ public class TopBarRenderer {
     private static final float PAUSE_BUTTON_HEIGHT = 24f;
     private static final float PAUSE_BUTTON_MARGIN = 10f;
 
+    /**
+     * Registers top-bar UI elements.
+     *
+     * @param window game window layout context
+     * @param eventBus event bus used for UI element registration
+     */
     public void registerUiElements(GameWindow window, EventBus eventBus) {
         setPauseButtonVariables(window, eventBus);
         if (pauseButton != null) {
@@ -32,6 +37,16 @@ public class TopBarRenderer {
         }
     }
 
+    /**
+     * Renders the top bar, resource counters, and optional pause overlay.
+     *
+     * @param shapeRenderer shape renderer for bar background
+     * @param batch sprite batch for text and buttons
+     * @param window game window layout context
+     * @param resourceManager current resource state
+     * @param eventBus event bus used for pause overlay UI registration
+     * @param paused whether gameplay is currently paused
+     */
     public void render(
         ShapeRenderer shapeRenderer,
         SpriteBatch batch,
@@ -64,10 +79,19 @@ public class TopBarRenderer {
         }
     }
 
+    /**
+     * Marks pause-overlay UI elements for re-registration on next render.
+     */
     public void invalidatePauseOverlayUiElements() {
         pauseOverlay.invalidateUiElements();
     }
 
+    /**
+     * Creates or repositions the pause button based on current window size.
+     *
+     * @param window game window layout context
+     * @param eventBus event bus used when creating the button
+     */
     private void setPauseButtonVariables(GameWindow window, EventBus eventBus) {
         float x = Gdx.graphics.getWidth() - PAUSE_BUTTON_WIDTH - PAUSE_BUTTON_MARGIN;
         float y = window.getTopBarY() + (GameWindow.TOP_BAR_HEIGHT - PAUSE_BUTTON_HEIGHT) / 2f;
@@ -80,5 +104,8 @@ public class TopBarRenderer {
         pauseButton.setBounds(x, y, PAUSE_BUTTON_WIDTH, PAUSE_BUTTON_HEIGHT);
     }
 
+    /**
+     * Disposes renderer-owned font resources.
+     */
     public void dispose() { font.dispose(); }
 }

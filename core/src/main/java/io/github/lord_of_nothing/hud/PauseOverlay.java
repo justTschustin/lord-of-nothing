@@ -11,6 +11,9 @@ import io.github.lord_of_nothing.button.ResumeButton;
 import io.github.lord_of_nothing.events.EventBus;
 import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 
+/**
+ * Renders a pause overlay with resume, settings, menu, and exit actions.
+ */
 public class PauseOverlay {
     private static final float BUTTON_WIDTH = 150f;
     private static final float BUTTON_HEIGHT = 40f;
@@ -22,6 +25,11 @@ public class PauseOverlay {
     private ExitButton exitButton;
     private boolean shouldRegisterUiElements = true;
 
+    /**
+     * Enables or disables overlay button interaction.
+     *
+     * @param active whether overlay interaction should be active
+     */
     public void setActive(boolean active) {
         if (resumeButton != null) {
             resumeButton.setEnabled(active);
@@ -40,6 +48,13 @@ public class PauseOverlay {
         }
     }
 
+    /**
+     * Renders the pause overlay and buttons.
+     *
+     * @param shapeRenderer shape renderer used for overlay background
+     * @param batch sprite batch used for buttons
+     * @param eventBus event bus used for UI element registration
+     */
     public void render(ShapeRenderer shapeRenderer, SpriteBatch batch, EventBus eventBus) {
         setButtonLayout(eventBus);
         registerUiElementsIfNeeded(eventBus);
@@ -58,6 +73,11 @@ public class PauseOverlay {
         batch.end();
     }
 
+    /**
+     * Creates buttons when needed and updates their layout.
+     *
+     * @param eventBus event bus used when lazily creating buttons
+     */
     private void setButtonLayout(EventBus eventBus) {
         float centerX = Gdx.graphics.getWidth() / 2f;
         float centerY = Gdx.graphics.getHeight() / 2f;
@@ -92,6 +112,11 @@ public class PauseOverlay {
         }
     }
 
+    /**
+     * Registers overlay buttons once per overlay activation.
+     *
+     * @param eventBus event bus used for UI registration
+     */
     private void registerUiElementsIfNeeded(EventBus eventBus) {
         if (!shouldRegisterUiElements) {
             return;
@@ -112,10 +137,18 @@ public class PauseOverlay {
         shouldRegisterUiElements = false;
     }
 
+    /**
+     * Forces overlay buttons to be re-registered on next render pass.
+     */
     public void invalidateUiElements() {
         shouldRegisterUiElements = true;
     }
 
+    /**
+     * Draws the dimmed background overlay.
+     *
+     * @param shapeRenderer shape renderer used for overlay fill
+     */
     private void renderOverlay(ShapeRenderer shapeRenderer) {
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);

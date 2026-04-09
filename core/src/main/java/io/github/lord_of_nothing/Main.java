@@ -35,6 +35,9 @@ import io.github.lord_of_nothing.resources.ResourceType;
 import io.github.lord_of_nothing.settings.GameSettings;
 import io.github.lord_of_nothing.settings.SettingsStore;
 
+/**
+ * Main LibGDX application entry point for core game logic and rendering.
+ */
 public class Main extends ApplicationAdapter {
     private ShapeRenderer shapeRenderer;
     private OrthographicCamera camera;
@@ -144,6 +147,12 @@ public class Main extends ApplicationAdapter {
         });
     }
 
+    /**
+     * Updates layout-dependent systems after window resize.
+     *
+     * @param width new window width
+     * @param height new window height
+     */
     @Override
     public void resize(int width, int height) {
         gameWindow.resize(width, height);
@@ -183,6 +192,9 @@ public class Main extends ApplicationAdapter {
         );
     }
 
+    /**
+     * Resumes gameplay when the application regains focus while paused.
+     */
     @Override
     public void resume() {
         if (flowState.getScreenState() == ScreenState.PAUSED) {
@@ -190,6 +202,9 @@ public class Main extends ApplicationAdapter {
         }
     }
 
+    /**
+     * Saves settings and disposes rendering resources.
+     */
     @Override
     public void dispose() {
         settingsFlowCoordinator.saveDisplaySettings();

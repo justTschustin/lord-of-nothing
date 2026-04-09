@@ -11,6 +11,9 @@ import io.github.lord_of_nothing.menu.SettingsMenu;
 import io.github.lord_of_nothing.settings.GameSettings;
 import io.github.lord_of_nothing.settings.SettingsStore;
 
+/**
+ * Coordinates entering, leaving, rendering, and persisting settings flow.
+ */
 public class SettingsFlowCoordinator {
     private final FlowState flowState;
     private final GridInputHandler gridInputHandler;
@@ -25,6 +28,19 @@ public class SettingsFlowCoordinator {
     private int windowedWidth;
     private int windowedHeight;
 
+    /**
+     * Creates a settings-flow coordinator.
+     *
+     * @param flowState mutable flow state
+     * @param gridInputHandler input handler to reconfigure during transitions
+     * @param topBarRenderer top bar renderer used when returning to paused gameplay
+     * @param gameWindow game window layout context
+     * @param settingsMenu settings menu renderer
+     * @param eventBus event bus used for UI registration
+     * @param settingsStore persistence for display settings
+     * @param gameSettings loaded settings model
+     * @param registerMainMenuUiElements callback to rebuild main-menu UI elements
+     */
     public SettingsFlowCoordinator(
         FlowState flowState,
         GridInputHandler gridInputHandler,
@@ -49,6 +65,9 @@ public class SettingsFlowCoordinator {
         this.windowedHeight = gameSettings.windowedHeight;
     }
 
+    /**
+     * Applies saved display mode at startup.
+     */
     public void applySavedDisplayMode() {
         if (gameSettings.fullscreen) {
             Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
@@ -58,6 +77,12 @@ public class SettingsFlowCoordinator {
         Gdx.graphics.setWindowedMode(gameSettings.windowedWidth, gameSettings.windowedHeight);
     }
 
+    /**
+     * Tracks the latest windowed size when not in fullscreen mode.
+     *
+     * @param width current window width
+     * @param height current window height
+     */
     public void onResize(int width, int height) {
         if (!Gdx.graphics.isFullscreen()) {
             windowedWidth = width;
@@ -67,6 +92,9 @@ public class SettingsFlowCoordinator {
         }
     }
 
+    /**
+     * Opens the settings screen from either menu or pause flow.
+     */
     public void openSettingsMenu() {
         flowState.setSettingsOpenedFromPause(flowState.getScreenState() == ScreenState.PAUSED);
         flowState.setScreenState(ScreenState.SETTINGS);
@@ -76,6 +104,9 @@ public class SettingsFlowCoordinator {
         settingsMenu.registerUiElements(eventBus);
     }
 
+    /**
+     * Closes settings and returns to the previous flow context.
+     */
     public void closeSettingsMenu() {
         boolean reopenPaused = flowState.isSettingsOpenedFromPause();
 
@@ -95,6 +126,9 @@ public class SettingsFlowCoordinator {
         registerMainMenuUiElements.run();
     }
 
+    /**
+     * Toggles between fullscreen and windowed display modes and persists settings.
+     */
     public void toggleFullscreenMode() {
         if (Gdx.graphics.isFullscreen()) {
             Gdx.graphics.setWindowedMode(windowedWidth, windowedHeight);
@@ -108,6 +142,9 @@ public class SettingsFlowCoordinator {
         settingsStore.save(gameSettings);
     }
 
+    /**
+     * Synchronizes runtime display mode into the settings model.
+     */
     public void syncDisplaySettings() {
         gameSettings.fullscreen = Gdx.graphics.isFullscreen();
         if (!gameSettings.fullscreen) {
@@ -116,15 +153,27 @@ public class SettingsFlowCoordinator {
         }
     }
 
+    /**
+     * Persists the current display settings to storage.
+     */
     public void saveDisplaySettings() {
         syncDisplaySettings();
         settingsStore.save(gameSettings);
     }
 
+    /**
+     * Renders the settings menu.
+     *
+     * @param shapeRenderer shape renderer used for background
+     * @param batch sprite batch used for text and buttons
+     */
     public void render(ShapeRenderer shapeRenderer, SpriteBatch batch) {
         settingsMenu.render(shapeRenderer, batch);
     }
 
+    /**
+     * Disposes settings-menu resources.
+     */
     public void dispose() {
         settingsMenu.dispose();
     }

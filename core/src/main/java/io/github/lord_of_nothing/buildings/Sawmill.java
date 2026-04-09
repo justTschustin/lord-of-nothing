@@ -1,6 +1,9 @@
 package io.github.lord_of_nothing.buildings;
 import io.github.lord_of_nothing.resources.ResourceType;
 
+/**
+ * 2x1 sawmill building template.
+ */
 public class Sawmill extends Building {
     /**
      * Initializes a sawmill with a 2x1 footprint and costs of 20 wood.
@@ -12,6 +15,8 @@ public class Sawmill extends Building {
 
     /**
      * Implementation of the type key for sawmills.
+     *
+     * @return building type key
      */
     @Override
     public String getBuildingTypeKey() {

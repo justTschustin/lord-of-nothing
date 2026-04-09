@@ -13,9 +13,19 @@ import io.github.lord_of_nothing.resources.ResourceType;
 import java.util.Map;
 
 /**
- * Renders the sidebar background and building slots dynamically based on the Sidebar model.
+ * Renders sidebar slots and building icons.
  */
 public class SidebarRenderer {
+    /**
+     * Draws the sidebar background and building entries.
+     *
+     * @param sr shape renderer used for sidebar geometry
+     * @param batch sprite batch used for icon rendering
+     * @param sidebar sidebar model with templates
+     * @param textures texture map keyed by building type
+     * @param pending currently selected building template
+     * @param rm resource manager used to tint unaffordable entries
+     */
     public void render(
         ShapeRenderer sr,
         SpriteBatch batch,
