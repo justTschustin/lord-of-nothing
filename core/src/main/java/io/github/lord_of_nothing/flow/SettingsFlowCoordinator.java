@@ -120,15 +120,7 @@ public class SettingsFlowCoordinator {
      * Toggles between fullscreen and windowed display modes and persists settings.
      */
     public void toggleFullscreenMode() {
-        if (Gdx.graphics.isFullscreen()) {
-            Gdx.graphics.setWindowedMode(gameSettings.windowedWidth, gameSettings.windowedHeight);
-        } else {
-            gameSettings.windowedWidth = Gdx.graphics.getWidth();
-            gameSettings.windowedHeight = Gdx.graphics.getHeight();
-            Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-        }
-
-        saveDisplaySettings();
+        gameSettings.fullscreen = !gameSettings.fullscreen;
         applyDisplaySettings();
     }
 
@@ -140,9 +132,10 @@ public class SettingsFlowCoordinator {
     }
 
     public void applyDisplaySettings() {
-        Gdx.graphics.setWindowedMode(gameSettings.windowedWidth, gameSettings.windowedHeight);
         if (gameSettings.fullscreen) {
             Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+        } else {
+            Gdx.graphics.setWindowedMode(gameSettings.windowedWidth, gameSettings.windowedHeight);
         }
     }
 
