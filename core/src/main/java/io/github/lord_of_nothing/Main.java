@@ -66,6 +66,10 @@ public class Main extends ApplicationAdapter {
     private MenuFlowCoordinator menuFlowCoordinator;
     private GameplayFlowCoordinator gameplayFlowCoordinator;
     private SettingsFlowCoordinator settingsFlowCoordinator;
+    // Track last known display state to detect external fullscreen/window changes (esp. macOS)
+    private int lastKnownWidth;
+    private int lastKnownHeight;
+    private boolean lastKnownFullscreen;
 
     /**
      * Initialisiert die Kernkomponenten, lädt Grafikressourcen und konfiguriert die Eingabeverarbeitung.
@@ -136,7 +140,15 @@ public class Main extends ApplicationAdapter {
             resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             menuFlowCoordinator.registerUiElements();
             Gdx.input.setInputProcessor(gridInputHandler);
+            // capture initial known state after final layout
+            lastKnownWidth = Gdx.graphics.getWidth();
+            lastKnownHeight = Gdx.graphics.getHeight();
+            lastKnownFullscreen = Gdx.graphics.isFullscreen();
         });
+        // provisional initial known state
+        lastKnownWidth = Gdx.graphics.getWidth();
+        lastKnownHeight = Gdx.graphics.getHeight();
+        lastKnownFullscreen = Gdx.graphics.isFullscreen();
 
         eventBus.subscribe(event -> {
             if (event instanceof StartGameEvent) {
@@ -177,6 +189,21 @@ public class Main extends ApplicationAdapter {
      */
     @Override
     public void render() {
+        // Detect external display/state changes (e.g. macOS native fullscreen) and
+        // re-run resize to keep camera/UI in sync with the real window size.
+        int currentW = Gdx.graphics.getWidth();
+        int currentH = Gdx.graphics.getHeight();
+        boolean currentFs = Gdx.graphics.isFullscreen();
+        if (currentW != lastKnownWidth || currentH != lastKnownHeight || currentFs != lastKnownFullscreen) {
+            // update layout immediately
+            resize(currentW, currentH);
+            // re-register UI elements so their bounds recalc against new layout
+            menuFlowCoordinator.registerUiElements();
+            lastKnownWidth = currentW;
+            lastKnownHeight = currentH;
+            lastKnownFullscreen = currentFs;
+        }
+
         Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
