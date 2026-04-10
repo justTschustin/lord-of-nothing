@@ -32,11 +32,11 @@ public class GridInputHandler extends InputAdapter {
     private final Grid grid;
     private final Vector3 touchPos = new Vector3();
 
-    private int tileSize;
-    private int offsetX;
-    private int offsetY;
-    private int gridPixelWidth;
-    private int gridPixelHeight;
+    private float tileSize;
+    private float offsetX;
+    private float offsetY;
+    private float gridPixelWidth;
+    private float gridPixelHeight;
     private Building pendingBuilding = null;
     private final ResourceManager resourceManager;
     private final List<UiElement> uiElements = new ArrayList<>();
