@@ -148,7 +148,7 @@ public class SettingsFlowCoordinator {
             waitForDisplaySize(dm.width, dm.height, 20, () -> {
                 gameWindow.resize(dm.width, dm.height);
                 gridInputHandler.updateLayout(gameWindow);
-                if (onApplied != null) onApplied.run();
+                if (onApplied != null) {onApplied.run();}
             });
         } else {
             final int w = gameSettings.windowedWidth;
@@ -157,7 +157,7 @@ public class SettingsFlowCoordinator {
             // Windowed mode usually takes effect immediately
             gameWindow.resize(w, h);
             gridInputHandler.updateLayout(gameWindow);
-            if (onApplied != null) onApplied.run();
+            if (onApplied != null) {onApplied.run();}
         }
     }
 
