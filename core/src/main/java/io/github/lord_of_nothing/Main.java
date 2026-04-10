@@ -126,8 +126,17 @@ public class Main extends ApplicationAdapter {
             () -> menuFlowCoordinator.registerUiElements()
         );
 
+        // Initial resize to set up camera / basic layout for the initial window state
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        Gdx.input.setInputProcessor(gridInputHandler);
+
+        // Initialize display settings asynchronously. Once applied by the backend,
+        // re-run resize and register UI elements so positions are calculated with
+        // the final display dimensions (fixes broken fullscreen startup).
+        settingsFlowCoordinator.initializeDisplaySettings(() -> {
+            resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            menuFlowCoordinator.registerUiElements();
+            Gdx.input.setInputProcessor(gridInputHandler);
+        });
 
         eventBus.subscribe(event -> {
             if (event instanceof StartGameEvent) {

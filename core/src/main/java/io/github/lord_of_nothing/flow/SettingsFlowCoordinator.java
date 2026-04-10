@@ -1,6 +1,7 @@
 package io.github.lord_of_nothing.flow;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.lord_of_nothing.GameWindow;
@@ -64,7 +65,6 @@ public class SettingsFlowCoordinator {
         this.gameSettings = gameSettings;
         this.registerMainMenuUiElements = registerMainMenuUiElements;
 
-        applyDisplaySettings();
         settingsMenu.syncDisplaySettings(gameSettings);
 
         eventBus.subscribe(event -> {
@@ -131,12 +131,65 @@ public class SettingsFlowCoordinator {
         settingsStore.save(gameSettings);
     }
 
+    /**
+     * Apply display settings and call onApplied once the backend has applied the mode
+     * and the GameWindow has been resized accordingly.
+     */
     public void applyDisplaySettings() {
+        applyDisplaySettings(null);
+    }
+
+    private void applyDisplaySettings(Runnable onApplied) {
         if (gameSettings.fullscreen) {
-            Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+            final Graphics.DisplayMode dm = Gdx.graphics.getDisplayMode();
+            Gdx.graphics.setFullscreenMode(dm);
+
+            // Wait until the backend reports the new size (may take a few frames).
+            waitForDisplaySize(dm.width, dm.height, 20, () -> {
+                gameWindow.resize(dm.width, dm.height);
+                gridInputHandler.updateLayout(gameWindow);
+                if (onApplied != null) onApplied.run();
+            });
         } else {
-            Gdx.graphics.setWindowedMode(gameSettings.windowedWidth, gameSettings.windowedHeight);
+            final int w = gameSettings.windowedWidth;
+            final int h = gameSettings.windowedHeight;
+            Gdx.graphics.setWindowedMode(w, h);
+            // Windowed mode usually takes effect immediately
+            gameWindow.resize(w, h);
+            gridInputHandler.updateLayout(gameWindow);
+            if (onApplied != null) onApplied.run();
         }
+    }
+
+    // helper: poll for display size changes via postRunnable, limited retries
+    private void waitForDisplaySize(int expectedW, int expectedH, int retriesLeft, Runnable onReady) {
+        Gdx.app.postRunnable(() -> {
+            int cw = Gdx.graphics.getWidth();
+            int ch = Gdx.graphics.getHeight();
+            if (cw == expectedW && ch == expectedH) {
+                onReady.run();
+            } else if (retriesLeft > 0) {
+                // try again next frame
+                waitForDisplaySize(expectedW, expectedH, retriesLeft - 1, onReady);
+            } else {
+                // give up and use expected values
+                onReady.run();
+            }
+        });
+    }
+
+    /**
+     * Initializes display settings at startup by triggering the toggle mechanism.
+     * This forces LibGDX to properly recalculate window dimensions by simulating user toggle actions.
+     */
+    public void initializeDisplaySettings(Runnable onComplete) {
+        // Run the display mode application on the main/render thread in the next loop.
+        // This lets the LWJGL backend finish initial window setup before we change modes
+        // and ensures the subsequent resize uses the correct, final dimensions.
+        Gdx.app.postRunnable(() -> {
+            // Apply requested display settings (will call onComplete when finished)
+            applyDisplaySettings(onComplete);
+        });
     }
 
     /**
@@ -156,4 +209,3 @@ public class SettingsFlowCoordinator {
         settingsMenu.dispose();
     }
 }
-
