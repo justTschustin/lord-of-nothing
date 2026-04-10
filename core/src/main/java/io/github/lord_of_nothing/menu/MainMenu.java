@@ -68,7 +68,7 @@ public class MainMenu {
         shapeRenderer.end();
 
         batch.begin();
-        font.draw(batch, "Lord of Nothing", Gdx.graphics.getWidth() / 2f - 90f, Gdx.graphics.getHeight() / 2f + 110f);
+        font.draw(batch, "Lord of Nothing", Gdx.graphics.getWidth() / 2f - 47f, Gdx.graphics.getHeight() / 2f + 140f);
         startGameButton.render(batch);
         settingsButton.render(batch);
         exitButton.render(batch);
