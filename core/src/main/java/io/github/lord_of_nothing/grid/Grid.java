@@ -6,8 +6,8 @@ import io.github.lord_of_nothing.buildings.Building;
  * Represents the tile grid and placement logic for buildings.
  */
 public class Grid {
-    private static final int width = 32;
-    private static final int height = 18;
+    private static final int width = 27;
+    private static final int height = 22;
     private int hoveredX = -1;
     private int hoveredY = -1;
     private final Tile[][] tiles;
