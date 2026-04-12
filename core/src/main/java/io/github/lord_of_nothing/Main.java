@@ -126,6 +126,7 @@ public class Main extends ApplicationAdapter {
             eventBus,
             settingsStore,
             gameSettings,
+            tickHandler::setGameSpeed,
             () -> menuFlowCoordinator.registerUiElements()
         );
 
