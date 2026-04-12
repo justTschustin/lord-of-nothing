@@ -3,21 +3,24 @@ package io.github.lord_of_nothing.settings;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonWriter;
 
 /**
  * Loads and saves {@link GameSettings} from a local JSON file.
  */
 public class SettingsStore {
     private final Json json = new Json();
-    private final String localPath;
+    private final String filePath;
 
     /**
      * Creates a settings store for a local file path.
      *
-     * @param localPath local file path used for settings persistence
+     * @param filePath local file path used for settings persistence
      */
-    public SettingsStore(String localPath) {
-        this.localPath = localPath;
+    public SettingsStore(String filePath) {
+        this.filePath = filePath;
+        json.setOutputType(JsonWriter.OutputType.json);
+        json.setUsePrototypes(false);
     }
 
     /**
@@ -26,17 +29,22 @@ public class SettingsStore {
      * @return loaded settings or defaults when load fails
      */
     public GameSettings load() {
-        FileHandle file = Gdx.files.local(localPath);
+        GameSettings defaults = new GameSettings();
+        FileHandle file = Gdx.files.local(filePath);
         if (!file.exists()) {
-            return new GameSettings();
+            save(defaults);
+            return defaults;
         }
 
         try {
             GameSettings loaded = json.fromJson(GameSettings.class, file.readString("UTF-8"));
-            return loaded == null ? new GameSettings() : loaded;
+            GameSettings normalized = normalize(loaded, defaults);
+            save(normalized);
+            return normalized;
         } catch (Exception ignored) {
             // Fall back to defaults if the settings file is malformed.
-            return new GameSettings();
+            save(defaults);
+            return defaults;
         }
     }
 
@@ -46,8 +54,23 @@ public class SettingsStore {
      * @param settings settings object to persist
      */
     public void save(GameSettings settings) {
-        FileHandle file = Gdx.files.local(localPath);
-        file.writeString(json.toJson(settings), false, "UTF-8");
+        GameSettings normalized = normalize(settings, new GameSettings());
+        FileHandle file = Gdx.files.local(filePath);
+        file.parent().mkdirs();
+        file.writeString(json.prettyPrint(normalized), false, "UTF-8");
+    }
+
+    private GameSettings normalize(GameSettings loaded, GameSettings defaults) {
+        if (loaded == null) {
+            return defaults;
+        }
+
+        GameSettings normalized = new GameSettings();
+        normalized.fullscreen = loaded.fullscreen;
+        normalized.windowedWidth = loaded.windowedWidth > 0 ? loaded.windowedWidth : defaults.windowedWidth;
+        normalized.windowedHeight = loaded.windowedHeight > 0 ? loaded.windowedHeight : defaults.windowedHeight;
+        normalized.gameSpeed = loaded.gameSpeed > 0 ? loaded.gameSpeed : defaults.gameSpeed;
+        return normalized;
     }
 }
 

@@ -106,7 +106,7 @@ public class Main extends ApplicationAdapter {
 
         MainMenu mainMenu = new MainMenu(eventBus);
         SettingsMenu settingsMenu = new SettingsMenu(eventBus);
-        SettingsStore settingsStore = new SettingsStore("settings.json");
+        SettingsStore settingsStore = new SettingsStore("../config/settings.json");
         GameSettings gameSettings = settingsStore.load();
 
         menuFlowCoordinator = new MenuFlowCoordinator(eventBus, gridInputHandler, flowState, mainMenu);
