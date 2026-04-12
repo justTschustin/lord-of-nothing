@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.buildings.Building;
-import io.github.lord_of_nothing.resources.ResourceManager;
+import io.github.lord_of_nothing.game.ResourceStateView;
 import io.github.lord_of_nothing.resources.ResourceType;
 
 import java.util.Map;
@@ -24,7 +24,7 @@ public class SidebarRenderer {
      * @param sidebar sidebar model with templates
      * @param textures texture map keyed by building type
      * @param pending currently selected building template
-     * @param rm resource manager used to tint unaffordable entries
+     * @param resources resource state used to tint unaffordable entries
      */
     public void render(
         ShapeRenderer sr,
@@ -32,7 +32,7 @@ public class SidebarRenderer {
         Sidebar sidebar,
         Map<String, Texture> textures,
         Building pending,
-        ResourceManager rm
+        ResourceStateView resources
     ) {
         int startY = Gdx.graphics.getHeight() - GameWindow.TOP_BAR_HEIGHT;
 
@@ -58,7 +58,7 @@ public class SidebarRenderer {
 
             boolean canAfford = true;
             for (Map.Entry<ResourceType, Integer> entry : b.getCosts().entrySet()) {
-                if (!rm.hasEnough(entry.getKey(), entry.getValue())) {canAfford = false;}
+                if (!resources.hasEnoughResources(entry.getKey(), entry.getValue())) {canAfford = false;}
             }
 
             batch.setColor(canAfford ? Color.WHITE : Color.RED);
