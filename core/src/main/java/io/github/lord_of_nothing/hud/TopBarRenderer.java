@@ -44,6 +44,8 @@ public class TopBarRenderer {
      * @param batch sprite batch for text and buttons
      * @param window game window layout context
      * @param resources current resource state
+     * @param currentIngameDay current in-game day
+     * @param currentIngameHour current in-game hour
      * @param eventBus event bus used for pause overlay UI registration
      * @param paused whether gameplay is currently paused
      */
@@ -52,6 +54,8 @@ public class TopBarRenderer {
         SpriteBatch batch,
         GameWindow window,
         ResourceStateView resources,
+        int currentIngameDay,
+        int currentIngameHour,
         EventBus eventBus,
         boolean paused
     ) {
@@ -71,6 +75,12 @@ public class TopBarRenderer {
             font.draw(batch, type.name() + ": " + resources.getResourceAmount(type), 20 + (i * spacing), window.getTopBarY() + 25);
             i++;
         }
+        font.draw(
+            batch,
+            "Day: " + currentIngameDay + " Time: " + currentIngameHour + ":00",
+            20 + (i * spacing),
+            window.getTopBarY() + 25
+        );
         pauseButton.render(batch);
         batch.end();
 

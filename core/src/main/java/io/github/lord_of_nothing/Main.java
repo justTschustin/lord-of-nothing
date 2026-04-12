@@ -22,6 +22,7 @@ import io.github.lord_of_nothing.flow.MenuFlowCoordinator;
 import io.github.lord_of_nothing.flow.ScreenState;
 import io.github.lord_of_nothing.flow.SettingsFlowCoordinator;
 import io.github.lord_of_nothing.game.GameStateHandler;
+import io.github.lord_of_nothing.game.TickHandler;
 import io.github.lord_of_nothing.grid.GridInputHandler;
 import io.github.lord_of_nothing.grid.GridRenderer;
 import io.github.lord_of_nothing.hud.TileInspectorBar;
@@ -58,6 +59,7 @@ public class Main extends ApplicationAdapter {
 
     private EventBus eventBus;
     private FlowState flowState;
+    private TickHandler tickHandler;
     private MenuFlowCoordinator menuFlowCoordinator;
     private GameplayFlowCoordinator gameplayFlowCoordinator;
     private SettingsFlowCoordinator settingsFlowCoordinator;
@@ -90,6 +92,7 @@ public class Main extends ApplicationAdapter {
         topBarRenderer = new TopBarRenderer();
         eventBus = new EventBus();
         flowState = new FlowState();
+        tickHandler = new TickHandler();
 
         gridInputHandler = new GridInputHandler(
             camera,
@@ -183,6 +186,14 @@ public class Main extends ApplicationAdapter {
             menuFlowCoordinator.render(shapeRenderer, batch);
             return;
         }
+
+        if (flowState.getScreenState() == ScreenState.GAMEPLAY) {
+            int completedDays = tickHandler.update(Gdx.graphics.getDeltaTime());
+            for (int i = 0; i < completedDays; i++) {
+                gameStateHandler.advanceIngameDay();
+            }
+        }
+
         gridRenderer.render(
             shapeRenderer,
             batch,
@@ -204,6 +215,8 @@ public class Main extends ApplicationAdapter {
             batch,
             gameWindow,
             gameStateHandler,
+            gameStateHandler.getCurrentIngameDay(),
+            tickHandler.getCurrentIngameHour(),
             eventBus,
             flowState.getScreenState() == ScreenState.PAUSED
         );

@@ -5,20 +5,14 @@ package io.github.lord_of_nothing.game;
  */
 public class TickHandler {
     public static final float DEFAULT_TICK_DURATION_SECONDS = 1f;
-    public static final int DEFAULT_TICKS_PER_DAY = 60;
+    public static final int DEFAULT_TICKS_PER_DAY = 24;
 
-    private final float tickDurationSeconds;
-    private final int ticksPerDay;
+    private final float tickDurationSeconds = DEFAULT_TICK_DURATION_SECONDS;
+    private final int ticksPerDay = DEFAULT_TICKS_PER_DAY;
     private float accumulatorSeconds;
+    private int tickProgressInDay;
 
-    public TickHandler() {
-        this(DEFAULT_TICK_DURATION_SECONDS, DEFAULT_TICKS_PER_DAY);
-    }
-
-    public TickHandler(float tickDurationSeconds, int ticksPerDay) {
-        this.tickDurationSeconds = tickDurationSeconds <= 0f ? DEFAULT_TICK_DURATION_SECONDS : tickDurationSeconds;
-        this.ticksPerDay = ticksPerDay <= 0 ? DEFAULT_TICKS_PER_DAY : ticksPerDay;
-    }
+    public TickHandler() {}
 
     public float getTickDurationSeconds() {
         return tickDurationSeconds;
@@ -29,20 +23,40 @@ public class TickHandler {
     }
 
     /**
-     * @param delta time in seconds since the last tick
+     * Returns the current in-game hour in range [0, 23].
+     *
+     * @return current in-game hour derived from tick progress
      */
-    public void update(float delta) {
+    public int getCurrentIngameHour() {
+        float dayProgress = (float) tickProgressInDay / (float) ticksPerDay;
+        int hour = (int) (dayProgress * 24f);
+        return Math.min(23, Math.max(0, hour));
+    }
+
+    /**
+     * Advances simulation time and returns how many in-game days elapsed.
+     *
+     * @param delta time in seconds since the last frame
+     * @return number of fully completed in-game days in this update
+     */
+    public int update(float delta) {
         if (delta <= 0f) {
-            return;
+            return 0;
         }
 
         accumulatorSeconds += delta;
+        int completedDays = 0;
 
-        // Placeholder: consume due ticks in fixed intervals.
         while (accumulatorSeconds >= tickDurationSeconds) {
             accumulatorSeconds -= tickDurationSeconds;
-            // TODO: Run one game tick and advance day counter after ticksPerDay ticks.
+            tickProgressInDay++;
+
+            if (tickProgressInDay >= ticksPerDay) {
+                tickProgressInDay = 0;
+                completedDays++;
+            }
         }
 
+        return completedDays;
     }
 }
