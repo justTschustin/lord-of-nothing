@@ -189,7 +189,11 @@ public class Main extends ApplicationAdapter {
         }
 
         if (flowState.getScreenState() == ScreenState.GAMEPLAY) {
-            int completedDays = tickHandler.update(Gdx.graphics.getDeltaTime());
+            int completedDays = tickHandler.update(
+                Gdx.graphics.getDeltaTime(),
+                gameStateHandler.getCurrentIngameDay(),
+                gameStateHandler
+            );
             for (int i = 0; i < completedDays; i++) {
                 gameStateHandler.advanceIngameDay();
             }
