@@ -155,6 +155,7 @@ Thumbs.db
 /.kotlin/
 /assets/assets.txt
 /assets/settings.json
+/config/settings.json
 
 ## Special cases:
 

@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.events.EventBus;
+import io.github.lord_of_nothing.events.GameSpeedChangedEvent;
 import io.github.lord_of_nothing.events.ResolutionChangedEvent;
 import io.github.lord_of_nothing.events.ToggleFullscreenEvent;
 import io.github.lord_of_nothing.grid.GridInputHandler;
@@ -15,6 +16,7 @@ import io.github.lord_of_nothing.settings.ResolutionSettings;
 import io.github.lord_of_nothing.settings.SettingsStore;
 
 import java.util.Map;
+import java.util.function.IntConsumer;
 
 /**
  * Coordinates entering, leaving, rendering, and persisting settings flow.
@@ -29,6 +31,7 @@ public class SettingsFlowCoordinator {
     private final SettingsStore settingsStore;
     private final GameSettings gameSettings;
     private final Runnable registerMainMenuUiElements;
+    private final IntConsumer applyGameSpeed;
 
     /**
      * Creates a settings-flow coordinator.
@@ -41,6 +44,7 @@ public class SettingsFlowCoordinator {
      * @param eventBus event bus used for UI registration
      * @param settingsStore persistence for display settings
      * @param gameSettings loaded settings model
+     * @param applyGameSpeed callback that applies runtime simulation speed
      * @param registerMainMenuUiElements callback to rebuild main-menu UI elements
      */
     public SettingsFlowCoordinator(
@@ -52,6 +56,7 @@ public class SettingsFlowCoordinator {
         EventBus eventBus,
         SettingsStore settingsStore,
         GameSettings gameSettings,
+        IntConsumer applyGameSpeed,
         Runnable registerMainMenuUiElements
     ) {
         this.flowState = flowState;
@@ -62,9 +67,11 @@ public class SettingsFlowCoordinator {
         this.eventBus = eventBus;
         this.settingsStore = settingsStore;
         this.gameSettings = gameSettings;
+        this.applyGameSpeed = applyGameSpeed;
         this.registerMainMenuUiElements = registerMainMenuUiElements;
 
         applyDisplaySettings();
+        applySimulationSpeed();
         settingsMenu.syncDisplaySettings(gameSettings);
 
         eventBus.subscribe(event -> {
@@ -77,6 +84,11 @@ public class SettingsFlowCoordinator {
             }
             if (event instanceof ToggleFullscreenEvent) {
                 toggleFullscreenMode();
+            }
+            if (event instanceof GameSpeedChangedEvent) {
+                gameSettings.gameSpeed = sanitizeGameSpeed(((GameSpeedChangedEvent) event).getGameSpeed());
+                applySimulationSpeed();
+                saveDisplaySettings();
             }
         });
     }
@@ -131,6 +143,9 @@ public class SettingsFlowCoordinator {
         settingsStore.save(gameSettings);
     }
 
+    /**
+     * Applies the currently configured fullscreen/windowed display mode.
+     */
     public void applyDisplaySettings() {
         if (gameSettings.fullscreen) {
             Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
@@ -147,6 +162,26 @@ public class SettingsFlowCoordinator {
      */
     public void render(ShapeRenderer shapeRenderer, SpriteBatch batch) {
         settingsMenu.render(shapeRenderer, batch);
+    }
+
+    /**
+     * Applies the sanitized game-speed setting to the running simulation.
+     */
+    private void applySimulationSpeed() {
+        applyGameSpeed.accept(sanitizeGameSpeed(gameSettings.gameSpeed));
+    }
+
+    /**
+     * Normalizes persisted speed values to supported multipliers.
+     *
+     * @param speed persisted speed value
+     * @return valid speed multiplier (1, 2, or 4)
+     */
+    private int sanitizeGameSpeed(int speed) {
+        if (speed == 1 || speed == 2 || speed == 4) {
+            return speed;
+        }
+        return 1;
     }
 
     /**
