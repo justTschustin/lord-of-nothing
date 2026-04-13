@@ -12,5 +12,8 @@ public class GameSettings {
 
     /** Last known windowed height in pixels. */
     public int windowedHeight = 720;
+
+    /** Simulation speed multiplier (1x, 2x, 4x). */
+    public int gameSpeed = 1;
 }
 
