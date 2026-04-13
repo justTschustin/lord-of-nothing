@@ -138,4 +138,22 @@ public class Grid {
             }
         }
     }
+
+    /**
+     * Removes building from grid
+     * @param anchorX &
+     * @param anchorY = coordinates of the building's root tile
+     */
+    public void removeBuilding(int anchorX, int anchorY) {
+        Tile anchor = getTile(anchorX, anchorY);
+        if (anchor == null || !anchor.hasBuilding()) { return; }
+        Building building = anchor.getBuilding();
+
+        for (int dx = 0; dx < building.getWidth(); dx++) {
+            for (int dy = 0; dy < building.getHeight(); dy++) {
+                Tile t = getTile(anchorX + dx, anchorY + dy);
+                if (t != null) t.setBuilding(null);
+            }
+        }
+    }
 }

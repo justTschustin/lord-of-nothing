@@ -17,6 +17,7 @@ import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 import io.github.lord_of_nothing.game.ResourceStateMutator;
 import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.hud.Sidebar;
+import io.github.lord_of_nothing.hud.TileInspectorRenderer;
 import io.github.lord_of_nothing.resources.ResourceType;
 import io.github.lord_of_nothing.ui.UiElement;
 
@@ -44,6 +45,7 @@ public class GridInputHandler extends InputAdapter {
     private boolean paused;
     private boolean gameplayEnabled;
     private final TileInspectorBar tileInspectorBar;
+    private final TileInspectorRenderer tileInspectorRenderer;
 
     /**
      * Creates the input handler and subscribes to relevant flow/UI events.
@@ -53,6 +55,8 @@ public class GridInputHandler extends InputAdapter {
      * @param resources resource state mutator used for cost checks
      * @param sidebar sidebar model used for template selection
      * @param eventBus event bus used to track UI creation and pause state
+     * @param tileInspectorBar inspect panel state
+     * @param tileInspectorRenderer inspect panel renderer, used to forward clicks to the delete building button
      */
     public GridInputHandler(
         OrthographicCamera camera,
@@ -60,13 +64,15 @@ public class GridInputHandler extends InputAdapter {
         ResourceStateMutator resources,
         Sidebar sidebar,
         EventBus eventBus,
-        TileInspectorBar tileInspectorBar
+        TileInspectorBar tileInspectorBar,
+        TileInspectorRenderer tileInspectorRenderer
     ) {
         this.camera = camera;
         this.grid = grid;
         this.resources = resources;
         this.sidebar = sidebar;
         this.tileInspectorBar = tileInspectorBar;
+        this.tileInspectorRenderer = tileInspectorRenderer;
 
         eventBus.subscribe(event -> {
             if (event instanceof UiElementCreatedEvent) {
@@ -144,6 +150,7 @@ public class GridInputHandler extends InputAdapter {
         }
         return true;
     }
+
     /**
      * Handles clicks for UI, sidebar, and grid placement.
      *
@@ -160,19 +167,26 @@ public class GridInputHandler extends InputAdapter {
         camera.unproject(touchPos);
 
         // Close panel if clicking anywhere left of the right margin start
-        if (tileInspectorBar.isOpen()) {
+        if (tileInspectorBar.isOpen() && touchPos.x < offsetX + gridPixelWidth) {
             tileInspectorBar.close();
         }
 
-        if (handleSidebarInteraction(touchPos.x, touchPos.y)) {return true;}
+        // If inspector is open, forward click to delete button first
+        // If button consumed, stop here; don't process as a grid click
+        if (tileInspectorBar.isOpen()) {
+            if (tileInspectorRenderer.handleInput(touchPos.x, touchPos.y)) { return true; }
+        }
+
+        if (handleSidebarInteraction(touchPos.x, touchPos.y)) { return true; }
 
         int tileX = (int) ((touchPos.x - offsetX) / tileSize);
         int tileY = (int) ((touchPos.y - offsetY) / tileSize);
+
         // Open panel if a building is clicked and no new building is being placed
         if (grid.isInside(tileX, tileY) && getPendingBuilding() == null) {
-            io.github.lord_of_nothing.grid.Tile tile = grid.getTile(tileX, tileY);
+            Tile tile = grid.getTile(tileX, tileY);
             if (tile.hasBuilding()) {
-                tileInspectorBar.select(tile.getBuilding());
+                tileInspectorBar.select(tile.getBuilding(), tileX, tileY);
                 return true;
             }
         }
@@ -216,9 +230,9 @@ public class GridInputHandler extends InputAdapter {
             if (pendingBuilding != null && pendingBuilding.getBuildingTypeKey().equals(clicked.getBuildingTypeKey())) {
                 pendingBuilding = null;
             } else {
-                if (clicked instanceof House) {pendingBuilding = new House();}
-                else if (clicked instanceof Sawmill) {pendingBuilding = new Sawmill();}
-                else if (clicked instanceof Quarry) {pendingBuilding = new Quarry();}
+                if (clicked instanceof House) { pendingBuilding = new House(); }
+                else if (clicked instanceof Sawmill) { pendingBuilding = new Sawmill(); }
+                else if (clicked instanceof Quarry) { pendingBuilding = new Quarry(); }
             }
             return true;
         }
@@ -271,6 +285,27 @@ public class GridInputHandler extends InputAdapter {
             resources.tryConsumeResource(entry.getKey(), entry.getValue());
         }
     }
+
+    /**
+     * Demolishes the currently inspected building;
+     * Removes it from the grid, refunds 50% of its costs, and closes the panel.
+     */
+    public void deleteSelectedBuilding() {
+        if (!tileInspectorBar.isOpen()) return;
+
+        Building b = tileInspectorBar.getSelected();
+        int x      = tileInspectorBar.getSelectedGridX();
+        int y      = tileInspectorBar.getSelectedGridY();
+
+        grid.removeBuilding(x, y);
+
+        for (Map.Entry<ResourceType, Integer> entry : b.getCosts().entrySet()) {
+            resources.addResource(entry.getKey(), entry.getValue() / 2);
+        }
+
+        tileInspectorBar.close();
+    }
+
     /**
      * Returns whether any building is currently selected for placement.
      *
@@ -282,7 +317,5 @@ public class GridInputHandler extends InputAdapter {
      * Returns the building currently selected for placement.
      * @return The pending building instance or null if none is selected.
      */
-    public Building getPendingBuilding() {
-        return pendingBuilding;
-    }
+    public Building getPendingBuilding() { return pendingBuilding; }
 }

@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.buildings.Building;
+import io.github.lord_of_nothing.button.DeleteBuildingButton;
 import java.util.Map;
 
 /**
@@ -15,13 +16,15 @@ import java.util.Map;
  */
 public class TileInspectorRenderer {
     private final BitmapFont font = new BitmapFont();
+    private DeleteBuildingButton deleteButton;
 
     public void render(
         ShapeRenderer sr,
         SpriteBatch batch,
         GameWindow window,
         TileInspectorBar state,
-        Map<String, Texture> textures
+        Map<String, Texture> textures,
+        Runnable onDelete
     ) {
         if (!state.isOpen()) {return;}
 
@@ -51,7 +54,34 @@ public class TileInspectorRenderer {
         font.draw(batch, infoText, x + 20, spriteY - 20);
 
         batch.end();
+
+        // 4. Delete Button
+        float btnH = 30f;
+        float btnY = y + 50;
+        float btnX = x + 10;
+        float btnW = w - 20;
+
+        if (deleteButton == null) {
+            deleteButton = new DeleteBuildingButton(btnX, btnY, btnW, btnH, onDelete);
+        } else {
+            deleteButton.setBounds(btnX, btnY, btnW, btnH);
+        }
+        deleteButton.render(sr, batch);
     }
 
-    public void dispose() { font.dispose(); }
+    /**
+     * Forwards a world-coordinate click to the delete button.
+     * Called by GridInputHandler.touchDown() before other click logic.
+     * @return true if the delete button consumed the click
+     */
+    public boolean handleInput(float worldX, float worldY) {
+        if (deleteButton == null) return false;
+        return deleteButton.handleClick(worldX, worldY);
+    }
+
+    public void dispose() {
+        font.dispose();
+        if (deleteButton != null) deleteButton.dispose();
+    }
 }
+
