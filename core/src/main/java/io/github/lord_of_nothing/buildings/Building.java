@@ -126,12 +126,14 @@ public abstract class Building {
      * Increases the amount of workers in this building by 1, if space is available.
      */
     public void addWorker() {
-        if (currentWorkers < maxWorkers) currentWorkers++;
+        if (currentWorkers < maxWorkers) {
+            currentWorkers++;
+        }
     }
     /**
      * Decreases the amount of workers in this building by 1, if there are any.
      */
     public void removeWorker() {
-        if (currentWorkers > 0) currentWorkers--;
+        if (currentWorkers > 0){ currentWorkers--;}
     }
 }

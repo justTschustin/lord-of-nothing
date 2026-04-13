@@ -18,6 +18,7 @@ import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 import io.github.lord_of_nothing.game.ResourceStateMutator;
 import io.github.lord_of_nothing.hud.InfoSidebar;
 import io.github.lord_of_nothing.hud.Sidebar;
+import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
 import io.github.lord_of_nothing.ui.UiElement;
 
@@ -45,6 +46,9 @@ public class GridInputHandler extends InputAdapter {
     private boolean paused;
     private boolean gameplayEnabled;
     private final InfoSidebar infoSidebar;
+    private final GameWindow window;
+    private final ResourceManager resourceManager;
+
 
     /**
      * Creates the input handler and subscribes to relevant flow/UI events.
@@ -71,6 +75,8 @@ public class GridInputHandler extends InputAdapter {
         this.resources = resources;
         this.sidebar = sidebar;
         this.infoSidebar = infoSidebar;
+        this.window = window;
+        this.resourceManager = resourceManager;
 
         eventBus.subscribe(event -> {
             if (event instanceof UiElementCreatedEvent) {
@@ -167,7 +173,7 @@ public class GridInputHandler extends InputAdapter {
         if (infoSidebar.isOpen()) {
             // Click INSIDE the sidebar: Handle Add/Remove buttons
             if (touchPos.x >= window.getRightMarginX()) {
-                if (handleInfoSidebarButtons(touchPos.x, touchPos.y)) return true;
+                if (handleInfoSidebarButtons(touchPos.x, touchPos.y)) {return true;}
             }
             // Click OUTSIDE the sidebar: Close it
             else {
@@ -176,15 +182,14 @@ public class GridInputHandler extends InputAdapter {
             }
         }
 
-        if (handleCloseButton(touchPos.x, touchPos.y)) return true;
-        if (handleSidebarInteraction(touchPos.x, touchPos.y)) return true;
+        if (handleSidebarInteraction(touchPos.x, touchPos.y)) {return true;}
 
         // 2. Check World/Grid Interaction
         int tileX = (int) ((touchPos.x - offsetX) / tileSize);
         int tileY = (int) ((touchPos.y - offsetY) / tileSize);
 
         if (grid.isInside(tileX, tileY) && getPendingBuilding() == null) {
-            io.github.lord_of_nothing.grid.Tile tile = grid.getTile(tileX, tileY);
+            Tile tile = grid.getTile(tileX, tileY);
             if (tile.hasBuilding()) {
                 infoSidebar.select(tile.getBuilding());
                 return true;
@@ -247,7 +252,7 @@ public class GridInputHandler extends InputAdapter {
      */
     private boolean handleInfoSidebarButtons(float x, float y) {
         Building b = infoSidebar.getSelected();
-        if (b.getMaxWorkers() <= 0) return false;
+        if (b.getMaxWorkers() <= 0) {return false;}
 
         // Check vertical button row
         if (y < window.getInfoPanelY() + 80 && y > window.getInfoPanelY() + 60) {
@@ -269,6 +274,7 @@ public class GridInputHandler extends InputAdapter {
         }
         return false;
     }
+    /**
      * Handles placement of the currently selected building on the grid.
      *
      * @param x click x coordinate in world space
@@ -279,15 +285,11 @@ public class GridInputHandler extends InputAdapter {
         int tileX = (int) ((x - offsetX) / tileSize);
         int tileY = (int) ((y - offsetY) / tileSize);
 
-        if (pendingBuilding != null && grid.canPlace(tileX, tileY, pendingBuilding.getWidth(), pendingBuilding.getHeight())) {
+        if (pendingBuilding != null && grid.isInside(tileX, tileY) && grid.canPlace(tileX, tileY, pendingBuilding.getWidth(), pendingBuilding.getHeight())) {
             if (canAfford(pendingBuilding)) {
                 consumeCosts(pendingBuilding);
+                handleBuildingEffects(pendingBuilding);
                 grid.placeBuilding(tileX, tileY, pendingBuilding);
-                if (pendingBuilding.getCitizenCapacity() > 0) {
-                    resourceManager.add(ResourceType.CITIZENS_CAPACITY, pendingBuilding.getCitizenCapacity());
-                    resourceManager.add(ResourceType.CITIZENS_TOTAL, pendingBuilding.getCitizenCapacity());
-                    resourceManager.add(ResourceType.CITIZENS_AVAILABLE, pendingBuilding.getCitizenCapacity());
-                }
                 pendingBuilding = null;
                 return true;
             }
@@ -339,8 +341,8 @@ public class GridInputHandler extends InputAdapter {
      */
     private void handleBuildingEffects(Building b) {
         if (b.getCitizenCapacity() > 0) {
-            resourceManager.add(ResourceType.CITIZENS_CAPACITY, b.getCitizenCapacity());
-            resourceManager.add(ResourceType.CITIZENS_AVAILABLE, b.getCitizenCapacity());
+            // Use the merged 'resources' mutator to ensure the UI and TickManager receive the update
+            resources.addResource(ResourceType.CITIZENS_CAPACITY, b.getCitizenCapacity());
         }
     }
 }

@@ -27,7 +27,7 @@ public class InfoSidebarRenderer {
         if (!state.isOpen()) {return;}
 
         float x = window.getRightMarginX();
-        float yBase = window.getInfoPanelY(); // Variable zu yBase umbenannt
+        float yBase = window.getInfoPanelY();
         float w = window.getRightMarginWidth();
         float h = window.getInfoPanelHeight();
 

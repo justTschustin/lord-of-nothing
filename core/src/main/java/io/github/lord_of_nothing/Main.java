@@ -25,7 +25,6 @@ import io.github.lord_of_nothing.game.GameStateHandler;
 import io.github.lord_of_nothing.game.TickHandler;
 import io.github.lord_of_nothing.grid.GridInputHandler;
 import io.github.lord_of_nothing.grid.GridRenderer;
-import io.github.lord_of_nothing.hud.CloseButtonRenderer;
 import io.github.lord_of_nothing.hud.InfoSidebar;
 import io.github.lord_of_nothing.hud.InfoSidebarRenderer;
 import io.github.lord_of_nothing.hud.Sidebar;
@@ -57,7 +56,7 @@ public class Main extends ApplicationAdapter {
     private SidebarRenderer sidebarRenderer;
     private InfoSidebar infoSidebar;
     private InfoSidebarRenderer infoSidebarRenderer;
-
+    private ResourceManager ressourceManager;
 
     private EventBus eventBus;
     private FlowState flowState;
@@ -76,6 +75,8 @@ public class Main extends ApplicationAdapter {
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
         grassTexture = new Texture("tiles/Floor_Grass.png");
+
+        ressourceManager = new ResourceManager();
 
         gameStateHandler = new GameStateHandler();
         gameStateHandler.addResource(ResourceType.WOOD, 1000);
@@ -101,6 +102,7 @@ public class Main extends ApplicationAdapter {
             camera,
             gameStateHandler.getCurrentGrid(),
             gameWindow,
+            ressourceManager,
             sidebar,
             gameStateHandler,
             eventBus,
@@ -209,8 +211,7 @@ public class Main extends ApplicationAdapter {
             gameStateHandler.getCurrentGrid(),
             gameWindow,
             buildingTextures,
-            grassTexture,
-            gridInputHandler.getPendingBuilding()
+            grassTexture
         );
         sidebarRenderer.render(
             shapeRenderer,
@@ -220,7 +221,7 @@ public class Main extends ApplicationAdapter {
             gridInputHandler.getPendingBuilding(),
             gameStateHandler
         );
-        infoSidebarRenderer.render(shapeRenderer, batch, gameWindow, infoSidebar, buildingTextures);
+        infoSidebarRenderer.render(shapeRenderer, batch, gameWindow, infoSidebar, buildingTextures, ressourceManager);
         topBarRenderer.render(
             shapeRenderer,
             batch,
@@ -231,7 +232,6 @@ public class Main extends ApplicationAdapter {
             eventBus,
             flowState.getScreenState() == ScreenState.PAUSED
         );
-        closeButtonRenderer.render(shapeRenderer, gameWindow);
     }
 
     /**
