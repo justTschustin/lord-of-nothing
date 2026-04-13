@@ -112,16 +112,6 @@ public class TickHandler {
     }
 
     /**
-     * Advances simulation time and returns how many in-game days elapsed.
-     *
-     * @param delta time in seconds since the last frame
-     * @return number of fully completed in-game days in this update
-     */
-    public int update(float delta) {
-        return update(delta, -1, null);
-    }
-
-    /**
      * Advances simulation time, optionally applying the daily 6am citizen arrival event.
      *
      * @param delta time in seconds since the last frame
