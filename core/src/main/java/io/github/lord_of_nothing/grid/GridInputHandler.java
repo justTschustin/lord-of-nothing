@@ -186,7 +186,8 @@ public class GridInputHandler extends InputAdapter {
         if (grid.isInside(tileX, tileY) && getPendingBuilding() == null) {
             Tile tile = grid.getTile(tileX, tileY);
             if (tile.hasBuilding()) {
-                tileInspectorBar.select(tile.getBuilding(), tileX, tileY);
+                Building b = tile.getBuilding();
+                tileInspectorBar.select(b, b.getAnchorX(), b.getAnchorY());
                 return true;
             }
         }
