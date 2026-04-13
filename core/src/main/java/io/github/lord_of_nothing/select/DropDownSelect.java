@@ -15,6 +15,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Generic dropdown UI element with a header row and optional expanded options list.
+ */
 public class DropDownSelect implements UiElement {
     protected static final float OPTION_HEIGHT = 36f;
     private static final Texture WHITE_PIXEL = createWhitePixel();
@@ -30,6 +33,17 @@ public class DropDownSelect implements UiElement {
     protected int hoveredOptionIndex = -1;
     protected int selectedIndex = -1;
 
+    /**
+     * Creates a dropdown and optionally registers it as clickable UI.
+     *
+     * @param options label-to-value mapping in display order
+     * @param selectedIndex initially selected row index
+     * @param x dropdown x position
+     * @param y dropdown y position
+     * @param width dropdown width
+     * @param height dropdown header height
+     * @param eventBus event bus used for UI registration
+     */
     public DropDownSelect(
         Map<String, String> options,
         int selectedIndex,
@@ -49,6 +63,11 @@ public class DropDownSelect implements UiElement {
         }
     }
 
+    /**
+     * Returns the currently selected label.
+     *
+     * @return selected label or {@code null} if selection is invalid
+     */
     public String getSelectedLabel() {
         if (selectedIndex < 0 || selectedIndex >= labels.size()) {
             return null;
@@ -56,11 +75,21 @@ public class DropDownSelect implements UiElement {
         return labels.get(selectedIndex);
     }
 
+    /**
+     * Returns the value of the currently selected label.
+     *
+     * @return selected value or {@code null} if selection is invalid
+     */
     public String getSelectedValue() {
         String label = getSelectedLabel();
         return label == null ? null : options.get(label);
     }
 
+    /**
+     * Sets the selected option by index when the index is valid.
+     *
+     * @param selectedIndex option index to select
+     */
     public void setSelectedIndex(int selectedIndex) {
         if (selectedIndex < 0 || selectedIndex >= labels.size()) {
             return;
@@ -88,6 +117,11 @@ public class DropDownSelect implements UiElement {
         bounds.set(x, y, width, height);
     }
 
+    /**
+     * Indicates whether the options list is currently expanded.
+     *
+     * @return {@code true} when expanded
+     */
     public boolean isOpen() {
         return open;
     }
@@ -162,6 +196,7 @@ public class DropDownSelect implements UiElement {
         }
 
         if (!open) {
+            batch.setColor(previous);
             return;
         }
 
@@ -180,6 +215,7 @@ public class DropDownSelect implements UiElement {
             font.draw(batch, GLYPH_LAYOUT, textX, textY);
         }
 
+        // Restore the incoming batch tint so other UI elements keep their own colors.
         batch.setColor(previous);
     }
 

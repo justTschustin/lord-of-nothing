@@ -1,13 +1,10 @@
 package io.github.lord_of_nothing.grid;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.buildings.Building;
-import io.github.lord_of_nothing.resources.ResourceManager;
-import io.github.lord_of_nothing.resources.ResourceType;
 import java.util.Map;
 
 /**
@@ -24,8 +21,6 @@ public class GridRenderer {
      * @param window window layout context
      * @param buildingTextures texture map keyed by building type
      * @param grassTex grass texture used for terrain
-     * @param pendingBuilding currently selected building template
-     * @param rm current resource state
      */
     public void render(
         ShapeRenderer shapeRenderer,
@@ -33,9 +28,7 @@ public class GridRenderer {
         Grid grid,
         GameWindow window,
         Map<String, Texture> buildingTextures,
-        Texture grassTex,
-        Building pendingBuilding,
-        ResourceManager rm
+        Texture grassTex
     ) {
         renderBackground(batch, grid, window, grassTex);
         renderGridShapes(shapeRenderer, grid, window);
@@ -43,26 +36,6 @@ public class GridRenderer {
     }
 
 
-    /**
-     * Renders a sidebar icon with affordability tinting.
-     *
-     * @param batch sprite batch used for rendering
-     * @param tex icon texture
-     * @param x icon x coordinate
-     * @param y icon y coordinate
-     * @param rm current resource state
-     * @param b building template whose costs are evaluated
-     */
-    private void renderSidebarIcon(SpriteBatch batch, Texture tex, int x, int y, ResourceManager rm, Building b) {
-        boolean canAfford = true;
-        for (Map.Entry<ResourceType, Integer> cost : b.getCosts().entrySet()) {
-            if (!rm.hasEnough(cost.getKey(), cost.getValue())) {canAfford = false;}
-        }
-
-        if (!canAfford) {batch.setColor(Color.RED);}
-        if (tex != null) {batch.draw(tex, x, y, 40, 40);
-            batch.setColor(Color.WHITE);}
-    }
 
     /**
      * Generic building renderer that draws buildings at their root tile using their specified dimensions.

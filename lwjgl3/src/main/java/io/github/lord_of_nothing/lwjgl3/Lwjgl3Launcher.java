@@ -1,12 +1,21 @@
 package io.github.lord_of_nothing.lwjgl3;
 
-import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.utils.Json;
 import io.github.lord_of_nothing.Main;
+import io.github.lord_of_nothing.settings.GameSettings;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /** Launches the desktop (LWJGL3) application. */
 public class Lwjgl3Launcher {
+    private static final Json json = new Json();
+    private static final String settingsFilePath = "../config/settings.json";
+
     /**
      * Desktop JVM entry point.
      *
@@ -23,7 +32,34 @@ public class Lwjgl3Launcher {
      * @return created application instance
      */
     private static Lwjgl3Application createApplication() {
-        return new Lwjgl3Application(new Main(), getDefaultConfiguration());
+        return new Lwjgl3Application(new Main(), getApplicationConfig());
+    }
+
+    private static Lwjgl3ApplicationConfiguration getApplicationConfig() {
+        Lwjgl3ApplicationConfiguration config = getDefaultConfiguration();
+        Path settingsPath = Paths.get(settingsFilePath);
+        if (!Files.exists(settingsPath)) {
+            return config;
+        }
+
+        try {
+            String settingsJson = new String(Files.readAllBytes(settingsPath), StandardCharsets.UTF_8);
+            GameSettings loaded = json.fromJson(GameSettings.class, settingsJson);
+
+            try {
+                config.setWindowedMode(loaded.windowedWidth, loaded.windowedHeight);
+            } catch (Exception ignored) {
+                // if settings file is missing or the windowedWidth or windowedHeight is missing,
+                // this throws and we ignore it as we just use the default values in that case
+            }
+
+            if (loaded.fullscreen) {
+                config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
+            }
+        } catch (Exception ignored) {
+            // Fall back to defaults if the settings file is malformed.
+        }
+        return config;
     }
 
     /**
@@ -41,7 +77,7 @@ public class Lwjgl3Launcher {
         //// If you remove the above line and set Vsync to false, you can get unlimited FPS, which can be
         //// useful for testing performance, but can also be very stressful to some hardware.
         //// You may also need to configure GPU drivers to fully disable Vsync; this can cause screen tearing.
-        //configuration.setWindowedMode(1080, 720);
+        configuration.setWindowedMode(1080, 720);
 
         //// You can change these files; they are in lwjgl3/src/main/resources/ .
         //// They can also be loaded from the root of assets/ .
