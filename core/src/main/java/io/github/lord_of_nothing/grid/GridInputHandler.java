@@ -252,28 +252,31 @@ public class GridInputHandler extends InputAdapter {
      */
     private boolean handleInfoSidebarButtons(float x, float y) {
         Building b = infoSidebar.getSelected();
-        if (b.getMaxWorkers() <= 0) {return false;}
-
-        // Check vertical button row
+        if (b == null || b.getMaxWorkers() <= 0) {
+            return false;
+        }
         if (y < window.getInfoPanelY() + 80 && y > window.getInfoPanelY() + 60) {
-            // Add Worker: Left side of the info panel
+            // Add Worker
             if (x < window.getRightMarginX() + 100) {
-                if (resourceManager.getAmount(ResourceType.CITIZENS_AVAILABLE) > 0 && b.getCurrentWorkers() < b.getMaxWorkers()) {
+                // Use 'resources' (Mutator) instead of 'resourceManager'
+                int available = resources.getResourceAmount(ResourceType.CITIZENS_AVAILABLE);
+                if (available > 0 && b.getCurrentWorkers() < b.getMaxWorkers()) {
                     b.addWorker();
-                    resourceManager.add(ResourceType.CITIZENS_AVAILABLE, -1);
+                    resources.addResource(ResourceType.CITIZENS_AVAILABLE, -1);
                 }
             }
-            // Remove Worker: Right side of the info panel
+            // Remove Worker
             else {
                 if (b.getCurrentWorkers() > 0) {
                     b.removeWorker();
-                    resourceManager.add(ResourceType.CITIZENS_AVAILABLE, 1);
+                    resources.addResource(ResourceType.CITIZENS_AVAILABLE, 1);
                 }
             }
             return true;
         }
         return false;
     }
+
     /**
      * Handles placement of the currently selected building on the grid.
      *
