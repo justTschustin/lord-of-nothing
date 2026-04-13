@@ -19,8 +19,7 @@ public abstract class Building {
 
     /**
      * Returns the unique key used to identify the building type, e.g., for texture lookups.
-     *
-     * @return string key identifying the building type
+     * @return string key identifying the building type.
      */
     public abstract String getBuildingTypeKey();
 
@@ -37,7 +36,6 @@ public abstract class Building {
 
     /**
      * Initializes a building with a specific footprint size on the game grid.
-     *
      * @param width The number of tiles the building occupies horizontally.
      * @param height The number of tiles the building occupies vertically.
      */
