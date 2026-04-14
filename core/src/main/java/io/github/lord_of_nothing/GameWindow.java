@@ -20,11 +20,11 @@ public class GameWindow {
     private final Grid grid;
     public static final int CLOSE_BUTTON_SIZE = 40;
     public static final int CLOSE_BUTTON_MARGIN = 10;
-    private int tileSize;
-    private int gridPixelWidth;
-    private int gridPixelHeight;
-    private int offsetX;
-    private int offsetY;
+    private float tileSize;
+    private float gridPixelWidth;
+    private float gridPixelHeight;
+    private float offsetX;
+    private float offsetY;
 
     /**
      * Creates a game window layout helper.
@@ -47,19 +47,30 @@ public class GameWindow {
         camera.setToOrtho(false, width, height);
         camera.update();
 
-        int availableWidth = width - (HUD_SIDE_MARGIN * 2);
-        int availableHeight = height - HUD_BOTTOM_HEIGHT - HUD_TOP_HEIGHT;
+        /**
+         * Reserve space for rightSidebar based on current window width to ensure rightSidebar isn't cut off.
+         */
+        float rightSidebarWidth = width * 0.14f; // match getRightSidebarWidth behavior but use current resize width
+        float availableWidth = width - SIDEBAR_WIDTH - rightSidebarWidth;
+        float availableHeight = height - TOP_BAR_HEIGHT;
 
-        int scaleX = availableWidth / (grid.getWidth() * Tile.BASE_TILE_SIZE);
-        int scaleY = availableHeight / (grid.getHeight() * Tile.BASE_TILE_SIZE);
-        int scale = Math.max(1, Math.min(scaleX, scaleY));
+        /**
+         * Fallback for availableWidth to prevent computational error.
+         */
+        if (availableWidth < Tile.BASE_TILE_SIZE) {
+            availableWidth = Math.max(width - SIDEBAR_WIDTH - 20, Tile.BASE_TILE_SIZE);
+        }
+
+        float scaleX = availableWidth / (grid.getWidth() * (float) Tile.BASE_TILE_SIZE);
+        float scaleY = availableHeight / (grid.getHeight() * (float) Tile.BASE_TILE_SIZE);
+        float scale = Math.min(scaleX, scaleY);
 
         tileSize = Tile.BASE_TILE_SIZE * scale;
         gridPixelWidth = grid.getWidth() * tileSize;
         gridPixelHeight = grid.getHeight() * tileSize;
 
-        offsetX = HUD_SIDE_MARGIN + (availableWidth - gridPixelWidth) / 2;
-        offsetY = HUD_BOTTOM_HEIGHT + (availableHeight - gridPixelHeight) / 2;
+        offsetX = SIDEBAR_WIDTH;
+        offsetY = availableHeight - gridPixelHeight;
     }
 
     /**
@@ -67,7 +78,7 @@ public class GameWindow {
      *
      * @return tile size in pixels
      */
-    public int getTileSize() {
+    public float getTileSize() {
         return tileSize;
     }
 
@@ -76,7 +87,7 @@ public class GameWindow {
      *
      * @return grid width in pixels
      */
-    public int getGridPixelWidth() {
+    public float getGridPixelWidth() {
         return gridPixelWidth;
     }
 
@@ -85,7 +96,7 @@ public class GameWindow {
      *
      * @return grid height in pixels
      */
-    public int getGridPixelHeight() {
+    public float getGridPixelHeight() {
         return gridPixelHeight;
     }
 
@@ -94,7 +105,7 @@ public class GameWindow {
      *
      * @return grid start x in pixels
      */
-    public int getOffsetX() {
+    public float getOffsetX() {
         return offsetX;
     }
 
@@ -103,7 +114,7 @@ public class GameWindow {
      *
      * @return grid start y in pixels
      */
-    public int getOffsetY() {
+    public float getOffsetY() {
         return offsetY;
     }
 
@@ -125,13 +136,16 @@ public class GameWindow {
      */
     public float getInfoPanelHeight() {
         return getTopBarY() - getInfoPanelY();
-    }    public float getRightSidebarX() { return Gdx.graphics.getWidth() - getRightSidebarWidth(); }
+    }
+
+    public float getRightSidebarX() { return Gdx.graphics.getWidth() - getRightSidebarWidth(); }
 
     /**
      * Calculates the horizontal start and width of the right margin area to prevent grid overlap
      */
-    public int getRightMarginX() { return offsetX + gridPixelWidth; }
-    public int getRightMarginWidth() { return Gdx.graphics.getWidth() - getRightMarginX(); }
+    public float getRightMarginX() { return offsetX + gridPixelWidth; }
+    public float getRightMarginWidth() { return Math.max(0, Gdx.graphics.getWidth() - getRightMarginX()); }
+
 
     /**
      * Calculates the info panel's vertical start position at the exact center of the screen.

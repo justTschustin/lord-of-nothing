@@ -11,6 +11,7 @@ import io.github.lord_of_nothing.buildings.Sawmill;
 import io.github.lord_of_nothing.buildings.Quarry;
 import io.github.lord_of_nothing.hud.InfoSidebar;
 import io.github.lord_of_nothing.events.*;
+import io.github.lord_of_nothing.game.ResourceStateMutator;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.resources.ResourceManager;
@@ -29,13 +30,13 @@ public class GridInputHandler extends InputAdapter {
     private final Grid grid;
     private final Vector3 touchPos = new Vector3();
 
-    private int tileSize;
-    private int offsetX;
-    private int offsetY;
-    private int gridPixelWidth;
-    private int gridPixelHeight;
+    private float tileSize;
+    private float offsetX;
+    private float offsetY;
+    private float gridPixelWidth;
+    private float gridPixelHeight;
     private Building pendingBuilding = null;
-    private final ResourceManager resourceManager;
+    private final ResourceStateMutator resources;
     private final List<UiElement> uiElements = new ArrayList<>();
     private final Sidebar sidebar;
     private boolean paused;
@@ -47,21 +48,21 @@ public class GridInputHandler extends InputAdapter {
      *
      * @param camera world camera used for unprojecting screen coordinates
      * @param grid grid model
-     * @param resourceManager resource manager for cost checks
+     * @param resources resource state mutator used for cost checks
      * @param sidebar sidebar model used for template selection
      * @param eventBus event bus used to track UI creation and pause state
      */
     public GridInputHandler(
         OrthographicCamera camera,
         Grid grid,
-        ResourceManager resourceManager,
+        ResourceStateMutator resources,
         Sidebar sidebar,
         EventBus eventBus,
         TileInspectorBar tileInspectorBar
     ) {
         this.camera = camera;
         this.grid = grid;
-        this.resourceManager = resourceManager;
+        this.resources = resources;
         this.sidebar = sidebar;
         this.tileInspectorBar = tileInspectorBar;
 
@@ -252,22 +253,21 @@ public class GridInputHandler extends InputAdapter {
      */
     private boolean canAfford(Building building) {
         for (Map.Entry<ResourceType, Integer> entry : building.getCosts().entrySet()) {
-            if (!resourceManager.hasEnough(entry.getKey(), entry.getValue())) {
+            if (!resources.hasEnoughResources(entry.getKey(), entry.getValue())) {
                 return false;
             }
-            if (!resourceManager.hasEnough(entry.getKey(), entry.getValue())) { return false; }
         }
         return true;
     }
 
     /**
-     * Subtracts the costs of the building from the ResourceManager.
+     * Subtracts building costs from the current game state.
      *
      * @param building building whose costs should be consumed
      */
     private void consumeCosts(Building building) {
         for (Map.Entry<ResourceType, Integer> entry : building.getCosts().entrySet()) {
-            resourceManager.tryConsume(entry.getKey(), entry.getValue());
+            resources.tryConsumeResource(entry.getKey(), entry.getValue());
         }
     }
     /**

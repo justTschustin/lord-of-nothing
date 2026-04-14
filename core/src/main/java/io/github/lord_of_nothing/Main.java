@@ -21,7 +21,8 @@ import io.github.lord_of_nothing.flow.GameplayFlowCoordinator;
 import io.github.lord_of_nothing.flow.MenuFlowCoordinator;
 import io.github.lord_of_nothing.flow.ScreenState;
 import io.github.lord_of_nothing.flow.SettingsFlowCoordinator;
-import io.github.lord_of_nothing.grid.Grid;
+import io.github.lord_of_nothing.game.GameStateHandler;
+import io.github.lord_of_nothing.game.TickHandler;
 import io.github.lord_of_nothing.grid.GridInputHandler;
 import io.github.lord_of_nothing.grid.GridRenderer;
 import io.github.lord_of_nothing.hud.Sidebar;
@@ -34,7 +35,6 @@ import io.github.lord_of_nothing.hud.SidebarRenderer;
 import io.github.lord_of_nothing.hud.TopBarRenderer;
 import io.github.lord_of_nothing.menu.MainMenu;
 import io.github.lord_of_nothing.menu.SettingsMenu;
-import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
 import io.github.lord_of_nothing.settings.GameSettings;
 import io.github.lord_of_nothing.settings.SettingsStore;
@@ -48,11 +48,10 @@ public class Main extends ApplicationAdapter {
     private SpriteBatch batch;
     private Map<String, Texture> buildingTextures;
 
-    private Grid grid;
+    private GameStateHandler gameStateHandler;
     private GridRenderer gridRenderer;
     private GridInputHandler gridInputHandler;
     private GameWindow gameWindow;
-    private ResourceManager resourceManager;
     private TopBarRenderer topBarRenderer;
     private Texture grassTexture;
     private Sidebar sidebar;
@@ -63,6 +62,7 @@ public class Main extends ApplicationAdapter {
 
     private EventBus eventBus;
     private FlowState flowState;
+    private TickHandler tickHandler;
     private MenuFlowCoordinator menuFlowCoordinator;
     private GameplayFlowCoordinator gameplayFlowCoordinator;
     private SettingsFlowCoordinator settingsFlowCoordinator;
@@ -78,12 +78,11 @@ public class Main extends ApplicationAdapter {
         camera = new OrthographicCamera();
         grassTexture = new Texture("tiles/Floor_Grass.png");
 
-        resourceManager = new ResourceManager();
-        resourceManager.add(ResourceType.WOOD, 1000);
+        gameStateHandler = new GameStateHandler();
+        gameStateHandler.addResource(ResourceType.WOOD, 1000);
 
-        grid = new Grid();
         gridRenderer = new GridRenderer();
-        gameWindow = new GameWindow(camera, grid);
+        gameWindow = new GameWindow(camera, gameStateHandler.getCurrentGrid());
         buildingTextures = new HashMap<>();
         buildingTextures.put("house", new Texture("buildings/House1.png"));
         buildingTextures.put("sawmill", new Texture("buildings/Sawmill.png"));
@@ -97,13 +96,21 @@ public class Main extends ApplicationAdapter {
         topBarRenderer = new TopBarRenderer();
         eventBus = new EventBus();
         flowState = new FlowState();
+        tickHandler = new TickHandler();
 
-        gridInputHandler = new GridInputHandler(camera, grid, resourceManager, sidebar, eventBus, tileInspectorBar);
+        gridInputHandler = new GridInputHandler(
+            camera,
+            gameStateHandler.getCurrentGrid(),
+            gameStateHandler,
+            sidebar,
+            eventBus,
+            tileInspectorBar
+        );
         gridInputHandler.setGameplayEnabled(false);
 
         MainMenu mainMenu = new MainMenu(eventBus);
         SettingsMenu settingsMenu = new SettingsMenu(eventBus);
-        SettingsStore settingsStore = new SettingsStore("settings.json");
+        SettingsStore settingsStore = new SettingsStore("../config/settings.json");
         GameSettings gameSettings = settingsStore.load();
 
         menuFlowCoordinator = new MenuFlowCoordinator(eventBus, gridInputHandler, flowState, mainMenu);
@@ -123,6 +130,7 @@ public class Main extends ApplicationAdapter {
             eventBus,
             settingsStore,
             gameSettings,
+            tickHandler::setGameSpeed,
             () -> menuFlowCoordinator.registerUiElements()
         );
 
@@ -183,13 +191,41 @@ public class Main extends ApplicationAdapter {
             menuFlowCoordinator.render(shapeRenderer, batch);
             return;
         }
-        gridRenderer.render(shapeRenderer, batch, grid, gameWindow, buildingTextures, grassTexture, gridInputHandler.getPendingBuilding(), resourceManager);
-        sidebarRenderer.render(shapeRenderer, batch, sidebar, buildingTextures, gridInputHandler.getPendingBuilding(), resourceManager);
+
+        if (flowState.getScreenState() == ScreenState.GAMEPLAY) {
+            int completedDays = tickHandler.update(
+                Gdx.graphics.getDeltaTime(),
+                gameStateHandler.getCurrentIngameDay(),
+                gameStateHandler
+            );
+            for (int i = 0; i < completedDays; i++) {
+                gameStateHandler.advanceIngameDay();
+            }
+        }
+
+        gridRenderer.render(
+            shapeRenderer,
+            batch,
+            gameStateHandler.getCurrentGrid(),
+            gameWindow,
+            buildingTextures,
+            grassTexture
+        );
+        sidebarRenderer.render(
+            shapeRenderer,
+            batch,
+            sidebar,
+            buildingTextures,
+            gridInputHandler.getPendingBuilding(),
+            gameStateHandler
+        );
         topBarRenderer.render(
             shapeRenderer,
             batch,
             gameWindow,
-            resourceManager,
+            gameStateHandler,
+            gameStateHandler.getCurrentIngameDay(),
+            tickHandler.getCurrentIngameHour(),
             eventBus,
             flowState.getScreenState() == ScreenState.PAUSED
         );
