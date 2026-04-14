@@ -9,8 +9,6 @@ import io.github.lord_of_nothing.buildings.House;
 import io.github.lord_of_nothing.buildings.Field;
 import io.github.lord_of_nothing.buildings.Sawmill;
 import io.github.lord_of_nothing.buildings.Quarry;
-import io.github.lord_of_nothing.buildings.Sawmill;
-import io.github.lord_of_nothing.buildings.Field;
 import io.github.lord_of_nothing.events.BackToMainMenuEvent;
 import io.github.lord_of_nothing.events.EventBus;
 import io.github.lord_of_nothing.events.PauseGameEvent;
@@ -20,7 +18,6 @@ import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 import io.github.lord_of_nothing.game.ResourceStateMutator;
 import io.github.lord_of_nothing.hud.InfoSidebar;
 import io.github.lord_of_nothing.hud.Sidebar;
-import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
 import io.github.lord_of_nothing.ui.UiElement;
 
