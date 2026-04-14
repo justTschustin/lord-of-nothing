@@ -10,7 +10,6 @@ public class Field extends Building {
     public Field() {
         super(1, 1);
         costs.put(ResourceType.WOOD, 5);
-        this.setMaxWorkers(2);
     }
 
     @Override

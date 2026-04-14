@@ -9,6 +9,8 @@ import io.github.lord_of_nothing.buildings.House;
 import io.github.lord_of_nothing.buildings.Field;
 import io.github.lord_of_nothing.buildings.Sawmill;
 import io.github.lord_of_nothing.buildings.Quarry;
+import io.github.lord_of_nothing.buildings.Sawmill;
+import io.github.lord_of_nothing.buildings.Field;
 import io.github.lord_of_nothing.events.BackToMainMenuEvent;
 import io.github.lord_of_nothing.events.EventBus;
 import io.github.lord_of_nothing.events.PauseGameEvent;
@@ -299,7 +301,7 @@ public class GridInputHandler extends InputAdapter {
     /**
      * Validates that the player has sufficient amounts of all required resources to place the building.
      *
-     *  @param building The building instance containing the cost map to be checked.
+     * @param building The building instance containing the cost map to be checked.
      * @return {@code true} if all required resources are available
      */
     private boolean canAfford(Building building) {
