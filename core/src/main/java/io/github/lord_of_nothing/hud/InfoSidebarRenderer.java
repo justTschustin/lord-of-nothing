@@ -7,25 +7,25 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.buildings.Building;
+import io.github.lord_of_nothing.game.ResourceStateView;
 import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
 
 import java.util.Map;
 
 /**
- * <summary>Visualizes building details such as the sprite, type name, and level within the info panel bounds.</summary>
+ * Visualizes building details such as the sprite, type name, and level within the info panel bounds.
  * <remarks>Uses a BitmapFont for text rendering and coordinates from GameWindow for relative positioning.</remarks>
  */
 public class InfoSidebarRenderer {
     private final BitmapFont font = new BitmapFont();
 
     /**
-     * <summary>Visualizes building details and worker management by accessing the global resource manager.</summary>
-     * @param rm The resource manager used to display the current pool of available citizens.
+     * Renders building details and worker controls using the synchronized resource state.
+     * @param resources The ResourceStateView (implemented by GameStateHandler) providing population data.
      */
-    public void render(ShapeRenderer sr, SpriteBatch batch, GameWindow window, InfoSidebar state, Map<String, Texture> textures, ResourceManager rm) {
+    public void render(ShapeRenderer sr, SpriteBatch batch, GameWindow window, InfoSidebar state, Map<String, Texture> textures, ResourceStateView resources) {
         if (!state.isOpen()) {return;}
-
         float x = window.getRightMarginX();
         float yBase = window.getInfoPanelY();
         float w = window.getRightMarginWidth();
@@ -52,13 +52,15 @@ public class InfoSidebarRenderer {
         font.draw(batch, infoText, x + 20, spriteY - 20);
 
         // 4. Workers & Available pool
-        if (b.getMaxWorkers() > 0) {
-            String workerInfo = "Workers: " + b.getCurrentWorkers() + "/" + b.getMaxWorkers();
-            String availInfo = "Available: " + rm.getAmount(ResourceType.CITIZENS_AVAILABLE);
+            if (b.getMaxWorkers() > 0) {
+                // Nutzt nun das Interface statt der konkreten Klasse
+                int available = resources.getResourceAmount(ResourceType.CITIZENS_AVAILABLE);
+                String workerInfo = "Workers: " + b.getCurrentWorkers() + "/" + b.getMaxWorkers();
+                String availInfo = "Available: " + available;
 
-            font.draw(batch, workerInfo + "  (" + availInfo + ")", x + 20, yBase + 100);
-            font.draw(batch, "[+] Add        [-] Remove", x + 20, yBase + 70);
-        }
+                font.draw(batch, workerInfo + "  (" + availInfo + ")", window.getRightMarginX() + 20, window.getInfoPanelY() + 100);
+                font.draw(batch, "[+] Add        [-] Remove", window.getRightMarginX() + 20, window.getInfoPanelY() + 70);
+            }
         batch.end();
     }
 

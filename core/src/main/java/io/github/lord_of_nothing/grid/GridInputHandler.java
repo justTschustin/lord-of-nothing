@@ -47,7 +47,6 @@ public class GridInputHandler extends InputAdapter {
     private boolean gameplayEnabled;
     private final InfoSidebar infoSidebar;
     private final GameWindow window;
-    private final ResourceManager resourceManager;
 
 
     /**
@@ -64,7 +63,6 @@ public class GridInputHandler extends InputAdapter {
         OrthographicCamera camera,
         Grid grid,
         GameWindow window,
-        ResourceManager resourceManager,
         Sidebar sidebar,
         ResourceStateMutator resources,
         EventBus eventBus,
@@ -76,7 +74,6 @@ public class GridInputHandler extends InputAdapter {
         this.sidebar = sidebar;
         this.infoSidebar = infoSidebar;
         this.window = window;
-        this.resourceManager = resourceManager;
 
         eventBus.subscribe(event -> {
             if (event instanceof UiElementCreatedEvent) {

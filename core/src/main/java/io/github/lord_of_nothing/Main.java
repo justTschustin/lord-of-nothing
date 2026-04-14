@@ -56,7 +56,6 @@ public class Main extends ApplicationAdapter {
     private SidebarRenderer sidebarRenderer;
     private InfoSidebar infoSidebar;
     private InfoSidebarRenderer infoSidebarRenderer;
-    private ResourceManager ressourceManager;
 
     private EventBus eventBus;
     private FlowState flowState;
@@ -75,8 +74,6 @@ public class Main extends ApplicationAdapter {
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
         grassTexture = new Texture("tiles/Floor_Grass.png");
-
-        ressourceManager = new ResourceManager();
 
         gameStateHandler = new GameStateHandler();
         gameStateHandler.addResource(ResourceType.WOOD, 1000);
@@ -102,7 +99,6 @@ public class Main extends ApplicationAdapter {
             camera,
             gameStateHandler.getCurrentGrid(),
             gameWindow,
-            ressourceManager,
             sidebar,
             gameStateHandler,
             eventBus,
@@ -221,7 +217,13 @@ public class Main extends ApplicationAdapter {
             gridInputHandler.getPendingBuilding(),
             gameStateHandler
         );
-        infoSidebarRenderer.render(shapeRenderer, batch, gameWindow, infoSidebar, buildingTextures, ressourceManager);
+        infoSidebarRenderer.render(
+            shapeRenderer,
+            batch, gameWindow,
+            infoSidebar,
+            buildingTextures,
+            gameStateHandler
+            );
         topBarRenderer.render(
             shapeRenderer,
             batch,
