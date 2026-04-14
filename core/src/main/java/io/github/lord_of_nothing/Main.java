@@ -100,8 +100,7 @@ public class Main extends ApplicationAdapter {
             gameStateHandler,
             sidebar,
             eventBus,
-            tileInspectorBar,
-            tileInspectorRenderer
+            tileInspectorBar
         );
         gridInputHandler.setGameplayEnabled(false);
 
@@ -227,7 +226,7 @@ public class Main extends ApplicationAdapter {
             flowState.getScreenState() == ScreenState.PAUSED
         );
         tileInspectorRenderer.render(
-            shapeRenderer, batch, gameWindow, tileInspectorBar, buildingTextures,
+            shapeRenderer, batch, gameWindow, tileInspectorBar, buildingTextures, eventBus,
             () -> gridInputHandler.deleteSelectedBuilding()
         );
     }

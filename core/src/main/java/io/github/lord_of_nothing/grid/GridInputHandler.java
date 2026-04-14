@@ -17,7 +17,6 @@ import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 import io.github.lord_of_nothing.game.ResourceStateMutator;
 import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.hud.Sidebar;
-import io.github.lord_of_nothing.hud.TileInspectorRenderer;
 import io.github.lord_of_nothing.resources.ResourceType;
 import io.github.lord_of_nothing.ui.UiElement;
 
@@ -45,7 +44,6 @@ public class GridInputHandler extends InputAdapter {
     private boolean paused;
     private boolean gameplayEnabled;
     private final TileInspectorBar tileInspectorBar;
-    private final TileInspectorRenderer tileInspectorRenderer;
 
     /**
      * Creates the input handler and subscribes to relevant flow/UI events.
@@ -64,15 +62,13 @@ public class GridInputHandler extends InputAdapter {
         ResourceStateMutator resources,
         Sidebar sidebar,
         EventBus eventBus,
-        TileInspectorBar tileInspectorBar,
-        TileInspectorRenderer tileInspectorRenderer
+        TileInspectorBar tileInspectorBar
     ) {
         this.camera = camera;
         this.grid = grid;
         this.resources = resources;
         this.sidebar = sidebar;
         this.tileInspectorBar = tileInspectorBar;
-        this.tileInspectorRenderer = tileInspectorRenderer;
 
         eventBus.subscribe(event -> {
             if (event instanceof UiElementCreatedEvent) {
@@ -169,12 +165,6 @@ public class GridInputHandler extends InputAdapter {
         // Close panel if clicking anywhere left of the right margin start
         if (tileInspectorBar.isOpen() && touchPos.x < offsetX + gridPixelWidth) {
             tileInspectorBar.close();
-        }
-
-        // If inspector is open, forward click to delete button first
-        // If button consumed, stop here; don't process as a grid click
-        if (tileInspectorBar.isOpen()) {
-            if (tileInspectorRenderer.handleInput(touchPos.x, touchPos.y)) { return true; }
         }
 
         if (handleSidebarInteraction(touchPos.x, touchPos.y)) { return true; }
