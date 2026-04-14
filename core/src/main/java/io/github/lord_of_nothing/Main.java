@@ -197,20 +197,6 @@ public class Main extends ApplicationAdapter {
      */
     @Override
     public void render() {
-        // Detect external display/state changes (e.g. macOS native fullscreen) and
-        // re-run resize to keep camera/UI in sync with the real window size.
-        int currentW = Gdx.graphics.getWidth();
-        int currentH = Gdx.graphics.getHeight();
-        boolean currentFs = Gdx.graphics.isFullscreen();
-        if (currentW != lastKnownWidth || currentH != lastKnownHeight || currentFs != lastKnownFullscreen) {
-            // update layout immediately
-            resize(currentW, currentH);
-            // re-register UI elements so their bounds recalc against new layout
-            menuFlowCoordinator.registerUiElements();
-            lastKnownWidth = currentW;
-            lastKnownHeight = currentH;
-            lastKnownFullscreen = currentFs;
-        }
 
         Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
