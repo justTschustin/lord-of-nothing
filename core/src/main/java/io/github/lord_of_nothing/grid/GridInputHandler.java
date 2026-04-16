@@ -54,7 +54,6 @@ public class GridInputHandler extends InputAdapter {
      * @param sidebar sidebar model used for template selection
      * @param eventBus event bus used to track UI creation and pause state
      * @param tileInspectorBar inspect panel state
-     * @param tileInspectorRenderer inspect panel renderer, used to forward clicks to the delete building button
      */
     public GridInputHandler(
         OrthographicCamera camera,
@@ -282,7 +281,7 @@ public class GridInputHandler extends InputAdapter {
      * Removes it from the grid, refunds 50% of its costs, and closes the panel.
      */
     public void deleteSelectedBuilding() {
-        if (!tileInspectorBar.isOpen()) return;
+        if (!tileInspectorBar.isOpen()) { return; }
 
         Building b = tileInspectorBar.getSelected();
         int x      = tileInspectorBar.getSelectedGridX();

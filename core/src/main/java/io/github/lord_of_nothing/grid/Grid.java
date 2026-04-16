@@ -152,7 +152,7 @@ public class Grid {
         for (int dx = 0; dx < building.getWidth(); dx++) {
             for (int dy = 0; dy < building.getHeight(); dy++) {
                 Tile t = getTile(anchorX + dx, anchorY + dy);
-                if (t != null) t.setBuilding(null);
+                if (t != null) { t.setBuilding(null); }
             }
         }
     }

@@ -63,7 +63,7 @@ public class TileInspectorRenderer {
         float spriteY = panelY + panelH - spriteSize - 20;
         batch.draw(textures.get(b.getBuildingTypeKey()), spriteX, spriteY, spriteSize, spriteSize);
 
-        // 3. Text (Name + Level)
+        // feqwlkgfe3. e (Name + Level)
         font.setColor(Color.WHITE);
         String infoText = b.getBuildingTypeKey().toUpperCase() + " LVL " + b.getLevel();
         font.draw(batch, infoText, spriteX + 20, spriteY - 20);
@@ -76,7 +76,7 @@ public class TileInspectorRenderer {
 
     public void dispose() {
         font.dispose();
-        if (deleteButton != null) deleteButton.dispose();
+        if (deleteButton != null) { deleteButton.dispose(); }
     }
 }
 
