@@ -8,6 +8,7 @@ import io.github.lord_of_nothing.buildings.Building;
 import io.github.lord_of_nothing.buildings.House;
 import io.github.lord_of_nothing.buildings.Quarry;
 import io.github.lord_of_nothing.buildings.Sawmill;
+import io.github.lord_of_nothing.buildings.Field;
 import io.github.lord_of_nothing.events.BackToMainMenuEvent;
 import io.github.lord_of_nothing.events.EventBus;
 import io.github.lord_of_nothing.events.PauseGameEvent;
@@ -220,9 +221,10 @@ public class GridInputHandler extends InputAdapter {
             if (pendingBuilding != null && pendingBuilding.getBuildingTypeKey().equals(clicked.getBuildingTypeKey())) {
                 pendingBuilding = null;
             } else {
-                if (clicked instanceof House) { pendingBuilding = new House(); }
-                else if (clicked instanceof Sawmill) { pendingBuilding = new Sawmill(); }
-                else if (clicked instanceof Quarry) { pendingBuilding = new Quarry(); }
+                if (clicked instanceof House) {pendingBuilding = new House();}
+                else if (clicked instanceof Sawmill) {pendingBuilding = new Sawmill();}
+                else if (clicked instanceof Quarry) {pendingBuilding = new Quarry();}
+                else if (clicked instanceof Field) {pendingBuilding = new Field();}
             }
             return true;
         }
@@ -253,7 +255,7 @@ public class GridInputHandler extends InputAdapter {
     /**
      * Validates that the player has sufficient amounts of all required resources to place the building.
      *
-     *  @param building The building instance containing the cost map to be checked.
+     * @param building The building instance containing the cost map to be checked.
      * @return {@code true} if all required resources are available
      */
     private boolean canAfford(Building building) {
