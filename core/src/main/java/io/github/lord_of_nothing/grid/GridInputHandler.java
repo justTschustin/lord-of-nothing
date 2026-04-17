@@ -16,7 +16,6 @@ import io.github.lord_of_nothing.events.ResumeGameEvent;
 import io.github.lord_of_nothing.events.StartGameEvent;
 import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 import io.github.lord_of_nothing.game.ResourceStateMutator;
-import io.github.lord_of_nothing.hud.InfoSidebar;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.resources.ResourceType;
@@ -45,7 +44,6 @@ public class GridInputHandler extends InputAdapter {
     private final Sidebar sidebar;
     private boolean paused;
     private boolean gameplayEnabled;
-    private final InfoSidebar infoSidebar;
     private final GameWindow window;
     private final TileInspectorBar tileInspectorBar;
 
@@ -58,7 +56,7 @@ public class GridInputHandler extends InputAdapter {
      * @param resources resource state mutator used for cost checks
      * @param sidebar sidebar model used for template selection
      * @param eventBus event bus used to track UI creation and pause state
-     * @param infoSidebar sidebar model used for displaying tile information
+     * @param tileInspectorBar state model used for displaying and inspecting tile buildings
      */
     public GridInputHandler(
         OrthographicCamera camera,
@@ -67,15 +65,12 @@ public class GridInputHandler extends InputAdapter {
         Sidebar sidebar,
         ResourceStateMutator resources,
         EventBus eventBus,
-        InfoSidebar infoSidebar,
         TileInspectorBar tileInspectorBar
-
     ) {
         this.camera = camera;
         this.grid = grid;
         this.resources = resources;
         this.sidebar = sidebar;
-        this.infoSidebar = infoSidebar;
         this.window = window;
         this.tileInspectorBar = tileInspectorBar;
 
@@ -171,15 +166,15 @@ public class GridInputHandler extends InputAdapter {
         // Convert Screen Coordinates to World Coordinates
         camera.unproject(touchPos);
 
-        // 1. Check InfoSidebar Interaction
-        if (infoSidebar.isOpen()) {
+        // 1. Check TileInspector Interaction
+        if (tileInspectorBar.isOpen()) {
             // Click INSIDE the sidebar: Handle Add/Remove buttons
             if (touchPos.x >= window.getRightMarginX()) {
-                if (handleInfoSidebarButtons(touchPos.x, touchPos.y)) {return true;}
+                if (handleInspectorButtons(touchPos.x, touchPos.y)) {return true;}
             }
             // Click OUTSIDE the sidebar: Close it
             else {
-                infoSidebar.close();
+                tileInspectorBar.close();
                 // Continue to check if another building was clicked
             }
         }
@@ -194,7 +189,7 @@ public class GridInputHandler extends InputAdapter {
             Tile tile = grid.getTile(tileX, tileY);
             if (tile.hasBuilding()) {
                 Building b = tile.getBuilding();
-                infoSidebar.select(b);
+                tileInspectorBar.select(b, tileX, tileY);
                 return true;
             }
         }
@@ -250,18 +245,17 @@ public class GridInputHandler extends InputAdapter {
     }
 
     /**
-     * Processes button clicks specifically for worker assignment within the InfoSidebar bounds.
+     * Processes worker add/remove button clicks within the inspector panel.
      * @param x Unprojected X coordinate. @param y Unprojected Y coordinate.
      */
-    private boolean handleInfoSidebarButtons(float x, float y) {
-        Building b = infoSidebar.getSelected();
+    private boolean handleInspectorButtons(float x, float y) {
+        Building b = tileInspectorBar.getSelected();
         if (b == null || b.getMaxWorkers() <= 0) {
             return false;
         }
-        if (y < window.getInfoPanelY() + 80 && y > window.getInfoPanelY() + 60) {
+        if (y < window.getInfoPanelY() + 120 && y > window.getInfoPanelY() + 100) {
             // Add Worker
             if (x < window.getRightMarginX() + 100) {
-                // Use 'resources' (Mutator) instead of 'resourceManager'
                 int available = resources.getResourceAmount(ResourceType.CITIZENS_AVAILABLE);
                 if (available > 0 && b.getCurrentWorkers() < b.getMaxWorkers()) {
                     b.addWorker();

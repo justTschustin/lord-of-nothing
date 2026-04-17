@@ -25,8 +25,6 @@ import io.github.lord_of_nothing.game.GameStateHandler;
 import io.github.lord_of_nothing.game.TickHandler;
 import io.github.lord_of_nothing.grid.GridInputHandler;
 import io.github.lord_of_nothing.grid.GridRenderer;
-import io.github.lord_of_nothing.hud.InfoSidebar;
-import io.github.lord_of_nothing.hud.InfoSidebarRenderer;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.hud.SidebarRenderer;
 import io.github.lord_of_nothing.hud.TopBarRenderer;
@@ -57,8 +55,6 @@ public class Main extends ApplicationAdapter {
     private SidebarRenderer sidebarRenderer;
     private TileInspectorBar tileInspectorBar;
     private TileInspectorRenderer tileInspectorRenderer;
-    private InfoSidebar infoSidebar;
-    private InfoSidebarRenderer infoSidebarRenderer;
 
     private EventBus eventBus;
     private FlowState flowState;
@@ -90,8 +86,6 @@ public class Main extends ApplicationAdapter {
         buildingTextures.put("field", new Texture("buildings/Field.png"));
         sidebar = new Sidebar();
         sidebarRenderer = new SidebarRenderer();
-        infoSidebar = new InfoSidebar();
-        infoSidebarRenderer = new InfoSidebarRenderer();
         tileInspectorBar = new TileInspectorBar();
         tileInspectorRenderer = new TileInspectorRenderer();
 
@@ -107,7 +101,6 @@ public class Main extends ApplicationAdapter {
             sidebar,
             gameStateHandler,
             eventBus,
-            infoSidebar,
             tileInspectorBar
         );
         gridInputHandler.setGameplayEnabled(false);
@@ -223,13 +216,6 @@ public class Main extends ApplicationAdapter {
             gridInputHandler.getPendingBuilding(),
             gameStateHandler
         );
-        infoSidebarRenderer.render(
-            shapeRenderer,
-            batch, gameWindow,
-            infoSidebar,
-            buildingTextures,
-            gameStateHandler
-            );
         topBarRenderer.render(
             shapeRenderer,
             batch,
@@ -242,6 +228,7 @@ public class Main extends ApplicationAdapter {
         );
         tileInspectorRenderer.render(
             shapeRenderer, batch, gameWindow, tileInspectorBar, buildingTextures, eventBus,
+            gameStateHandler,
             () -> gridInputHandler.deleteSelectedBuilding()
         );
     }
@@ -266,7 +253,6 @@ public class Main extends ApplicationAdapter {
         shapeRenderer.dispose();
         batch.dispose();
         grassTexture.dispose();
-        infoSidebarRenderer.dispose();
         topBarRenderer.dispose();
         settingsFlowCoordinator.dispose();
         menuFlowCoordinator.dispose();
