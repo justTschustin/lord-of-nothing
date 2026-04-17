@@ -84,8 +84,13 @@ public abstract class Building {
     }
 
     /**
+     * Returns anchor positions (necessary for delete button functionality)
+     */
+    public int getAnchorX() { return anchorX; }
+    public int getAnchorY() { return anchorY; }
+
+    /**
      * Returns the current progression level of the building.
      */
     public int getLevel() { return level; }
-
 }
