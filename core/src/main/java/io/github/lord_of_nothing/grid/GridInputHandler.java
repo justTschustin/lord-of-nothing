@@ -150,6 +150,7 @@ public class GridInputHandler extends InputAdapter {
         }
         return true;
     }
+
     /**
      * Handles clicks for UI, sidebar, and grid placement.
      *
@@ -178,7 +179,7 @@ public class GridInputHandler extends InputAdapter {
             }
         }
 
-        if (handleSidebarInteraction(touchPos.x, touchPos.y)) {return true;}
+        if (handleSidebarInteraction(touchPos.x, touchPos.y)) { return true; }
 
         // 2. Check World/Grid Interaction
         int tileX = (int) ((touchPos.x - offsetX) / tileSize);
@@ -187,7 +188,8 @@ public class GridInputHandler extends InputAdapter {
         if (grid.isInside(tileX, tileY) && getPendingBuilding() == null) {
             Tile tile = grid.getTile(tileX, tileY);
             if (tile.hasBuilding()) {
-                infoSidebar.select(tile.getBuilding());
+                Building b = tile.getBuilding();
+                infoSidebar.select(b, b.getAnchorX(), b.getAnchorY());
                 return true;
             }
         }
@@ -320,6 +322,27 @@ public class GridInputHandler extends InputAdapter {
             resources.tryConsumeResource(entry.getKey(), entry.getValue());
         }
     }
+
+    /**
+     * Demolishes the currently inspected building;
+     * Removes it from the grid, refunds 50% of its costs, and closes the panel.
+     */
+    public void deleteSelectedBuilding() {
+        if (!tileInspectorBar.isOpen()) { return; }
+
+        Building b = tileInspectorBar.getSelected();
+        int x      = tileInspectorBar.getSelectedGridX();
+        int y      = tileInspectorBar.getSelectedGridY();
+
+        grid.removeBuilding(x, y);
+
+        for (Map.Entry<ResourceType, Integer> entry : b.getCosts().entrySet()) {
+            resources.addResource(entry.getKey(), entry.getValue() / 2);
+        }
+
+        tileInspectorBar.close();
+    }
+
     /**
      * Returns whether any building is currently selected for placement.
      *

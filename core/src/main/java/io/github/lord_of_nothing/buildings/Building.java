@@ -36,6 +36,7 @@ public abstract class Building {
 
     /**
      * Initializes a building with a specific footprint size on the game grid.
+     *
      * @param width The number of tiles the building occupies horizontally.
      * @param height The number of tiles the building occupies vertically.
      */
@@ -83,6 +84,12 @@ public abstract class Building {
     public boolean isAnchorPoint(int x, int y) {
         return this.anchorX == x && this.anchorY == y;
     }
+
+    /**
+     * Returns anchor positions (necessary for delete button functionality)
+     */
+    public int getAnchorX() { return anchorX; }
+    public int getAnchorY() { return anchorY; }
 
     /**
      * Returns the current progression level of the building.
