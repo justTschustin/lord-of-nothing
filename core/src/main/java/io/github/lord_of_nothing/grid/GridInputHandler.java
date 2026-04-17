@@ -18,6 +18,7 @@ import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 import io.github.lord_of_nothing.game.ResourceStateMutator;
 import io.github.lord_of_nothing.hud.InfoSidebar;
 import io.github.lord_of_nothing.hud.Sidebar;
+import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.resources.ResourceType;
 import io.github.lord_of_nothing.ui.UiElement;
 
@@ -46,6 +47,7 @@ public class GridInputHandler extends InputAdapter {
     private boolean gameplayEnabled;
     private final InfoSidebar infoSidebar;
     private final GameWindow window;
+    private final TileInspectorBar tileInspectorBar;
 
 
     /**
@@ -65,7 +67,9 @@ public class GridInputHandler extends InputAdapter {
         Sidebar sidebar,
         ResourceStateMutator resources,
         EventBus eventBus,
-        InfoSidebar infoSidebar
+        InfoSidebar infoSidebar,
+        TileInspectorBar tileInspectorBar
+
     ) {
         this.camera = camera;
         this.grid = grid;
@@ -73,6 +77,7 @@ public class GridInputHandler extends InputAdapter {
         this.sidebar = sidebar;
         this.infoSidebar = infoSidebar;
         this.window = window;
+        this.tileInspectorBar = tileInspectorBar;
 
         eventBus.subscribe(event -> {
             if (event instanceof UiElementCreatedEvent) {
@@ -189,7 +194,7 @@ public class GridInputHandler extends InputAdapter {
             Tile tile = grid.getTile(tileX, tileY);
             if (tile.hasBuilding()) {
                 Building b = tile.getBuilding();
-                infoSidebar.select(b, b.getAnchorX(), b.getAnchorY());
+                infoSidebar.select(b);
                 return true;
             }
         }

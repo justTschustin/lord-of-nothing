@@ -30,6 +30,8 @@ import io.github.lord_of_nothing.hud.InfoSidebarRenderer;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.hud.SidebarRenderer;
 import io.github.lord_of_nothing.hud.TopBarRenderer;
+import io.github.lord_of_nothing.hud.TileInspectorBar;
+import io.github.lord_of_nothing.hud.TileInspectorRenderer;
 import io.github.lord_of_nothing.menu.MainMenu;
 import io.github.lord_of_nothing.menu.SettingsMenu;
 import io.github.lord_of_nothing.resources.ResourceType;
@@ -53,6 +55,8 @@ public class Main extends ApplicationAdapter {
     private Texture grassTexture;
     private Sidebar sidebar;
     private SidebarRenderer sidebarRenderer;
+    private TileInspectorBar tileInspectorBar;
+    private TileInspectorRenderer tileInspectorRenderer;
     private InfoSidebar infoSidebar;
     private InfoSidebarRenderer infoSidebarRenderer;
 
@@ -88,6 +92,8 @@ public class Main extends ApplicationAdapter {
         sidebarRenderer = new SidebarRenderer();
         infoSidebar = new InfoSidebar();
         infoSidebarRenderer = new InfoSidebarRenderer();
+        tileInspectorBar = new TileInspectorBar();
+        tileInspectorRenderer = new TileInspectorRenderer();
 
         topBarRenderer = new TopBarRenderer();
         eventBus = new EventBus();
@@ -101,7 +107,8 @@ public class Main extends ApplicationAdapter {
             sidebar,
             gameStateHandler,
             eventBus,
-            infoSidebar
+            infoSidebar,
+            tileInspectorBar
         );
         gridInputHandler.setGameplayEnabled(false);
 
