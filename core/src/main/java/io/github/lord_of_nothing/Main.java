@@ -226,7 +226,10 @@ public class Main extends ApplicationAdapter {
             eventBus,
             flowState.getScreenState() == ScreenState.PAUSED
         );
-        tileInspectorRenderer.render(shapeRenderer, batch, gameWindow, tileInspectorBar, buildingTextures);
+        tileInspectorRenderer.render(
+            shapeRenderer, batch, gameWindow, tileInspectorBar, buildingTextures, eventBus,
+            () -> gridInputHandler.deleteSelectedBuilding()
+        );
     }
 
     /**

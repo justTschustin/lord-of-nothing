@@ -54,6 +54,7 @@ public class GridInputHandler extends InputAdapter {
      * @param resources resource state mutator used for cost checks
      * @param sidebar sidebar model used for template selection
      * @param eventBus event bus used to track UI creation and pause state
+     * @param tileInspectorBar inspect panel state
      */
     public GridInputHandler(
         OrthographicCamera camera,
@@ -145,6 +146,7 @@ public class GridInputHandler extends InputAdapter {
         }
         return true;
     }
+
     /**
      * Handles clicks for UI, sidebar, and grid placement.
      *
@@ -161,19 +163,21 @@ public class GridInputHandler extends InputAdapter {
         camera.unproject(touchPos);
 
         // Close panel if clicking anywhere left of the right margin start
-        if (tileInspectorBar.isOpen()) {
+        if (tileInspectorBar.isOpen() && touchPos.x < offsetX + gridPixelWidth) {
             tileInspectorBar.close();
         }
 
-        if (handleSidebarInteraction(touchPos.x, touchPos.y)) {return true;}
+        if (handleSidebarInteraction(touchPos.x, touchPos.y)) { return true; }
 
         int tileX = (int) ((touchPos.x - offsetX) / tileSize);
         int tileY = (int) ((touchPos.y - offsetY) / tileSize);
+
         // Open panel if a building is clicked and no new building is being placed
         if (grid.isInside(tileX, tileY) && getPendingBuilding() == null) {
-            io.github.lord_of_nothing.grid.Tile tile = grid.getTile(tileX, tileY);
+            Tile tile = grid.getTile(tileX, tileY);
             if (tile.hasBuilding()) {
-                tileInspectorBar.select(tile.getBuilding());
+                Building b = tile.getBuilding();
+                tileInspectorBar.select(b, b.getAnchorX(), b.getAnchorY());
                 return true;
             }
         }
@@ -273,6 +277,27 @@ public class GridInputHandler extends InputAdapter {
             resources.tryConsumeResource(entry.getKey(), entry.getValue());
         }
     }
+
+    /**
+     * Demolishes the currently inspected building;
+     * Removes it from the grid, refunds 50% of its costs, and closes the panel.
+     */
+    public void deleteSelectedBuilding() {
+        if (!tileInspectorBar.isOpen()) { return; }
+
+        Building b = tileInspectorBar.getSelected();
+        int x      = tileInspectorBar.getSelectedGridX();
+        int y      = tileInspectorBar.getSelectedGridY();
+
+        grid.removeBuilding(x, y);
+
+        for (Map.Entry<ResourceType, Integer> entry : b.getCosts().entrySet()) {
+            resources.addResource(entry.getKey(), entry.getValue() / 2);
+        }
+
+        tileInspectorBar.close();
+    }
+
     /**
      * Returns whether any building is currently selected for placement.
      *
@@ -284,7 +309,5 @@ public class GridInputHandler extends InputAdapter {
      * Returns the building currently selected for placement.
      * @return The pending building instance or null if none is selected.
      */
-    public Building getPendingBuilding() {
-        return pendingBuilding;
-    }
+    public Building getPendingBuilding() { return pendingBuilding; }
 }
