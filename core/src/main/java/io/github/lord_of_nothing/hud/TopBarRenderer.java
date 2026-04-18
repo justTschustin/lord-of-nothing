@@ -3,6 +3,7 @@ package io.github.lord_of_nothing.hud;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.lord_of_nothing.GameWindow;
@@ -17,6 +18,7 @@ import io.github.lord_of_nothing.resources.ResourceType;
  */
 public class TopBarRenderer {
     private final BitmapFont font = new BitmapFont();
+    private final GlyphLayout glyphLayout = new GlyphLayout();
     private final PauseOverlay pauseOverlay = new PauseOverlay();
     private PauseButton pauseButton;
 
@@ -70,19 +72,21 @@ public class TopBarRenderer {
 
         batch.begin();
         float y = window.getTopBarY() + 25;
-        font.draw(batch, "WOOD: " + resources.getResourceAmount(ResourceType.WOOD), 20, y);
-        font.draw(batch, "STONE: " + resources.getResourceAmount(ResourceType.STONE), 150, y);
-        font.draw(batch, "FOOD: " + resources.getResourceAmount(ResourceType.FOOD), 280, y);
-        font.draw(batch, "CITIZENS: " + resources.getResourceAmount(ResourceType.CITIZENS_TOTAL), 410, y);
-        font.draw(batch, "CAPACITY: " + resources.getResourceAmount(ResourceType.CITIZENS_CAPACITY), 560, y);
-        int spacing = 150;
-        int i = 5; // Represents the count of resources explicitly drawn above for positioning the next element
-        font.draw(
-            batch,
-            "Day: " + currentIngameDay + " Time: " + currentIngameHour + ":00",
-            20 + (i * spacing),
-            y
-        );
+        float x = 10;
+        float gap = 30;
+        String[] labels = {
+            "WOOD: " + resources.getResourceAmount(ResourceType.WOOD),
+            "STONE: " + resources.getResourceAmount(ResourceType.STONE),
+            "FOOD: " + resources.getResourceAmount(ResourceType.FOOD),
+            "CITIZENS: " + resources.getResourceAmount(ResourceType.CITIZENS_TOTAL),
+            "CAPACITY: " + resources.getResourceAmount(ResourceType.CITIZENS_CAPACITY),
+            "Day: " + currentIngameDay + " Time: " + currentIngameHour + ":00"
+        };
+        for (String label : labels) {
+            font.draw(batch, label, x, y);
+            glyphLayout.setText(font, label);
+            x += glyphLayout.width + gap;
+        }
         pauseButton.render(batch);
         batch.end();
 
