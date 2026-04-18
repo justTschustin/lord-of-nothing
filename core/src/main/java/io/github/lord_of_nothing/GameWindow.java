@@ -131,7 +131,7 @@ public class GameWindow {
     public float getRightSidebarWidth() { return Gdx.graphics.getWidth() * 0.20f; }
 
     /**
-     Calculates the height required for the info panel to span from the screen center to the bottom of the top bar.
+     * Calculates the height required for the info panel to span from the screen center to the bottom of the top bar.
      * @return The calculated height preventing overlap with the top bar.
      */
     public float getInfoPanelHeight() {
@@ -142,6 +142,9 @@ public class GameWindow {
 
     /**
      * Calculates the horizontal start and width of the right margin area to prevent grid overlap
+     */
+    /**
+     * Calculates the horizontal start and width of the right margin area to prevent grid overlap.
      */
     public float getRightMarginX() { return offsetX + gridPixelWidth; }
     public float getRightMarginWidth() { return Math.max(0, Gdx.graphics.getWidth() - getRightMarginX()); }
