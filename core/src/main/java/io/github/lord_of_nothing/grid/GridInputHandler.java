@@ -6,9 +6,9 @@ import com.badlogic.gdx.math.Vector3;
 import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.buildings.Building;
 import io.github.lord_of_nothing.buildings.House;
-import io.github.lord_of_nothing.buildings.Quarry;
-import io.github.lord_of_nothing.buildings.Sawmill;
 import io.github.lord_of_nothing.buildings.Field;
+import io.github.lord_of_nothing.buildings.Sawmill;
+import io.github.lord_of_nothing.buildings.Quarry;
 import io.github.lord_of_nothing.events.BackToMainMenuEvent;
 import io.github.lord_of_nothing.events.EventBus;
 import io.github.lord_of_nothing.events.PauseGameEvent;
@@ -16,8 +16,8 @@ import io.github.lord_of_nothing.events.ResumeGameEvent;
 import io.github.lord_of_nothing.events.StartGameEvent;
 import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 import io.github.lord_of_nothing.game.ResourceStateMutator;
-import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.hud.Sidebar;
+import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.resources.ResourceType;
 import io.github.lord_of_nothing.ui.UiElement;
 
@@ -44,7 +44,9 @@ public class GridInputHandler extends InputAdapter {
     private final Sidebar sidebar;
     private boolean paused;
     private boolean gameplayEnabled;
+    private final GameWindow window;
     private final TileInspectorBar tileInspectorBar;
+
 
     /**
      * Creates the input handler and subscribes to relevant flow/UI events.
@@ -54,13 +56,14 @@ public class GridInputHandler extends InputAdapter {
      * @param resources resource state mutator used for cost checks
      * @param sidebar sidebar model used for template selection
      * @param eventBus event bus used to track UI creation and pause state
-     * @param tileInspectorBar inspect panel state
+     * @param tileInspectorBar state model used for displaying and inspecting tile buildings
      */
     public GridInputHandler(
         OrthographicCamera camera,
         Grid grid,
-        ResourceStateMutator resources,
+        GameWindow window,
         Sidebar sidebar,
+        ResourceStateMutator resources,
         EventBus eventBus,
         TileInspectorBar tileInspectorBar
     ) {
@@ -68,6 +71,7 @@ public class GridInputHandler extends InputAdapter {
         this.grid = grid;
         this.resources = resources;
         this.sidebar = sidebar;
+        this.window = window;
         this.tileInspectorBar = tileInspectorBar;
 
         eventBus.subscribe(event -> {
@@ -162,22 +166,30 @@ public class GridInputHandler extends InputAdapter {
         // Convert Screen Coordinates to World Coordinates
         camera.unproject(touchPos);
 
-        // Close panel if clicking anywhere left of the right margin start
-        if (tileInspectorBar.isOpen() && touchPos.x < offsetX + gridPixelWidth) {
-            tileInspectorBar.close();
+        // 1. Check TileInspector Interaction
+        if (tileInspectorBar.isOpen()) {
+            // Click INSIDE the sidebar: Handle Add/Remove buttons
+            if (touchPos.x >= window.getRightMarginX()) {
+                if (handleInspectorButtons(touchPos.x, touchPos.y)) {return true;}
+            }
+            // Click OUTSIDE the sidebar: Close it
+            else {
+                tileInspectorBar.close();
+                // Continue to check if another building was clicked
+            }
         }
 
         if (handleSidebarInteraction(touchPos.x, touchPos.y)) { return true; }
 
+        // 2. Check World/Grid Interaction
         int tileX = (int) ((touchPos.x - offsetX) / tileSize);
         int tileY = (int) ((touchPos.y - offsetY) / tileSize);
 
-        // Open panel if a building is clicked and no new building is being placed
         if (grid.isInside(tileX, tileY) && getPendingBuilding() == null) {
             Tile tile = grid.getTile(tileX, tileY);
             if (tile.hasBuilding()) {
                 Building b = tile.getBuilding();
-                tileInspectorBar.select(b, b.getAnchorX(), b.getAnchorY());
+                tileInspectorBar.select(b, tileX, tileY);
                 return true;
             }
         }
@@ -188,6 +200,7 @@ public class GridInputHandler extends InputAdapter {
             || handleSidebarInteraction(touchPos.x, touchPos.y)
             || handleGridPlacement(touchPos.x, touchPos.y);
     }
+
 
     /**
      * Dispatches a click to the first matching UI element.
@@ -232,6 +245,36 @@ public class GridInputHandler extends InputAdapter {
     }
 
     /**
+     * Processes worker add/remove button clicks within the inspector panel.
+     * @param x Unprojected X coordinate. @param y Unprojected Y coordinate.
+     */
+    private boolean handleInspectorButtons(float x, float y) {
+        Building b = tileInspectorBar.getSelected();
+        if (b == null || b.getMaxWorkers() <= 0) {
+            return false;
+        }
+        if (y < window.getInfoPanelY() + 120 && y > window.getInfoPanelY() + 100) {
+            // Add Worker
+            if (x < window.getRightMarginX() + 100) {
+                int available = resources.getResourceAmount(ResourceType.CITIZENS_AVAILABLE);
+                if (available > 0 && b.getCurrentWorkers() < b.getMaxWorkers()) {
+                    b.addWorker();
+                    resources.addResource(ResourceType.CITIZENS_AVAILABLE, -1);
+                }
+            }
+            // Remove Worker
+            else {
+                if (b.getCurrentWorkers() > 0) {
+                    b.removeWorker();
+                    resources.addResource(ResourceType.CITIZENS_AVAILABLE, 1);
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Handles placement of the currently selected building on the grid.
      *
      * @param x click x coordinate in world space
@@ -242,9 +285,10 @@ public class GridInputHandler extends InputAdapter {
         int tileX = (int) ((x - offsetX) / tileSize);
         int tileY = (int) ((y - offsetY) / tileSize);
 
-        if (pendingBuilding != null && grid.canPlace(tileX, tileY, pendingBuilding.getWidth(), pendingBuilding.getHeight())) {
+        if (pendingBuilding != null && grid.isInside(tileX, tileY) && grid.canPlace(tileX, tileY, pendingBuilding.getWidth(), pendingBuilding.getHeight())) {
             if (canAfford(pendingBuilding)) {
                 consumeCosts(pendingBuilding);
+                handleBuildingEffects(pendingBuilding);
                 grid.placeBuilding(tileX, tileY, pendingBuilding);
                 pendingBuilding = null;
                 return true;
@@ -309,5 +353,17 @@ public class GridInputHandler extends InputAdapter {
      * Returns the building currently selected for placement.
      * @return The pending building instance or null if none is selected.
      */
-    public Building getPendingBuilding() { return pendingBuilding; }
+    public Building getPendingBuilding() {
+        return pendingBuilding;
+    }
+
+    /**
+     * Increments both capacity and available worker pool when a residential building is placed.
+     */
+    private void handleBuildingEffects(Building b) {
+        if (b.getCitizenCapacity() > 0) {
+            // Use the merged 'resources' mutator to ensure the UI and TickManager receive the update
+            resources.addResource(ResourceType.CITIZENS_CAPACITY, b.getCitizenCapacity());
+        }
+    }
 }

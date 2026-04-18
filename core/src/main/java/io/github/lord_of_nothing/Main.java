@@ -56,7 +56,6 @@ public class Main extends ApplicationAdapter {
     private TileInspectorBar tileInspectorBar;
     private TileInspectorRenderer tileInspectorRenderer;
 
-
     private EventBus eventBus;
     private FlowState flowState;
     private TickHandler tickHandler;
@@ -84,7 +83,7 @@ public class Main extends ApplicationAdapter {
         buildingTextures.put("house", new Texture("buildings/House1.png"));
         buildingTextures.put("sawmill", new Texture("buildings/Sawmill.png"));
         buildingTextures.put("quarry", new Texture("buildings/Placeholder_2x2_1.png"));
-        buildingTextures.put("field", new Texture("buildings/fieldPlaceholder.png"));
+        buildingTextures.put("field", new Texture("buildings/Field.png"));
         sidebar = new Sidebar();
         sidebarRenderer = new SidebarRenderer();
         tileInspectorBar = new TileInspectorBar();
@@ -98,8 +97,9 @@ public class Main extends ApplicationAdapter {
         gridInputHandler = new GridInputHandler(
             camera,
             gameStateHandler.getCurrentGrid(),
-            gameStateHandler,
+            gameWindow,
             sidebar,
+            gameStateHandler,
             eventBus,
             tileInspectorBar
         );
@@ -228,6 +228,7 @@ public class Main extends ApplicationAdapter {
         );
         tileInspectorRenderer.render(
             shapeRenderer, batch, gameWindow, tileInspectorBar, buildingTextures, eventBus,
+            gameStateHandler,
             () -> gridInputHandler.deleteSelectedBuilding()
         );
     }
@@ -252,7 +253,6 @@ public class Main extends ApplicationAdapter {
         shapeRenderer.dispose();
         batch.dispose();
         grassTexture.dispose();
-        tileInspectorRenderer.dispose();
         topBarRenderer.dispose();
         settingsFlowCoordinator.dispose();
         menuFlowCoordinator.dispose();
