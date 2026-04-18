@@ -9,6 +9,8 @@ import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.buildings.Building;
 import io.github.lord_of_nothing.button.DeleteBuildingButton;
 import io.github.lord_of_nothing.events.EventBus;
+import io.github.lord_of_nothing.game.ResourceStateView;
+import io.github.lord_of_nothing.resources.ResourceType;
 import java.util.Map;
 
 /**
@@ -26,6 +28,7 @@ public class TileInspectorRenderer {
         TileInspectorBar state,
         Map<String, Texture> textures,
         EventBus eventBus,
+        ResourceStateView resources,
         Runnable onDelete
     ) {
         float panelX = window.getRightMarginX();
@@ -63,14 +66,23 @@ public class TileInspectorRenderer {
         float spriteY = panelY + panelH - spriteSize - 20;
         batch.draw(textures.get(b.getBuildingTypeKey()), spriteX, spriteY, spriteSize, spriteSize);
 
-        // feqwlkgfe3. e (Name + Level)
+        // 3. Name + Level
         font.setColor(Color.WHITE);
         String infoText = b.getBuildingTypeKey().toUpperCase() + " LVL " + b.getLevel();
         font.draw(batch, infoText, spriteX + 20, spriteY - 20);
 
+        // 4. Worker assignment (only for buildings that accept workers)
+        if (b.getMaxWorkers() > 0) {
+            int available = resources.getResourceAmount(ResourceType.CITIZENS_AVAILABLE);
+            String workerInfo = "Workers: " + b.getCurrentWorkers() + "/" + b.getMaxWorkers()
+                + "  (Avail: " + available + ")";
+            font.draw(batch, workerInfo, panelX + 10, panelY + 135);
+            font.draw(batch, "[+] Add        [-] Remove", panelX + 10, panelY + 115);
+        }
+
         batch.end();
 
-        // 4. Delete Button
+        // 5. Delete Button
         deleteButton.render(sr, batch);
     }
 

@@ -2,7 +2,6 @@ package io.github.lord_of_nothing.game;
 
 import io.github.lord_of_nothing.resources.ResourceType;
 
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Tracks fixed-interval simulation ticks independently from render framerate.
@@ -120,32 +119,36 @@ public class TickHandler {
      * @return number of fully completed in-game days in this update
      */
     public int update(float delta, int currentIngameDay, ResourceStateMutator resourceState) {
-        if (delta <= 0f) {
-            return 0;
-        }
+        if (delta <= 0f) {return 0;}
 
         accumulatorSeconds += delta;
         int completedDays = 0;
-
         float effectiveTickDuration = tickDurationSeconds / (float) gameSpeed;
-        int baseIngameDay = Math.max(1, currentIngameDay);
 
         while (accumulatorSeconds >= effectiveTickDuration) {
             accumulatorSeconds -= effectiveTickDuration;
             tickProgressInDay++;
 
             if (resourceState != null && tickProgressInDay == getCitizenArrivalTickProgress()) {
-                int arrivalDay = baseIngameDay + completedDays;
-                int minimum = getCitizenArrivalMin(arrivalDay);
-                int maximum = getCitizenArrivalMax(arrivalDay);
-                int arrivedCitizens = ThreadLocalRandom.current().nextInt(minimum, maximum + 1);
-                resourceState.addResource(ResourceType.CITIZENS, arrivedCitizens);
-                System.out.println(
-                    "Day " + arrivalDay
-                        + " citizen arrival: min=" + minimum
-                        + ", max=" + maximum
-                        + ", arrived=" + arrivedCitizens
-                );
+                // Determine current housing situation
+                int currentTotal = resourceState.getResourceAmount(ResourceType.CITIZENS_TOTAL);
+                int capacity = resourceState.getResourceAmount(ResourceType.CITIZENS_CAPACITY);
+                int spaceLeft = Math.max(0, capacity - currentTotal);
+
+                if (spaceLeft > 0) {
+                    int potentialArrivals = java.util.concurrent.ThreadLocalRandom.current().nextInt(
+                        getCitizenArrivalMin(currentIngameDay + completedDays),
+                        getCitizenArrivalMax(currentIngameDay + completedDays) + 1
+                    );
+
+                    int arrivedCitizens = Math.min(potentialArrivals, spaceLeft);
+
+                    if (arrivedCitizens > 0) {
+                        // Add to both the total count and the available worker pool
+                        resourceState.addResource(ResourceType.CITIZENS_TOTAL, arrivedCitizens);
+                        resourceState.addResource(ResourceType.CITIZENS_AVAILABLE, arrivedCitizens);
+                    }
+                }
             }
 
             if (tickProgressInDay >= getTicksPerDay()) {
@@ -153,7 +156,6 @@ public class TickHandler {
                 completedDays++;
             }
         }
-
         return completedDays;
     }
 
