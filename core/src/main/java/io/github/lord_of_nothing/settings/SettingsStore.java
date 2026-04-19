@@ -1,0 +1,76 @@
+package io.github.lord_of_nothing.settings;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonWriter;
+
+/**
+ * Loads and saves {@link GameSettings} from a local JSON file.
+ */
+public class SettingsStore {
+    private final Json json = new Json();
+    private final String filePath;
+
+    /**
+     * Creates a settings store for a local file path.
+     *
+     * @param filePath local file path used for settings persistence
+     */
+    public SettingsStore(String filePath) {
+        this.filePath = filePath;
+        json.setOutputType(JsonWriter.OutputType.json);
+        json.setUsePrototypes(false);
+    }
+
+    /**
+     * Loads settings from disk, falling back to defaults on missing or invalid data.
+     *
+     * @return loaded settings or defaults when load fails
+     */
+    public GameSettings load() {
+        GameSettings defaults = new GameSettings();
+        FileHandle file = Gdx.files.local(filePath);
+        if (!file.exists()) {
+            save(defaults);
+            return defaults;
+        }
+
+        try {
+            GameSettings loaded = json.fromJson(GameSettings.class, file.readString("UTF-8"));
+            GameSettings normalized = normalize(loaded, defaults);
+            save(normalized);
+            return normalized;
+        } catch (Exception ignored) {
+            // Fall back to defaults if the settings file is malformed.
+            save(defaults);
+            return defaults;
+        }
+    }
+
+    /**
+     * Saves settings to disk as pretty-printed JSON.
+     *
+     * @param settings settings object to persist
+     */
+    public void save(GameSettings settings) {
+        GameSettings normalized = normalize(settings, new GameSettings());
+        FileHandle file = Gdx.files.local(filePath);
+        file.parent().mkdirs();
+        file.writeString(json.prettyPrint(normalized), false, "UTF-8");
+    }
+
+    private GameSettings normalize(GameSettings loaded, GameSettings defaults) {
+        if (loaded == null) {
+            return defaults;
+        }
+
+        GameSettings normalized = new GameSettings();
+        normalized.fullscreen = loaded.fullscreen;
+        normalized.windowedWidth = loaded.windowedWidth > 0 ? loaded.windowedWidth : defaults.windowedWidth;
+        normalized.windowedHeight = loaded.windowedHeight > 0 ? loaded.windowedHeight : defaults.windowedHeight;
+        normalized.gameSpeed = loaded.gameSpeed > 0 ? loaded.gameSpeed : defaults.gameSpeed;
+        return normalized;
+    }
+}
+

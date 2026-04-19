@@ -12,6 +12,17 @@
   - cannot push directly onto main
 - always work on branches, merge onto main after code review (probably from Justin)
 
+## Run Linter/Formatter Tests
+```bash
+./gradlew spotlessApply
+./gradlew spotlessCheck
+./gradlew check
+``` 
+
+## Runtime settings file
+- Desktop runs write settings to `config/settings.json` in the project root.
+- The file is auto-created with defaults and kept complete (missing keys are re-added on load).
+
 
 
 

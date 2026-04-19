@@ -2,33 +2,83 @@ package io.github.lord_of_nothing.lwjgl3;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.utils.Json;
 import io.github.lord_of_nothing.Main;
+import io.github.lord_of_nothing.settings.GameSettings;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /** Launches the desktop (LWJGL3) application. */
 public class Lwjgl3Launcher {
+    private static final Json json = new Json();
+    private static final String settingsFilePath = "../config/settings.json";
+
+    /**
+     * Desktop JVM entry point.
+     *
+     * @param args startup arguments
+     */
     public static void main(String[] args) {
         if (StartupHelper.startNewJvmIfRequired()) return; // This handles macOS support and helps on Windows.
         createApplication();
     }
 
+    /**
+     * Creates and starts the LWJGL3 application instance.
+     *
+     * @return created application instance
+     */
     private static Lwjgl3Application createApplication() {
-        return new Lwjgl3Application(new Main(), getDefaultConfiguration());
+        return new Lwjgl3Application(new Main(), getApplicationConfig());
     }
 
+    private static Lwjgl3ApplicationConfiguration getApplicationConfig() {
+        Lwjgl3ApplicationConfiguration config = getDefaultConfiguration();
+        Path settingsPath = Paths.get(settingsFilePath);
+        if (!Files.exists(settingsPath)) {
+            return config;
+        }
+
+        try {
+            String settingsJson = new String(Files.readAllBytes(settingsPath), StandardCharsets.UTF_8);
+            GameSettings loaded = json.fromJson(GameSettings.class, settingsJson);
+
+            try {
+                config.setWindowedMode(loaded.windowedWidth, loaded.windowedHeight);
+            } catch (Exception ignored) {
+                // if settings file is missing or the windowedWidth or windowedHeight is missing,
+                // this throws and we ignore it as we just use the default values in that case
+            }
+
+            if (loaded.fullscreen) {
+                config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
+            }
+        } catch (Exception ignored) {
+            // Fall back to defaults if the settings file is malformed.
+        }
+        return config;
+    }
+
+    /**
+     * Builds the default desktop window configuration.
+     *
+     * @return configured LWJGL3 application configuration
+     */
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
         configuration.setTitle("Lord of Nothing");
         //// Vsync limits the frames per second to what your hardware can display, and helps eliminate
         //// screen tearing. This setting doesn't always work on Linux, so the line after is a safeguard.
         configuration.useVsync(true);
-        //// Limits FPS to the refresh rate of the currently active monitor, plus 1 to try to match fractional
-        //// refresh rates. The Vsync setting above should limit the actual FPS to match the monitor.
-        configuration.setForegroundFPS(Lwjgl3ApplicationConfiguration.getDisplayMode().refreshRate + 1);
+
         //// If you remove the above line and set Vsync to false, you can get unlimited FPS, which can be
         //// useful for testing performance, but can also be very stressful to some hardware.
         //// You may also need to configure GPU drivers to fully disable Vsync; this can cause screen tearing.
+        configuration.setWindowedMode(1080, 720);
 
-        configuration.setWindowedMode(640, 480);
         //// You can change these files; they are in lwjgl3/src/main/resources/ .
         //// They can also be loaded from the root of assets/ .
         configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
@@ -42,6 +92,15 @@ public class Lwjgl3Launcher {
         //// are not intended for games that use GL30 (which is compatibility with OpenGL ES 3.0).
         //// Know that it might not work well in some cases.
 //        configuration.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.ANGLE_GLES20, 0, 0);
+
+        configuration.setForegroundFPS(30);
+        configuration.setAutoIconify(false);
+
+        configuration.setWindowSizeLimits(1080, 720, 9999, 9999);
+        configuration.setResizable(false);
+
+        configuration.setPauseWhenMinimized(true);
+        configuration.setPauseWhenLostFocus(false);
 
         return configuration;
     }

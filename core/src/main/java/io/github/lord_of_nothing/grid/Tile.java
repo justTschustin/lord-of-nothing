@@ -1,40 +1,66 @@
 package io.github.lord_of_nothing.grid;
 
+import io.github.lord_of_nothing.buildings.Building;
+
+/**
+ * Represents a single cell within the game grid, capable of holding a building instance.
+ */
 public class Tile {
-    private io.github.lord_of_nothing.buildings.Building building;
-    /**
-     * Gibt das Gebäude auf diesem Feld zurück oder null, falls das Feld leer ist.
-     */
     public static final int BASE_TILE_SIZE = 32;
-    private boolean hasBuilding = false;
+    private TileType type = TileType.GRASS;
     private final int x;
     private final int y;
+    private Building building = null;
 
+    /**
+     * Initializes a new tile at the specified grid coordinates.
+     *
+     * @param x The horizontal index of the tile in the grid.
+     * @param y The vertical index of the tile in the grid.
+     */
     public Tile(int x, int y) {
         this.x = x;
         this.y = y;
     }
-    public boolean hasHouse() { return hasBuilding; }
-    public void setHas(boolean hasHouse) { this.hasBuilding = hasHouse; }
 
     /**
-     * Gibt das Gebäude auf diesem Feld zurück oder null, falls das Feld leer ist.
+     * Checks if the tile is occupied by a building by verifying the building reference.
+     *
+     * @return True if a building instance is present, false if the tile is empty.
      */
-    public io.github.lord_of_nothing.buildings.Building getBuilding() { return building; }
-    /**
-     * Platziert ein beliebiges Gebäude auf dem Tile.
-     */
-    public void setBuilding(io.github.lord_of_nothing.buildings.Building building) { this.building = building; }
-    /**
-     * Prüft, ob das Feld mit einem Gebäude belegt ist.
-     */
-    public boolean hasBuilding() { return building != null; }
-
-    public int getX() {
-        return x;
+    public boolean hasBuilding() {
+        return building != null;
     }
 
-    public int getY() {
-        return y;
+    /**
+     * Gets the building currently placed on this tile.
+     *
+     * @return The building instance or null if unoccupied.
+     */
+    public Building getBuilding() {
+        return building;
     }
+
+    /**
+     * Sets a building on this tile, effectively occupying it.
+     *
+     * @param building The building instance to be placed on this tile.
+     */
+    public void setBuilding(Building building) {
+        this.building = building;
+    }
+
+    /**
+     * Returns the terrain type of this tile.
+     *
+     * @return tile terrain type
+     */
+    public TileType getType() { return type; }
+
+    /**
+     * Changes the terrain type of this tile.
+     *
+     * @param type new terrain type
+     */
+    public void setType(TileType type) { this.type = type; }
 }
