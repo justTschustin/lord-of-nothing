@@ -1,5 +1,6 @@
 package io.github.lord_of_nothing.grid;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -21,6 +22,7 @@ public class GridRenderer {
      * @param window window layout context
      * @param buildingTextures texture map keyed by building type
      * @param grassTex grass texture used for terrain
+     * @param pendingBuilding building selected for grid placement
      */
     public void render(
         ShapeRenderer shapeRenderer,
@@ -28,14 +30,57 @@ public class GridRenderer {
         Grid grid,
         GameWindow window,
         Map<String, Texture> buildingTextures,
-        Texture grassTex
+        Texture grassTex,
+        Building pendingBuilding
     ) {
         renderBackground(batch, grid, window, grassTex);
         renderGridShapes(shapeRenderer, grid, window);
         renderBuildings(batch, grid, window, buildingTextures);
+        renderPreview(batch, grid, window, buildingTextures, pendingBuilding);
     }
 
+    /**
+     * Renders a semi-transparent preview of a building on hovered tile
+     *
+     * @param batch sprite batch used for rendering
+     * @param grid grid model
+     * @param window window layout context
+     * @param buildingTextures texture map keyed by building type
+     * @param pendingBuilding building selected for placement (null if none)
+     */
+    private void renderPreview(
+        SpriteBatch batch,
+        Grid grid,
+        GameWindow window,
+        Map<String, Texture> buildingTextures,
+        Building pendingBuilding
+    ) {
+        if (pendingBuilding == null) { return; }
+        int hx = grid.getHoveredX();
+        int hy = grid.getHoveredY();
+        if (hx == -1) { return; }
 
+        Texture tex = buildingTextures.get(pendingBuilding.getBuildingTypeKey());
+        if (tex == null) { return; }
+
+        boolean valid = grid.canPlace(hx, hy, pendingBuilding.getWidth(), pendingBuilding.getHeight());
+
+        batch.begin();
+        if (valid) {
+            batch.setColor(1f, 1f, 1f, 0.5f); // white (semi-transparent)
+        } else {
+            batch.setColor(1f, 0.2f, 0.2f, 0.5f); // red (semi-transparent)
+        }
+        batch.draw(
+            tex,
+            window.getOffsetX() + hx * window.getTileSize(),
+            window.getOffsetY() + hy * window.getTileSize(),
+            window.getTileSize() * pendingBuilding.getWidth(),
+            window.getTileSize() * pendingBuilding.getHeight()
+        );
+        batch.setColor(Color.WHITE);
+        batch.end();
+    }
 
     /**
      * Generic building renderer that draws buildings at their root tile using their specified dimensions.
@@ -59,11 +104,13 @@ public class GridRenderer {
                     Building b = tile.getBuilding();
                     Texture tex = buildingTextures.get(b.getBuildingTypeKey());
                     if (tex != null) {
-                        batch.draw(tex,
+                        batch.draw(
+                            tex,
                             window.getOffsetX() + x * window.getTileSize(),
                             window.getOffsetY() + y * window.getTileSize(),
                             window.getTileSize() * b.getWidth(),
-                            window.getTileSize() * b.getHeight());
+                            window.getTileSize() * b.getHeight()
+                        );
                     }
                 }
             }
