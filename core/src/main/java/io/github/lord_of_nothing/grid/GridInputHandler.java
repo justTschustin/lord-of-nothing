@@ -335,6 +335,10 @@ public class GridInputHandler extends InputAdapter {
 
         grid.removeBuilding(x, y);
 
+        if (b.getCurrentWorkers() > 0) {
+            resources.addResource(ResourceType.CITIZENS_AVAILABLE, b.getCurrentWorkers());
+        }
+
         for (Map.Entry<ResourceType, Integer> entry : b.getCosts().entrySet()) {
             resources.addResource(entry.getKey(), entry.getValue() / 2);
         }
