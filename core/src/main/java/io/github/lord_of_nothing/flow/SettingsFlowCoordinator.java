@@ -68,6 +68,7 @@ public class SettingsFlowCoordinator {
         this.registerMainMenuUiElements = registerMainMenuUiElements;
 
         settingsMenu.syncDisplaySettings(gameSettings);
+        applyLoadedSimulationSpeed();
 
         eventBus.subscribe(event -> {
             if (event instanceof ResolutionChangedEvent) {
@@ -85,6 +86,18 @@ public class SettingsFlowCoordinator {
                 toggleFullscreenMode();
             }
         });
+    }
+
+    /**
+     * Applies the persisted simulation speed at startup and persists sanitized values when needed.
+     */
+    private void applyLoadedSimulationSpeed() {
+        int sanitizedSpeed = sanitizeGameSpeed(gameSettings.gameSpeed);
+        if (gameSettings.gameSpeed != sanitizedSpeed) {
+            gameSettings.gameSpeed = sanitizedSpeed;
+            saveDisplaySettings();
+        }
+        applySimulationSpeed();
     }
 
     /**
