@@ -304,6 +304,8 @@ public class Main extends ApplicationAdapter {
 
     private void startNewGame() {
         gameStateHandler.resetNewGame();
+        tickHandler.resetTimeline();
+        gridInputHandler.resetTransientState();
         gameplayFlowCoordinator.startGame();
     }
 
@@ -317,6 +319,8 @@ public class Main extends ApplicationAdapter {
             return;
         }
 
+        tickHandler.resetTimeline();
+        gridInputHandler.resetTransientState();
         gameplayFlowCoordinator.startGame();
     }
 

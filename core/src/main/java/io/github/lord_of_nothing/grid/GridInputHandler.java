@@ -369,6 +369,15 @@ public class GridInputHandler extends InputAdapter {
     }
 
     /**
+     * Clears transient interaction state when starting a fresh run.
+     */
+    public void resetTransientState() {
+        pendingBuilding = null;
+        tileInspectorBar.close();
+        grid.setHovered(-1, -1);
+    }
+
+    /**
      * Increments both capacity and available worker pool when a residential building is placed.
      */
     private void handleBuildingEffects(Building b) {
