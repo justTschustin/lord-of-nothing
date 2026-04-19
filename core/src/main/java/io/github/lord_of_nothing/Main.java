@@ -1,10 +1,12 @@
 package io.github.lord_of_nothing;
 
 import java.util.HashMap;
+import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Queue;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
@@ -37,6 +39,7 @@ import io.github.lord_of_nothing.grid.GridRenderer;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.hud.SidebarRenderer;
 import io.github.lord_of_nothing.hud.TopBarRenderer;
+import io.github.lord_of_nothing.hud.PopupOverlay;
 import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.hud.TileInspectorRenderer;
 import io.github.lord_of_nothing.menu.MainMenu;
@@ -65,6 +68,8 @@ public class Main extends ApplicationAdapter {
     private SidebarRenderer sidebarRenderer;
     private TileInspectorBar tileInspectorBar;
     private TileInspectorRenderer tileInspectorRenderer;
+    private PopupOverlay popupOverlay;
+    private final Queue<Integer> pendingDayStartPopups = new ArrayDeque<>();
 
     private EventBus eventBus;
     private FlowState flowState;
@@ -110,6 +115,7 @@ public class Main extends ApplicationAdapter {
         sidebarRenderer = new SidebarRenderer();
         tileInspectorBar = new TileInspectorBar();
         tileInspectorRenderer = new TileInspectorRenderer();
+        popupOverlay = new PopupOverlay(this::dismissActivePopup);
 
         topBarRenderer = new TopBarRenderer();
         eventBus = new EventBus();
@@ -189,6 +195,9 @@ public class Main extends ApplicationAdapter {
                 }
             }
             if (event instanceof BackToMainMenuEvent) {
+                pendingDayStartPopups.clear();
+                popupOverlay.hide();
+                gridInputHandler.setExclusiveUiElement(null);
                 menuFlowCoordinator.returnToMainMenu();
             }
             if (event instanceof PauseGameEvent) {
@@ -248,6 +257,10 @@ public class Main extends ApplicationAdapter {
             for (int i = 0; i < completedDays; i++) {
                 gameStateHandler.advanceIngameDay();
                 triggerAutoSave();
+                pendingDayStartPopups.add(gameStateHandler.getCurrentIngameDay());
+            }
+            if (!pendingDayStartPopups.isEmpty()) {
+                showNextDayStartPopup();
             }
         }
 
@@ -277,6 +290,7 @@ public class Main extends ApplicationAdapter {
             tickHandler.getCurrentIngameHour(),
             eventBus,
             flowState.getScreenState() == ScreenState.PAUSED,
+            flowState.getScreenState() == ScreenState.POPUP,
             tickHandler.getGameSpeed(),
             timeProgressionPaused,
             savingInProgress
@@ -286,6 +300,39 @@ public class Main extends ApplicationAdapter {
             gameStateHandler,
             () -> gridInputHandler.deleteSelectedBuilding()
         );
+
+        if (flowState.getScreenState() == ScreenState.POPUP) {
+            popupOverlay.render(shapeRenderer, batch);
+        }
+    }
+
+    /**
+     * Activates the next queued day-start popup and blocks all non-popup input.
+     */
+    private void showNextDayStartPopup() {
+        Integer dayNumber = pendingDayStartPopups.poll();
+        if (dayNumber == null) {
+            return;
+        }
+
+        popupOverlay.show("Day " + dayNumber + " has started");
+        flowState.setScreenState(ScreenState.POPUP);
+        gridInputHandler.setExclusiveUiElement(popupOverlay.getConfirmButton());
+    }
+
+    /**
+     * Dismisses the current popup and either shows the next queued one or resumes gameplay.
+     */
+    private void dismissActivePopup() {
+        popupOverlay.hide();
+        gridInputHandler.setExclusiveUiElement(null);
+
+        if (!pendingDayStartPopups.isEmpty()) {
+            showNextDayStartPopup();
+            return;
+        }
+
+        flowState.setScreenState(ScreenState.GAMEPLAY);
     }
 
     /**
@@ -308,6 +355,7 @@ public class Main extends ApplicationAdapter {
         batch.dispose();
         grassTexture.dispose();
         topBarRenderer.dispose();
+        popupOverlay.dispose();
         settingsFlowCoordinator.dispose();
         menuFlowCoordinator.dispose();
     }
@@ -317,6 +365,9 @@ public class Main extends ApplicationAdapter {
         tickHandler.resetTimeline();
         timeProgressionPaused = false;
         gridInputHandler.resetTransientState();
+        pendingDayStartPopups.clear();
+        popupOverlay.hide();
+        gridInputHandler.setExclusiveUiElement(null);
         gameplayFlowCoordinator.startGame();
     }
 
