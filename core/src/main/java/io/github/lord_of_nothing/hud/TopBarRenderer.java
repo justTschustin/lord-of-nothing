@@ -50,6 +50,7 @@ public class TopBarRenderer {
      * @param currentIngameHour current in-game hour
      * @param eventBus event bus used for pause overlay UI registration
      * @param paused whether gameplay is currently paused
+     * @param savingInProgress whether autosave is currently writing to disk
      */
     public void render(
         ShapeRenderer shapeRenderer,
@@ -59,7 +60,8 @@ public class TopBarRenderer {
         int currentIngameDay,
         int currentIngameHour,
         EventBus eventBus,
-        boolean paused
+        boolean paused,
+        boolean savingInProgress
     ) {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.BLACK);
@@ -88,6 +90,14 @@ public class TopBarRenderer {
             glyphLayout.setText(font, label);
             x += glyphLayout.width + gap;
         }
+
+        if (savingInProgress) {
+            String savingText = "saving...";
+            glyphLayout.setText(font, savingText);
+            float savingX = pauseButton.getX() - glyphLayout.width - 18f;
+            font.draw(batch, savingText, Math.max(10f, savingX), y);
+        }
+
         pauseButton.render(batch);
         batch.end();
 

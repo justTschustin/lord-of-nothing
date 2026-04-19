@@ -69,8 +69,15 @@ public class SettingsStore {
         normalized.fullscreen = loaded.fullscreen;
         normalized.windowedWidth = loaded.windowedWidth > 0 ? loaded.windowedWidth : defaults.windowedWidth;
         normalized.windowedHeight = loaded.windowedHeight > 0 ? loaded.windowedHeight : defaults.windowedHeight;
-        normalized.gameSpeed = loaded.gameSpeed > 0 ? loaded.gameSpeed : defaults.gameSpeed;
+        normalized.gameSpeed = normalizeGameSpeed(loaded.gameSpeed, defaults.gameSpeed);
         return normalized;
+    }
+
+    private int normalizeGameSpeed(int requested, int fallback) {
+        if (requested == 1 || requested == 2 || requested == 4) {
+            return requested;
+        }
+        return fallback;
     }
 }
 

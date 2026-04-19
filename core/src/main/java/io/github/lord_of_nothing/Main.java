@@ -2,6 +2,9 @@ package io.github.lord_of_nothing;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
@@ -13,6 +16,9 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.lord_of_nothing.events.BackToMainMenuEvent;
 import io.github.lord_of_nothing.events.CloseSettingsMenuEvent;
 import io.github.lord_of_nothing.events.EventBus;
+import io.github.lord_of_nothing.events.GameSpeedChangedEvent;
+import io.github.lord_of_nothing.events.LoadGameEvent;
+import io.github.lord_of_nothing.events.NewGameEvent;
 import io.github.lord_of_nothing.events.OpenSettingsMenuEvent;
 import io.github.lord_of_nothing.events.PauseGameEvent;
 import io.github.lord_of_nothing.events.ResumeGameEvent;
@@ -22,7 +28,9 @@ import io.github.lord_of_nothing.flow.GameplayFlowCoordinator;
 import io.github.lord_of_nothing.flow.MenuFlowCoordinator;
 import io.github.lord_of_nothing.flow.ScreenState;
 import io.github.lord_of_nothing.flow.SettingsFlowCoordinator;
+import io.github.lord_of_nothing.game.GameState;
 import io.github.lord_of_nothing.game.GameStateHandler;
+import io.github.lord_of_nothing.game.GameStateStore;
 import io.github.lord_of_nothing.game.TickHandler;
 import io.github.lord_of_nothing.grid.GridInputHandler;
 import io.github.lord_of_nothing.grid.GridRenderer;
@@ -33,7 +41,6 @@ import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.hud.TileInspectorRenderer;
 import io.github.lord_of_nothing.menu.MainMenu;
 import io.github.lord_of_nothing.menu.SettingsMenu;
-import io.github.lord_of_nothing.resources.ResourceType;
 import io.github.lord_of_nothing.settings.GameSettings;
 import io.github.lord_of_nothing.settings.ResolutionSettings;
 import io.github.lord_of_nothing.settings.SettingsStore;
@@ -42,6 +49,8 @@ import io.github.lord_of_nothing.settings.SettingsStore;
  * Main LibGDX application entry point for core game logic and rendering.
  */
 public class Main extends ApplicationAdapter {
+    private static final String SAVE_FILE_PATH = "../config/savegame.json";
+
     private ShapeRenderer shapeRenderer;
     private OrthographicCamera camera;
     private SpriteBatch batch;
@@ -65,6 +74,11 @@ public class Main extends ApplicationAdapter {
     private GameplayFlowCoordinator gameplayFlowCoordinator;
     private SettingsFlowCoordinator settingsFlowCoordinator;
     private GameSettings gameSettings;
+    private SettingsStore settingsStore;
+    private GameStateStore gameStateStore;
+    private final ExecutorService saveExecutor = Executors.newSingleThreadExecutor();
+    private final AtomicInteger pendingSaveTasks = new AtomicInteger(0);
+    private volatile boolean savingInProgress;
 
     /**
      * Initialisiert die Kernkomponenten, lädt Grafikressourcen und konfiguriert die Eingabeverarbeitung.
@@ -78,7 +92,8 @@ public class Main extends ApplicationAdapter {
         grassTexture = new Texture("tiles/Floor_Grass.png");
 
         gameStateHandler = new GameStateHandler();
-        gameStateHandler.addResource(ResourceType.WOOD, 1000);
+        gameStateStore = new GameStateStore(SAVE_FILE_PATH);
+        gameStateHandler.resetNewGame();
 
         gridRenderer = new GridRenderer();
         gameWindow = new GameWindow(camera, gameStateHandler.getCurrentGrid());
@@ -114,12 +129,19 @@ public class Main extends ApplicationAdapter {
         Graphics.DisplayMode[] displayModes = Gdx.graphics.getDisplayModes(currentMonitor);
         ResolutionSettings.initialize(displayModes);
 
-        MainMenu mainMenu = new MainMenu(eventBus);
+        MainMenu mainMenu = new MainMenu(eventBus, gameStateStore.exists());
         SettingsMenu settingsMenu = new SettingsMenu(eventBus);
-        SettingsStore settingsStore = new SettingsStore("../config/settings.json");
+        settingsStore = new SettingsStore("../config/settings.json");
         gameSettings = settingsStore.load();
+        tickHandler.setGameSpeed(gameSettings.gameSpeed);
 
-        menuFlowCoordinator = new MenuFlowCoordinator(eventBus, gridInputHandler, flowState, mainMenu);
+        menuFlowCoordinator = new MenuFlowCoordinator(
+            eventBus,
+            gridInputHandler,
+            flowState,
+            mainMenu,
+            () -> gameStateStore.exists()
+        );
         gameplayFlowCoordinator = new GameplayFlowCoordinator(
             flowState,
             gridInputHandler,
@@ -146,8 +168,17 @@ public class Main extends ApplicationAdapter {
         Gdx.input.setInputProcessor(gridInputHandler);
 
         eventBus.subscribe(event -> {
-            if (event instanceof StartGameEvent) {
-                gameplayFlowCoordinator.startGame();
+            if (event instanceof StartGameEvent || event instanceof NewGameEvent) {
+                startNewGame();
+            }
+            if (event instanceof LoadGameEvent) {
+                loadExistingGame();
+            }
+            if (event instanceof GameSpeedChangedEvent) {
+                int speed = ((GameSpeedChangedEvent) event).getGameSpeed();
+                tickHandler.setGameSpeed(speed);
+                gameSettings.gameSpeed = tickHandler.getGameSpeed();
+                settingsStore.save(gameSettings);
             }
             if (event instanceof BackToMainMenuEvent) {
                 menuFlowCoordinator.returnToMainMenu();
@@ -175,14 +206,7 @@ public class Main extends ApplicationAdapter {
      */
     @Override
     public void resize(int width, int height) {
-        int targetWidth = width;
-        int targetHeight = height;
-        if (gameSettings != null && Gdx.graphics.isFullscreen()) {
-            targetWidth = Math.max(1, gameSettings.windowedWidth);
-            targetHeight = Math.max(1, gameSettings.windowedHeight);
-        }
-
-        gameWindow.resize(targetWidth, targetHeight);
+        gameWindow.resize(Math.max(1, width), Math.max(1, height));
         gridInputHandler.updateLayout(gameWindow);
     }
 
@@ -215,6 +239,7 @@ public class Main extends ApplicationAdapter {
             );
             for (int i = 0; i < completedDays; i++) {
                 gameStateHandler.advanceIngameDay();
+                triggerAutoSave();
             }
         }
 
@@ -243,7 +268,8 @@ public class Main extends ApplicationAdapter {
             gameStateHandler.getCurrentIngameDay(),
             tickHandler.getCurrentIngameHour(),
             eventBus,
-            flowState.getScreenState() == ScreenState.PAUSED
+            flowState.getScreenState() == ScreenState.PAUSED,
+            savingInProgress
         );
         tileInspectorRenderer.render(
             shapeRenderer, batch, gameWindow, tileInspectorBar, buildingTextures, eventBus,
@@ -267,12 +293,47 @@ public class Main extends ApplicationAdapter {
      */
     @Override
     public void dispose() {
-
+        saveExecutor.shutdownNow();
         shapeRenderer.dispose();
         batch.dispose();
         grassTexture.dispose();
         topBarRenderer.dispose();
         settingsFlowCoordinator.dispose();
         menuFlowCoordinator.dispose();
+    }
+
+    private void startNewGame() {
+        gameStateHandler.resetNewGame();
+        gameplayFlowCoordinator.startGame();
+    }
+
+    private void loadExistingGame() {
+        if (!gameStateStore.exists()) {
+            return;
+        }
+
+        GameState loadedState = gameStateStore.load();
+        if (!gameStateHandler.applyState(loadedState)) {
+            return;
+        }
+
+        gameplayFlowCoordinator.startGame();
+    }
+
+    private void triggerAutoSave() {
+        final GameState snapshot = gameStateHandler.getSnapshot();
+        pendingSaveTasks.incrementAndGet();
+        savingInProgress = true;
+
+        saveExecutor.submit(() -> {
+            try {
+                gameStateStore.save(snapshot);
+            } finally {
+                if (pendingSaveTasks.decrementAndGet() <= 0) {
+                    pendingSaveTasks.set(0);
+                    savingInProgress = false;
+                }
+            }
+        });
     }
 }

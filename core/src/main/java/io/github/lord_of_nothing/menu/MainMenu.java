@@ -4,11 +4,17 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import io.github.lord_of_nothing.button.Button;
 import io.github.lord_of_nothing.button.ExitButton;
 import io.github.lord_of_nothing.button.SettingsButton;
-import io.github.lord_of_nothing.button.StartGameButton;
+import io.github.lord_of_nothing.button.TextButton;
 import io.github.lord_of_nothing.events.EventBus;
+import io.github.lord_of_nothing.events.LoadGameEvent;
+import io.github.lord_of_nothing.events.NewGameEvent;
 import io.github.lord_of_nothing.events.UiElementCreatedEvent;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Renders and manages the main menu UI.
@@ -19,7 +25,7 @@ public class MainMenu {
     private static final float BUTTON_GAP = 14f;
 
     private final BitmapFont font = new BitmapFont();
-    private final StartGameButton startGameButton;
+    private final List<Button> actionButtons = new ArrayList<>();
     private final SettingsButton settingsButton;
     private final ExitButton exitButton;
 
@@ -27,18 +33,39 @@ public class MainMenu {
      * Creates the main menu and its default buttons.
      *
      * @param eventBus event bus used to wire button actions
+     * @param hasSaveFile whether a loadable save file exists
      */
-    public MainMenu(EventBus eventBus) {
+    public MainMenu(EventBus eventBus, boolean hasSaveFile) {
         float centerX = Gdx.graphics.getWidth() / 2f;
         float centerY = Gdx.graphics.getHeight() / 2f;
         float x = centerX - BUTTON_WIDTH / 2f;
-        float startY = centerY + BUTTON_HEIGHT + BUTTON_GAP;
-        float settingsY = centerY;
-        float exitY = settingsY - BUTTON_HEIGHT - BUTTON_GAP;
 
-        startGameButton = new StartGameButton(x, startY, BUTTON_WIDTH, BUTTON_HEIGHT, eventBus);
-        settingsButton = new SettingsButton(x, settingsY, BUTTON_WIDTH, BUTTON_HEIGHT, eventBus);
-        exitButton = new ExitButton(x, exitY, BUTTON_WIDTH, BUTTON_HEIGHT, eventBus);
+        if (hasSaveFile) {
+            actionButtons.add(new TextButton(
+                x,
+                centerY + BUTTON_HEIGHT + BUTTON_GAP,
+                BUTTON_WIDTH,
+                BUTTON_HEIGHT,
+                eventBus,
+                "Load Game",
+                () -> eventBus.publish(new LoadGameEvent()),
+                true
+            ));
+        }
+
+        actionButtons.add(new TextButton(
+            x,
+            centerY,
+            BUTTON_WIDTH,
+            BUTTON_HEIGHT,
+            eventBus,
+            "New Game",
+            () -> eventBus.publish(new NewGameEvent()),
+            true
+        ));
+
+        settingsButton = new SettingsButton(x, centerY - BUTTON_HEIGHT - BUTTON_GAP, BUTTON_WIDTH, BUTTON_HEIGHT, eventBus);
+        exitButton = new ExitButton(x, centerY - 2f * (BUTTON_HEIGHT + BUTTON_GAP), BUTTON_WIDTH, BUTTON_HEIGHT, eventBus);
         setButtonLayout();
     }
 
@@ -49,7 +76,9 @@ public class MainMenu {
      */
     public void registerUiElements(EventBus eventBus) {
         setButtonLayout();
-        eventBus.publish(new UiElementCreatedEvent(startGameButton));
+        for (Button actionButton : actionButtons) {
+            eventBus.publish(new UiElementCreatedEvent(actionButton));
+        }
         eventBus.publish(new UiElementCreatedEvent(settingsButton));
         eventBus.publish(new UiElementCreatedEvent(exitButton));
     }
@@ -69,7 +98,9 @@ public class MainMenu {
 
         batch.begin();
         font.draw(batch, "Lord of Nothing", Gdx.graphics.getWidth() / 2f - 47f, Gdx.graphics.getHeight() / 2f + 140f);
-        startGameButton.render(batch);
+        for (Button actionButton : actionButtons) {
+            actionButton.render(batch);
+        }
         settingsButton.render(batch);
         exitButton.render(batch);
         batch.end();
@@ -90,11 +121,14 @@ public class MainMenu {
         float centerX = Gdx.graphics.getWidth() / 2f;
         float centerY = Gdx.graphics.getHeight() / 2f;
         float x = centerX - BUTTON_WIDTH / 2f;
-        float startY = centerY + BUTTON_HEIGHT + BUTTON_GAP;
-        float settingsY = centerY;
-        float exitY = settingsY - BUTTON_HEIGHT - BUTTON_GAP;
 
-        startGameButton.setBounds(x, startY, BUTTON_WIDTH, BUTTON_HEIGHT);
+        for (int i = 0; i < actionButtons.size(); i++) {
+            float y = centerY + (actionButtons.size() - i - 1f) * (BUTTON_HEIGHT + BUTTON_GAP);
+            actionButtons.get(i).setBounds(x, y, BUTTON_WIDTH, BUTTON_HEIGHT);
+        }
+
+        float settingsY = centerY - BUTTON_HEIGHT - BUTTON_GAP;
+        float exitY = centerY - 2f * (BUTTON_HEIGHT + BUTTON_GAP);
         settingsButton.setBounds(x, settingsY, BUTTON_WIDTH, BUTTON_HEIGHT);
         exitButton.setBounds(x, exitY, BUTTON_WIDTH, BUTTON_HEIGHT);
     }
