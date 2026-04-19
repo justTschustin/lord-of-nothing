@@ -1,5 +1,6 @@
 package io.github.lord_of_nothing.lwjgl3;
 
+import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.utils.Json;
@@ -54,7 +55,7 @@ public class Lwjgl3Launcher {
             }
 
             if (loaded.fullscreen) {
-                config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
+                config.setFullscreenMode(resolveDisplayMode(loaded.windowedWidth, loaded.windowedHeight));
             }
         } catch (Exception ignored) {
             // Fall back to defaults if the settings file is malformed.
@@ -77,7 +78,6 @@ public class Lwjgl3Launcher {
         //// If you remove the above line and set Vsync to false, you can get unlimited FPS, which can be
         //// useful for testing performance, but can also be very stressful to some hardware.
         //// You may also need to configure GPU drivers to fully disable Vsync; this can cause screen tearing.
-        configuration.setWindowedMode(1080, 720);
 
         //// You can change these files; they are in lwjgl3/src/main/resources/ .
         //// They can also be loaded from the root of assets/ .
@@ -96,12 +96,42 @@ public class Lwjgl3Launcher {
         configuration.setForegroundFPS(30);
         configuration.setAutoIconify(false);
 
-        configuration.setWindowSizeLimits(1080, 720, 9999, 9999);
+        // Neutral default: start windowed unless persisted settings request fullscreen.
+        configuration.setWindowedMode(1080, 720);
+
+        configuration.setWindowSizeLimits(800, 600, 9999, 9999);
         configuration.setResizable(false);
 
         configuration.setPauseWhenMinimized(true);
         configuration.setPauseWhenLostFocus(false);
 
+
         return configuration;
+    }
+
+    private static Graphics.DisplayMode resolveDisplayMode(int width, int height) {
+        Graphics.DisplayMode[] modes = Lwjgl3ApplicationConfiguration.getDisplayModes();
+        Graphics.DisplayMode closest = null;
+        long closestDistance = Long.MAX_VALUE;
+
+        if (modes != null) {
+            for (Graphics.DisplayMode mode : modes) {
+                if (mode.width == width && mode.height == height) {
+                    return mode;
+                }
+
+                long dw = (long) mode.width - width;
+                long dh = (long) mode.height - height;
+                long distance = (dw * dw) + (dh * dh);
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closest = mode;
+                }
+            }
+        }
+        if (closest != null) {
+            return closest;
+        }
+        return Lwjgl3ApplicationConfiguration.getDisplayMode();
     }
 }

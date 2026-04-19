@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -34,6 +35,7 @@ import io.github.lord_of_nothing.menu.MainMenu;
 import io.github.lord_of_nothing.menu.SettingsMenu;
 import io.github.lord_of_nothing.resources.ResourceType;
 import io.github.lord_of_nothing.settings.GameSettings;
+import io.github.lord_of_nothing.settings.ResolutionSettings;
 import io.github.lord_of_nothing.settings.SettingsStore;
 
 /**
@@ -62,6 +64,7 @@ public class Main extends ApplicationAdapter {
     private MenuFlowCoordinator menuFlowCoordinator;
     private GameplayFlowCoordinator gameplayFlowCoordinator;
     private SettingsFlowCoordinator settingsFlowCoordinator;
+    private GameSettings gameSettings;
 
     /**
      * Initialisiert die Kernkomponenten, lädt Grafikressourcen und konfiguriert die Eingabeverarbeitung.
@@ -106,10 +109,15 @@ public class Main extends ApplicationAdapter {
         );
         gridInputHandler.setGameplayEnabled(false);
 
+        // Build available resolutions before constructing settings UI dropdown options.
+        Graphics.Monitor currentMonitor = Gdx.graphics.getMonitor();
+        Graphics.DisplayMode[] displayModes = Gdx.graphics.getDisplayModes(currentMonitor);
+        ResolutionSettings.initialize(displayModes);
+
         MainMenu mainMenu = new MainMenu(eventBus);
         SettingsMenu settingsMenu = new SettingsMenu(eventBus);
         SettingsStore settingsStore = new SettingsStore("../config/settings.json");
-        GameSettings gameSettings = settingsStore.load();
+        gameSettings = settingsStore.load();
 
         menuFlowCoordinator = new MenuFlowCoordinator(eventBus, gridInputHandler, flowState, mainMenu);
         gameplayFlowCoordinator = new GameplayFlowCoordinator(
@@ -128,9 +136,11 @@ public class Main extends ApplicationAdapter {
             eventBus,
             settingsStore,
             gameSettings,
-            tickHandler::setGameSpeed,
             () -> menuFlowCoordinator.registerUiElements()
         );
+
+        // Ensure persisted fullscreen/windowed choice is applied after core systems are wired.
+        settingsFlowCoordinator.initializeDisplaySettings(() -> {});
 
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.input.setInputProcessor(gridInputHandler);
@@ -165,7 +175,14 @@ public class Main extends ApplicationAdapter {
      */
     @Override
     public void resize(int width, int height) {
-        gameWindow.resize(width, height);
+        int targetWidth = width;
+        int targetHeight = height;
+        if (gameSettings != null && Gdx.graphics.isFullscreen()) {
+            targetWidth = Math.max(1, gameSettings.windowedWidth);
+            targetHeight = Math.max(1, gameSettings.windowedHeight);
+        }
+
+        gameWindow.resize(targetWidth, targetHeight);
         gridInputHandler.updateLayout(gameWindow);
     }
 
@@ -250,7 +267,6 @@ public class Main extends ApplicationAdapter {
      */
     @Override
     public void dispose() {
-        settingsFlowCoordinator.saveDisplaySettings();
 
         shapeRenderer.dispose();
         batch.dispose();

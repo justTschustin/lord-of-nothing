@@ -12,7 +12,6 @@ import io.github.lord_of_nothing.events.EventBus;
 import io.github.lord_of_nothing.events.ToggleFullscreenEvent;
 import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 import io.github.lord_of_nothing.select.DropDownSelect;
-import io.github.lord_of_nothing.select.GameSpeedSelector;
 import io.github.lord_of_nothing.select.ResolutionSelector;
 import io.github.lord_of_nothing.settings.GameSettings;
 import io.github.lord_of_nothing.ui.UiElement;
@@ -30,7 +29,6 @@ public class SettingsMenu {
 
     private final BitmapFont font = new BitmapFont();
     private final List<UiElement> settingsControls = new ArrayList<>();
-    private final GameSpeedSelector gameSpeedSelector;
     private final ResolutionSelector resolutionSelector;
 
     /**
@@ -55,15 +53,6 @@ public class SettingsMenu {
             () -> eventBus.publish(new ToggleFullscreenEvent()),
             false
         ));
-
-        gameSpeedSelector = new GameSpeedSelector(
-            x,
-            toggleY,
-            BUTTON_WIDTH,
-            BUTTON_HEIGHT,
-            eventBus
-        );
-        settingsControls.add(gameSpeedSelector);
 
         resolutionSelector = new ResolutionSelector(
             0,
@@ -106,7 +95,6 @@ public class SettingsMenu {
      * @param gameSettings loaded settings to mirror in UI controls
      */
     public void syncDisplaySettings(GameSettings gameSettings) {
-        gameSpeedSelector.syncFromSettings(gameSettings);
         resolutionSelector.syncFromSettings(gameSettings);
     }
 
