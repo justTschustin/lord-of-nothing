@@ -75,7 +75,7 @@ public class TileInspectorRenderer {
         if (b.getMaxWorkers() > 0) {
             int available = resources.getResourceAmount(ResourceType.CITIZENS_AVAILABLE);
             String workerInfo = "Workers: " + b.getCurrentWorkers() + "/" + b.getMaxWorkers()
-                + "  (Avail: " + available + ")";
+                + "  (Available: " + available + ")";
             font.draw(batch, workerInfo, panelX + 10, panelY + 135);
             font.draw(batch, "[+] Add        [-] Remove", panelX + 10, panelY + 115);
         }
