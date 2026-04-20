@@ -16,6 +16,8 @@ public abstract class Building {
     private int citizenCapacity = 0;
     private int maxWorkers = 0;
     private int currentWorkers = 0;
+    private ResourceType productionType = null;
+    private int productionPerWorker = 0;
 
     /**
      * Returns the unique key used to identify the building type, e.g., for texture lookups.
@@ -141,4 +143,17 @@ public abstract class Building {
     public void removeWorker() {
         if (currentWorkers > 0){ currentWorkers--;}
     }
+
+    /**
+     * Sets the resource type and the amount produced per assigned worker for each simulation tick.
+     * @param type the resource to produce
+     * @param amount amount per worker per tick
+     */
+    protected void setProduction(ResourceType type, int amount) {
+        this.productionType = type;
+        this.productionPerWorker = amount;
+    }
+
+    public ResourceType getProductionType() { return productionType; }
+    public int getProductionPerWorker() { return productionPerWorker; }
 }

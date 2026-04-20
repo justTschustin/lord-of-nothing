@@ -10,6 +10,8 @@ public class Quarry extends Building {
         super(2, 2);
         costs.put(ResourceType.WOOD, 30);
         this.setMaxWorkers(4);
+        this.setProduction(ResourceType.STONE, 5);
+
     }
 
     /**
