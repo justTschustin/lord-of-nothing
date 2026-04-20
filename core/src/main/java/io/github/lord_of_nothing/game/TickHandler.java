@@ -128,13 +128,15 @@ public class TickHandler {
         while (accumulatorSeconds >= effectiveTickDuration) {
             accumulatorSeconds -= effectiveTickDuration;
             tickProgressInDay++;
-
+            //Hourly ressource generation
+            if (resourceState instanceof GameStateHandler) {
+                ((GameStateHandler) resourceState).applyTickProduction();
+            }
             if (resourceState != null && tickProgressInDay == getCitizenArrivalTickProgress()) {
                 // Determine current housing situation
                 int currentTotal = resourceState.getResourceAmount(ResourceType.CITIZENS_TOTAL);
                 int capacity = resourceState.getResourceAmount(ResourceType.CITIZENS_CAPACITY);
                 int spaceLeft = Math.max(0, capacity - currentTotal);
-
                 if (spaceLeft > 0) {
                     int potentialArrivals = java.util.concurrent.ThreadLocalRandom.current().nextInt(
                         getCitizenArrivalMin(currentIngameDay + completedDays),
