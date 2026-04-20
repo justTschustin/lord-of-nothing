@@ -61,10 +61,11 @@ public class TileInspectorRenderer {
         batch.begin();
 
         // 2. Sprite (centered in top part of panel)
-        float spriteSize = panelW * 0.5f;
-        float spriteX = panelX + (panelW - spriteSize) / 2f;
-        float spriteY = panelY + panelH - spriteSize - 20;
-        batch.draw(textures.get(b.getBuildingTypeKey()), spriteX, spriteY, spriteSize, spriteSize);
+        float spriteH = panelW * 0.5f;
+        float spriteW = spriteH * ((float) b.getWidth() / b.getHeight());
+        float spriteX = panelX + (panelW - spriteW) / 2f;
+        float spriteY = panelY + panelH - spriteH - 20;
+        batch.draw(textures.get(b.getBuildingTypeKey()), spriteX, spriteY, spriteW, spriteH);
 
         // 3. Name + Level
         font.setColor(Color.WHITE);

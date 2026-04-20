@@ -46,7 +46,10 @@ public class SidebarRenderer {
 
             if (pending != null && pending.getBuildingTypeKey().equals(b.getBuildingTypeKey())) {
                 sr.setColor(Color.GOLD);
-                sr.rect(10, slotY - 5, Sidebar.SLOT_SIZE, Sidebar.SLOT_SIZE);
+                float iconH = 40f;
+                float iconW = iconH * ((float) b.getWidth() / b.getHeight());
+                float iconX = (GameWindow.SIDEBAR_WIDTH - iconW) / 2f;
+                sr.rect(iconX - 5, slotY - 5, iconW + 10, iconH + 10);
             }
         }
         sr.end();
@@ -63,7 +66,12 @@ public class SidebarRenderer {
 
             batch.setColor(canAfford ? Color.WHITE : Color.RED);
             Texture tex = textures.get(b.getBuildingTypeKey());
-            if (tex != null) {batch.draw(tex, 20, slotY, 40, 40);}
+            if (tex != null) {
+                float iconH = 40f;
+                float iconW = iconH * ((float) b.getWidth() / b.getHeight());
+                float iconX = (GameWindow.SIDEBAR_WIDTH - iconW) / 2f;
+                batch.draw(tex, iconX, slotY, iconW, iconH);
+            }
         }
         batch.setColor(Color.WHITE);
         batch.end();
