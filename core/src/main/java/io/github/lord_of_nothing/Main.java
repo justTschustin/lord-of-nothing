@@ -69,7 +69,7 @@ public class Main extends ApplicationAdapter {
     private TileInspectorBar tileInspectorBar;
     private TileInspectorRenderer tileInspectorRenderer;
     private PopupOverlay popupOverlay;
-    private final Queue<Integer> pendingDayStartPopups = new ArrayDeque<>();
+    private final Queue<String> pendingPopupMessages = new ArrayDeque<>();
 
     private EventBus eventBus;
     private FlowState flowState;
@@ -195,9 +195,10 @@ public class Main extends ApplicationAdapter {
                 }
             }
             if (event instanceof BackToMainMenuEvent) {
-                pendingDayStartPopups.clear();
+                pendingPopupMessages.clear();
                 popupOverlay.hide();
                 gridInputHandler.setExclusiveUiElement(null);
+                gameStateHandler.resetRaidTimeline();
                 menuFlowCoordinator.returnToMainMenu();
             }
             if (event instanceof PauseGameEvent) {
@@ -257,10 +258,15 @@ public class Main extends ApplicationAdapter {
             for (int i = 0; i < completedDays; i++) {
                 gameStateHandler.advanceIngameDay();
                 triggerAutoSave();
-                pendingDayStartPopups.add(gameStateHandler.getCurrentIngameDay());
             }
-            if (!pendingDayStartPopups.isEmpty()) {
-                showNextDayStartPopup();
+
+            String raidPopupMessage;
+            while ((raidPopupMessage = tickHandler.pollNextRaidPopupMessage()) != null) {
+                queuePopupMessage(raidPopupMessage);
+            }
+
+            if (flowState.getScreenState() != ScreenState.POPUP && !pendingPopupMessages.isEmpty()) {
+                showNextPendingPopup();
             }
         }
 
@@ -290,8 +296,8 @@ public class Main extends ApplicationAdapter {
             tickHandler.getCurrentIngameHour(),
             eventBus,
             flowState.getScreenState() == ScreenState.PAUSED,
-            flowState.getScreenState() == ScreenState.POPUP,
             tickHandler.getGameSpeed(),
+            flowState.getScreenState() == ScreenState.POPUP,
             timeProgressionPaused,
             savingInProgress
         );
@@ -307,15 +313,15 @@ public class Main extends ApplicationAdapter {
     }
 
     /**
-     * Activates the next queued day-start popup and blocks all non-popup input.
+     * Activates the next queued popup and blocks all non-popup input.
      */
-    private void showNextDayStartPopup() {
-        Integer dayNumber = pendingDayStartPopups.poll();
-        if (dayNumber == null) {
+    private void showNextPendingPopup() {
+        String popupMessage = pendingPopupMessages.poll();
+        if (popupMessage == null) {
             return;
         }
 
-        popupOverlay.show("Day " + dayNumber + " has started");
+        popupOverlay.show(popupMessage);
         flowState.setScreenState(ScreenState.POPUP);
         gridInputHandler.setExclusiveUiElement(popupOverlay.getConfirmButton());
     }
@@ -327,12 +333,19 @@ public class Main extends ApplicationAdapter {
         popupOverlay.hide();
         gridInputHandler.setExclusiveUiElement(null);
 
-        if (!pendingDayStartPopups.isEmpty()) {
-            showNextDayStartPopup();
+        if (!pendingPopupMessages.isEmpty()) {
+            showNextPendingPopup();
             return;
         }
 
         flowState.setScreenState(ScreenState.GAMEPLAY);
+    }
+
+    private void queuePopupMessage(String message) {
+        if (message == null || message.isEmpty()) {
+            return;
+        }
+        pendingPopupMessages.add(message);
     }
 
     /**
@@ -365,9 +378,10 @@ public class Main extends ApplicationAdapter {
         tickHandler.resetTimeline();
         timeProgressionPaused = false;
         gridInputHandler.resetTransientState();
-        pendingDayStartPopups.clear();
+        pendingPopupMessages.clear();
         popupOverlay.hide();
         gridInputHandler.setExclusiveUiElement(null);
+        gameStateHandler.resetRaidTimeline();
         gameplayFlowCoordinator.startGame();
     }
 
