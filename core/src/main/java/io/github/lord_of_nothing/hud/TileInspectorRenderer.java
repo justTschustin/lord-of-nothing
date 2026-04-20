@@ -61,7 +61,7 @@ public class TileInspectorRenderer {
         batch.begin();
 
         // 2. Sprite (centered in top part of panel)
-        float spriteH = panelW * 0.5f;
+        float spriteH = panelW * 0.4f;
         float spriteW = spriteH * ((float) b.getWidth() / b.getHeight());
         float spriteX = panelX + (panelW - spriteW) / 2f;
         float spriteY = panelY + panelH - spriteH - 20;
