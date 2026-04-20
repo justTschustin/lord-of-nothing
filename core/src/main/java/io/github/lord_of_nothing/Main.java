@@ -79,6 +79,7 @@ public class Main extends ApplicationAdapter {
     private final ExecutorService saveExecutor = Executors.newSingleThreadExecutor();
     private final AtomicInteger pendingSaveTasks = new AtomicInteger(0);
     private volatile boolean savingInProgress;
+    private boolean timeProgressionPaused;
 
     /**
      * Initialisiert die Kernkomponenten, lädt Grafikressourcen und konfiguriert die Eingabeverarbeitung.
@@ -176,9 +177,14 @@ public class Main extends ApplicationAdapter {
             }
             if (event instanceof GameSpeedChangedEvent) {
                 int speed = ((GameSpeedChangedEvent) event).getGameSpeed();
-                tickHandler.setGameSpeed(speed);
-                gameSettings.gameSpeed = tickHandler.getGameSpeed();
-                settingsStore.save(gameSettings);
+                if (speed == 0) {
+                    timeProgressionPaused = true;
+                } else {
+                    tickHandler.setGameSpeed(speed);
+                    timeProgressionPaused = false;
+                    gameSettings.gameSpeed = tickHandler.getGameSpeed();
+                    settingsStore.save(gameSettings);
+                }
             }
             if (event instanceof BackToMainMenuEvent) {
                 menuFlowCoordinator.returnToMainMenu();
@@ -231,7 +237,7 @@ public class Main extends ApplicationAdapter {
             return;
         }
 
-        if (flowState.getScreenState() == ScreenState.GAMEPLAY) {
+        if (flowState.getScreenState() == ScreenState.GAMEPLAY && !timeProgressionPaused) {
             int completedDays = tickHandler.update(
                 Gdx.graphics.getDeltaTime(),
                 gameStateHandler.getCurrentIngameDay(),
@@ -269,6 +275,8 @@ public class Main extends ApplicationAdapter {
             tickHandler.getCurrentIngameHour(),
             eventBus,
             flowState.getScreenState() == ScreenState.PAUSED,
+            tickHandler.getGameSpeed(),
+            timeProgressionPaused,
             savingInProgress
         );
         tileInspectorRenderer.render(
@@ -305,6 +313,7 @@ public class Main extends ApplicationAdapter {
     private void startNewGame() {
         gameStateHandler.resetNewGame();
         tickHandler.resetTimeline();
+        timeProgressionPaused = false;
         gridInputHandler.resetTransientState();
         gameplayFlowCoordinator.startGame();
     }
@@ -320,6 +329,7 @@ public class Main extends ApplicationAdapter {
         }
 
         tickHandler.resetTimeline();
+        timeProgressionPaused = false;
         gridInputHandler.resetTransientState();
         gameplayFlowCoordinator.startGame();
     }
