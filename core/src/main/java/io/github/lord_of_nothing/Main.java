@@ -206,7 +206,8 @@ public class Main extends ApplicationAdapter {
             gameStateHandler.getCurrentGrid(),
             gameWindow,
             buildingTextures,
-            grassTexture
+            grassTexture,
+            gridInputHandler.getPendingBuilding()
         );
         sidebarRenderer.render(
             shapeRenderer,
