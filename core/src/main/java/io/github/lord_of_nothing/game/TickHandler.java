@@ -2,6 +2,9 @@ package io.github.lord_of_nothing.game;
 
 import io.github.lord_of_nothing.resources.ResourceType;
 
+import java.util.ArrayDeque;
+import java.util.Queue;
+
 
 /**
  * Tracks fixed-interval simulation ticks independently from render framerate.
@@ -28,6 +31,7 @@ public class TickHandler {
     private int gameSpeed = DEFAULT_GAME_SPEED;
     private float accumulatorSeconds;
     private int tickProgressInDay;
+    private final Queue<String> pendingRaidPopupMessages = new ArrayDeque<>();
 
     /** Creates a tick handler with fixed default timing values. */
     public TickHandler() {}
@@ -156,9 +160,27 @@ public class TickHandler {
             if (tickProgressInDay >= getTicksPerDay()) {
                 tickProgressInDay = 0;
                 completedDays++;
+
+                if (resourceState instanceof GameStateHandler) {
+                    int newlyStartedDay = currentIngameDay + completedDays;
+                    RaidMechanic.processDay(
+                        (GameStateHandler) resourceState,
+                        newlyStartedDay,
+                        pendingRaidPopupMessages::add
+                    );
+                }
             }
         }
         return completedDays;
+    }
+
+    /**
+     * Retrieves and removes the next queued raid popup message, if any.
+     *
+     * @return next raid popup text or {@code null}
+     */
+    public String pollNextRaidPopupMessage() {
+        return pendingRaidPopupMessages.poll();
     }
 
     private int getCitizenArrivalBorderIncrease(int currentIngameDay) {
