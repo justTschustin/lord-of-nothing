@@ -116,4 +116,23 @@ public class GameStateHandler implements ResourceStateMutator {
         }
         return placements;
     }
+
+    /**
+     * <summary>Calculates and applies resource production for all buildings on the grid for a single simulation tick.</summary>
+     * <remarks>Only processes the root tile of multi-tile buildings to ensure production is only counted once.</remarks>
+     */
+    public void applyTickProduction() {
+        for (int x = 0; x < grid.getWidth(); x++) {
+            for (int y = 0; y < grid.getHeight(); y++) {
+                Tile tile = grid.getTile(x, y);
+                if (tile != null && tile.hasBuilding() && tile.getBuilding().isAnchorPoint(x, y)) {
+                    Building b = tile.getBuilding();
+                    if (b.getProductionType() != null && b.getCurrentWorkers() > 0) {
+                        int amount = b.getCurrentWorkers() * b.getProductionPerWorker();
+                        this.addResource(b.getProductionType(), amount);
+                    }
+                }
+            }
+        }
+    }
 }
