@@ -80,6 +80,7 @@ public class TopBarRenderer {
             "FOOD: " + resources.getResourceAmount(ResourceType.FOOD),
             "CITIZENS: " + resources.getResourceAmount(ResourceType.CITIZENS_TOTAL),
             "CAPACITY: " + resources.getResourceAmount(ResourceType.CITIZENS_CAPACITY),
+            "SOLDIERS: " + resources.getResourceAmount(ResourceType.SOLDIERS),
             "Day: " + currentIngameDay + " Time: " + currentIngameHour + ":00"
         };
         for (String label : labels) {
