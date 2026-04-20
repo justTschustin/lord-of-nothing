@@ -145,8 +145,9 @@ public abstract class Building {
     }
 
     /**
-     * <summary>Sets the resource type and the amount produced per assigned worker for each simulation tick.</summary>
-     * <param name="type">The resource to produce.</param> <param name="amount">Amount per worker per tick.</param>
+     * Sets the resource type and the amount produced per assigned worker for each simulation tick.
+     * @param type the resource to produce
+     * @param amount amount per worker per tick
      */
     protected void setProduction(ResourceType type, int amount) {
         this.productionType = type;
