@@ -1,0 +1,7 @@
+= Zielbestimmung
+
+== Musskriterien
+
+== Wunschkriterien
+
+== (Abgrenzungskriterien)
