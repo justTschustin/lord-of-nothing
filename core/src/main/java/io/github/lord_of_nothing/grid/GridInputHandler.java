@@ -4,11 +4,7 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import io.github.lord_of_nothing.GameWindow;
-import io.github.lord_of_nothing.buildings.Building;
-import io.github.lord_of_nothing.buildings.House;
-import io.github.lord_of_nothing.buildings.Field;
-import io.github.lord_of_nothing.buildings.Sawmill;
-import io.github.lord_of_nothing.buildings.Quarry;
+import io.github.lord_of_nothing.buildings.*;
 import io.github.lord_of_nothing.events.BackToMainMenuEvent;
 import io.github.lord_of_nothing.events.EventBus;
 import io.github.lord_of_nothing.events.PauseGameEvent;
@@ -238,6 +234,7 @@ public class GridInputHandler extends InputAdapter {
                 else if (clicked instanceof Sawmill) {pendingBuilding = new Sawmill();}
                 else if (clicked instanceof Quarry) {pendingBuilding = new Quarry();}
                 else if (clicked instanceof Field) {pendingBuilding = new Field();}
+                else if (clicked instanceof Barrack) {pendingBuilding = new Barrack();}
             }
             return true;
         }
@@ -253,6 +250,7 @@ public class GridInputHandler extends InputAdapter {
         if (b == null || b.getMaxWorkers() <= 0) {
             return false;
         }
+        boolean isBarrack = b instanceof Barrack;
         if (y < window.getInfoPanelY() + 120 && y > window.getInfoPanelY() + 100) {
             // Add Worker
             if (x < window.getRightMarginX() + 100) {
@@ -260,6 +258,7 @@ public class GridInputHandler extends InputAdapter {
                 if (available > 0 && b.getCurrentWorkers() < b.getMaxWorkers()) {
                     b.addWorker();
                     resources.addResource(ResourceType.CITIZENS_AVAILABLE, -1);
+                    if (isBarrack) resources.addResource(ResourceType.SOLDIERS, 1);
                 }
             }
             // Remove Worker
@@ -267,6 +266,7 @@ public class GridInputHandler extends InputAdapter {
                 if (b.getCurrentWorkers() > 0) {
                     b.removeWorker();
                     resources.addResource(ResourceType.CITIZENS_AVAILABLE, 1);
+                    if (isBarrack) resources.addResource(ResourceType.SOLDIERS, -1);
                 }
             }
             return true;
@@ -338,7 +338,9 @@ public class GridInputHandler extends InputAdapter {
         if (b.getCurrentWorkers() > 0) {
             resources.addResource(ResourceType.CITIZENS_AVAILABLE, b.getCurrentWorkers());
         }
-
+        if (b instanceof io.github.lord_of_nothing.buildings.Barrack) {
+            resources.addResource(ResourceType.SOLDIERS, -b.getCurrentWorkers());
+        }
         for (Map.Entry<ResourceType, Integer> entry : b.getCosts().entrySet()) {
             resources.addResource(entry.getKey(), entry.getValue() / 2);
         }

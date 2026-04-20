@@ -1,10 +1,6 @@
 package io.github.lord_of_nothing.hud;
 
-import io.github.lord_of_nothing.buildings.Building;
-import io.github.lord_of_nothing.buildings.House;
-import io.github.lord_of_nothing.buildings.Field;
-import io.github.lord_of_nothing.buildings.Sawmill;
-import io.github.lord_of_nothing.buildings.Quarry;
+import io.github.lord_of_nothing.buildings.*;
 
 
 import java.util.ArrayList;
@@ -26,6 +22,7 @@ public class Sidebar {
         templates.add(new Field());
         templates.add(new Sawmill());
         templates.add(new Quarry());
+        templates.add(new Barrack());
     }
 
     /**
