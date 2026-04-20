@@ -20,6 +20,7 @@ import java.util.Map;
  */
 public class DropDownSelect implements UiElement {
     protected static final float OPTION_HEIGHT = 36f;
+    private static final int MAX_VISIBLE_OPTIONS = 6;
     private static final Texture WHITE_PIXEL = createWhitePixel();
     private static final GlyphLayout GLYPH_LAYOUT = new GlyphLayout();
 
@@ -32,6 +33,7 @@ public class DropDownSelect implements UiElement {
     protected boolean open = false;
     protected int hoveredOptionIndex = -1;
     protected int selectedIndex = -1;
+    private int scrollOffset;
 
     /**
      * Creates a dropdown and optionally registers it as clickable UI.
@@ -126,6 +128,21 @@ public class DropDownSelect implements UiElement {
         return open;
     }
 
+    /**
+     * Scrolls the expanded options list by mouse-wheel amount.
+     *
+     * @param amountY wheel delta where positive values scroll downward in the list
+     */
+    public void scrollBy(float amountY) {
+        if (!open || labels.size() <= MAX_VISIBLE_OPTIONS) {
+            return;
+        }
+
+        int maxOffset = Math.max(0, labels.size() - getVisibleOptionCount());
+        int nextOffset = scrollOffset + Math.round(amountY);
+        scrollOffset = Math.max(0, Math.min(maxOffset, nextOffset));
+    }
+
     @Override
     public boolean contains(float x, float y) {
         if (!enabled) {
@@ -144,13 +161,14 @@ public class DropDownSelect implements UiElement {
             return false;
         }
 
-        for (int i = 0; i < labels.size(); i++) {
-            float optionY = bounds.y - ((i + 1) * OPTION_HEIGHT);
+        int visibleCount = getVisibleOptionCount();
+        for (int row = 0; row < visibleCount; row++) {
+            float optionY = bounds.y - ((row + 1) * OPTION_HEIGHT);
             if (
                 x >= bounds.x && x <= bounds.x + bounds.width &&
                     y >= optionY && y <= optionY + OPTION_HEIGHT
             ) {
-                hoveredOptionIndex = i;
+                hoveredOptionIndex = scrollOffset + row;
                 return true;
             }
         }
@@ -176,6 +194,9 @@ public class DropDownSelect implements UiElement {
 
         // Otherwise toggle the dropdown
         open = !open;
+        if (open) {
+            ensureSelectionIsVisible();
+        }
     }
 
     @Override
@@ -200,11 +221,17 @@ public class DropDownSelect implements UiElement {
             return;
         }
 
-        for (int i = 0; i < labels.size(); i++) {
-            float optionY = bounds.y - ((i + 1) * OPTION_HEIGHT);
-            String label = labels.get(i);
+        int visibleCount = getVisibleOptionCount();
+        for (int row = 0; row < visibleCount; row++) {
+            int optionIndex = scrollOffset + row;
+            if (optionIndex < 0 || optionIndex >= labels.size()) {
+                continue;
+            }
 
-            batch.setColor(i == hoveredOptionIndex ? 0.32f : 0.18f, 0.32f, 0.32f, 0.95f);
+            float optionY = bounds.y - ((row + 1) * OPTION_HEIGHT);
+            String label = labels.get(optionIndex);
+
+            batch.setColor(optionIndex == hoveredOptionIndex ? 0.32f : 0.18f, 0.32f, 0.32f, 0.95f);
             batch.draw(WHITE_PIXEL, bounds.x, optionY, bounds.width, OPTION_HEIGHT);
 
             GLYPH_LAYOUT.setText(font, label);
@@ -217,6 +244,25 @@ public class DropDownSelect implements UiElement {
 
         // Restore the incoming batch tint so other UI elements keep their own colors.
         batch.setColor(previous);
+    }
+
+    private int getVisibleOptionCount() {
+        return Math.min(MAX_VISIBLE_OPTIONS, labels.size());
+    }
+
+    private void ensureSelectionIsVisible() {
+        int visibleCount = getVisibleOptionCount();
+        int maxOffset = Math.max(0, labels.size() - visibleCount);
+
+        if (selectedIndex >= 0 && selectedIndex < labels.size()) {
+            if (selectedIndex < scrollOffset) {
+                scrollOffset = selectedIndex;
+            } else if (selectedIndex >= scrollOffset + visibleCount) {
+                scrollOffset = selectedIndex - visibleCount + 1;
+            }
+        }
+
+        scrollOffset = Math.max(0, Math.min(maxOffset, scrollOffset));
     }
 
     @Override
