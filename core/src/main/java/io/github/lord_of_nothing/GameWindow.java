@@ -14,8 +14,7 @@ public class GameWindow {
     private static final int HUD_TOP_HEIGHT = 40;
     private static final int HUD_SIDE_MARGIN = 20;
     public static final int TOP_BAR_HEIGHT = 40;
-
-    public static final int SIDEBAR_WIDTH = 200;
+    public static final int SIDEBAR_WIDTH = 100;
     private final OrthographicCamera camera;
     private final Grid grid;
     public static final int CLOSE_BUTTON_SIZE = 40;

@@ -18,7 +18,7 @@ import java.util.List;
 public class Sidebar {
     private final List<Building> templates = new ArrayList<>();
     public static final int SLOT_SIZE = 60;
-    public static final int PADDING = 20;
+    public static final int PADDING = 12;
 
     /**
      * Creates a sidebar with default building templates.
@@ -46,7 +46,7 @@ public class Sidebar {
      * @return selected building template or {@code null}
      */
     public Building getBuildingAt(float x, float y) {
-        if (x > io.github.lord_of_nothing.GameWindow.SIDEBAR_WIDTH) {return null;}
+        if (x > io.github.lord_of_nothing.GameWindow.SIDEBAR_WIDTH) { return null; }
 
         int startY = com.badlogic.gdx.Gdx.graphics.getHeight() - io.github.lord_of_nothing.GameWindow.TOP_BAR_HEIGHT;
 
