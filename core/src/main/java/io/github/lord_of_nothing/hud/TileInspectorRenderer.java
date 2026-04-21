@@ -69,8 +69,10 @@ public class TileInspectorRenderer {
 
         // 3. Name + Level
         font.setColor(Color.WHITE);
-        String infoText = b.getBuildingTypeKey().toUpperCase() + " LVL " + b.getLevel();
-        font.draw(batch, infoText, spriteX + 20, spriteY - 20);
+        font.draw(batch,b.getBuildingTypeKey().toUpperCase() + " LVL " + b.getLevel(),
+            panelX + 10, spriteY - 20, panelW - 20,
+            com.badlogic.gdx.utils.Align.center, true
+        );
 
         // 4. Worker assignment (only for buildings that accept workers)
         if (b.getMaxWorkers() > 0) {
