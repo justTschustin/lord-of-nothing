@@ -240,6 +240,7 @@ public class GridInputHandler extends InputAdapter {
                 else if (clicked instanceof Quarry) {pendingBuilding = new Quarry();}
                 else if (clicked instanceof Field) {pendingBuilding = new Field();}
                 else if (clicked instanceof Barrack) {pendingBuilding = new Barrack();}
+                tileInspectorBar.select(pendingBuilding, -1, -1);
             }
             return true;
         }
