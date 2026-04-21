@@ -30,10 +30,9 @@ public class DeleteBuildingButton extends Button {
         // Button label and refund warning
         batch.begin();
         font.setColor(Color.WHITE);
-        font.draw(batch, "Demolish", bounds.x + 8, bounds.y + bounds.height - 8);
+        font.draw(batch, "Demolish", bounds.x + 8, bounds.y + bounds.height - 8, bounds.width - 14, com.badlogic.gdx.utils.Align.center, true);
         font.setColor(new Color(0.7f, 0.7f, 0.7f, 1f));
-        font.draw(batch, "Refunds only 50%", bounds.x, bounds.y - 6);
-        font.draw(batch, "of the resources.", bounds.x, bounds.y - 22);
+        font.draw(batch, "Refunds only 50% of the resources.", bounds.x + 2, bounds.y - 6, bounds.width - 14, com.badlogic.gdx.utils.Align.left, true);
         batch.end();
     }
 
