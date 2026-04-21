@@ -80,9 +80,9 @@ public class Main extends ApplicationAdapter {
         gridRenderer = new GridRenderer();
         gameWindow = new GameWindow(camera, gameStateHandler.getCurrentGrid());
         buildingTextures = new HashMap<>();
-        buildingTextures.put("house", new Texture("buildings/House1.png"));
+        buildingTextures.put("house", new Texture("buildings/House.png"));
         buildingTextures.put("sawmill", new Texture("buildings/Sawmill.png"));
-        buildingTextures.put("quarry", new Texture("buildings/Placeholder_2x2_1.png"));
+        buildingTextures.put("quarry", new Texture("buildings/Quarry.png"));
         buildingTextures.put("field", new Texture("buildings/Field.png"));
         buildingTextures.put("barrack", new Texture("buildings/Placeholder_2x2_1.png"));
         sidebar = new Sidebar();
