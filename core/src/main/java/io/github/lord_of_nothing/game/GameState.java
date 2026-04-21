@@ -164,6 +164,7 @@ public class GameState {
 		private int y;
 		private String tileType;
 		private String buildingType;
+		private Integer assignedVillagers;
 
 		public int getX() {
 			return x;
@@ -195,6 +196,18 @@ public class GameState {
 
 		public void setBuildingType(String buildingType) {
 			this.buildingType = buildingType;
+		}
+
+		public Integer getAssignedVillagers() {
+			return assignedVillagers;
+		}
+
+		public void setAssignedVillagers(Integer assignedVillagers) {
+			if (assignedVillagers == null) {
+				this.assignedVillagers = null;
+				return;
+			}
+			this.assignedVillagers = Math.max(0, assignedVillagers);
 		}
 	}
 

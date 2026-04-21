@@ -155,6 +155,9 @@ public class GameStateHandler implements ResourceStateMutator {
                 tileState.setY(y);
                 tileState.setTileType(tile.getType().name());
                 tileState.setBuildingType(tile.hasBuilding() ? tile.getBuilding().getBuildingTypeKey() : null);
+                if (tile.hasBuilding() && tile.getBuilding().getMaxWorkers() > 0) {
+                    tileState.setAssignedVillagers(tile.getBuilding().getCurrentWorkers());
+                }
                 tiles.add(tileState);
             }
         }
