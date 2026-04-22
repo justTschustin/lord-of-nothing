@@ -26,6 +26,9 @@ public final class BuildingFactory {
                 return new Quarry();
             case "field":
                 return new Field();
+            case "barrack":
+            case "barracks":
+                return new Barrack();
             default:
                 return null;
         }
