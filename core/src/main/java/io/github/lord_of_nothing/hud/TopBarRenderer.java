@@ -28,6 +28,7 @@ public class TopBarRenderer {
     private static final float PAUSE_BUTTON_MARGIN = 10f;
     private Texture bgTexture;
     private Texture cornerTexture;
+    private Texture edgeTexture;
     private Texture woodIcon;
     private Texture stoneIcon;
     private Texture foodIcon;
@@ -54,9 +55,10 @@ public class TopBarRenderer {
      * <summary>Loads the graphical assets required for the ornate top bar background and corners.</summary>
      * @param bg The repeatable background texture. @param corner The ornate corner texture to be mirrored.
      */
-    public void loadAssets(Texture bg, Texture corner, Texture wood, Texture stone, Texture food, Texture citizen, Texture soldier, Texture capacity, Texture day, Texture hour) {
+    public void loadAssets(Texture bg, Texture corner, Texture edge, Texture wood, Texture stone, Texture food, Texture citizen, Texture soldier, Texture capacity, Texture day, Texture hour) {
         this.bgTexture = bg;
         this.cornerTexture = corner;
+        this.edgeTexture = edge;
         this.woodIcon = wood;
         this.stoneIcon = stone;
         this.foodIcon = food;
@@ -98,7 +100,7 @@ public class TopBarRenderer {
         pauseOverlay.setActive(paused);
 
         batch.begin();
-        renderDecoratedFrame(batch, window, bgTexture, cornerTexture, GameWindow.TOP_BAR_HEIGHT * 1.2f);
+        renderDecoratedFrame(batch, window, bgTexture, cornerTexture, edgeTexture);
         float y = window.getTopBarY() + 25;
         float x = 10;
         float gap = 30;
@@ -150,25 +152,33 @@ public class TopBarRenderer {
     }
 
     /**
-     * <summary>Renders an ornate UI frame by combining a tiled background with static corner ornaments and stretched edges.</summary>
-     * <remarks>Corners are drawn at a fixed scale to prevent distortion of complex ornaments, while edges adapt to the screen width.</remarks>
+     * <summary>Renders a full frame by stretching edge textures between the four static corners.</summary>
+     * <remarks>Calculates the remaining width between corners to prevent overlapping and visual artifacts.</remarks>
      */
-    private void renderDecoratedFrame(SpriteBatch batch, GameWindow window, Texture bg, Texture corner, float cornerSize) {
+    private void renderDecoratedFrame(SpriteBatch batch, GameWindow window, Texture bg, Texture corner, Texture edge) {
         float width = Gdx.graphics.getWidth();
         float height = GameWindow.TOP_BAR_HEIGHT;
         float y = window.getTopBarY();
+        float cSize = height; // Ecken so groß wie die Bar
+        float eHeight = 8f;   // Höhe deiner Kanten-Textur (anpassen!)
 
-        // 1. Background (tiled or stretched)
+        // 1. Hintergrund
         batch.draw(bg, 0, y, width, height);
 
-        // 2. Corners (Top-Left, Top-Right, Bottom-Left, Bottom-Right)
-        // We flip the same texture to save memory and ensure symmetry
-        batch.draw(corner, 0, y + height - cornerSize, cornerSize, cornerSize); // TL
-        batch.draw(corner, width, y + height - cornerSize, -cornerSize, cornerSize); // TR
-        batch.draw(corner, 0, y, cornerSize, -cornerSize); // BL
-        batch.draw(corner, width, y, -cornerSize, -cornerSize); // BR
+        // 2. Horizontale Kanten (Oben & Unten)
+        // Die Breite ist: Gesamtbreite minus 2x Eckengröße
+        float edgeWidth = width - (2 * cSize);
 
-        // 3. Optional: Add a simple line or edge texture between corners
+        // Obere Kante
+        batch.draw(edge, cSize, y + height - eHeight, edgeWidth, eHeight);
+        // Untere Kante (Gespiegelt, damit Schatten/Glanz korrekt sind)
+        batch.draw(edge, cSize, y, edgeWidth, eHeight, 0, 0, edge.getWidth(), edge.getHeight(), false, true);
+
+        // 3. Ecken (wie zuvor, liegen über den Kanten)
+        batch.draw(corner, 0, y, cSize, cSize); // TL
+        batch.draw(corner, width - cSize, y, cSize, cSize, 0, 0, corner.getWidth(), corner.getHeight(), true, false); // TR
+        batch.draw(corner, 0, y, cSize, cSize, 0, 0, corner.getWidth(), corner.getHeight(), false, true); // BL
+        batch.draw(corner, width - cSize, y, cSize, cSize, 0, 0, corner.getWidth(), corner.getHeight(), true, true); // BR
     }
 
     /**

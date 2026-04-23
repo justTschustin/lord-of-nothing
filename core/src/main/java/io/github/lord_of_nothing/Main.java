@@ -92,16 +92,17 @@ public class Main extends ApplicationAdapter {
 
         topBarRenderer = new TopBarRenderer();
         topBarRenderer.loadAssets(
-            new Texture("ui/topbar_bg.png"),
-            new Texture("ui/topbar_corner.png"),
-            new Texture("icons/Wood"),
-            new Texture("icons/Placeholder_Stone"),
-            new Texture("icons/Placeholder_Food"),
-            new Texture("icons/Placeholder_Citizen"),
-            new Texture("icons/Placeholder_Soldier"),
-            new Texture("icons/Placeholder_Capacity"),
-            new Texture("icons/Placeholder_Day"),
-            new Texture("icons/Placeholder_Hour")
+            new Texture("hud/TopbarBG_Placeholder.png"),
+            new Texture("hud/Corner_Placeholder.png"),
+            new Texture("hud/Border_Placeholder.png"),
+            new Texture("icons/Wood.png"),
+            new Texture("icons/Placeholder_Stone.png"),
+            new Texture("icons/Placeholder_Food.png"),
+            new Texture("icons/Placeholder_Citizen.png"),
+            new Texture("icons/Placeholder_Soldier.png"),
+            new Texture("icons/Placeholder_Capacity.png"),
+            new Texture("icons/Placeholder_Day.png"),
+            new Texture("icons/Placeholder_Time.png")
         );
         eventBus = new EventBus();
         flowState = new FlowState();
