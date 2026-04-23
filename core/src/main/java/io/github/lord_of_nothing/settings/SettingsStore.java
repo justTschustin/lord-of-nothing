@@ -21,6 +21,7 @@ public class SettingsStore {
         this.filePath = filePath;
         json.setOutputType(JsonWriter.OutputType.json);
         json.setUsePrototypes(false);
+        System.out.println(java.nio.file.Paths.get(filePath).toAbsolutePath());
     }
 
     /**
