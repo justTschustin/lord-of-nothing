@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter;
+import java.nio.file.Paths;
 
 /**
  * Loads and saves {@link GameSettings} from a local JSON file.
@@ -30,7 +31,7 @@ public class SettingsStore {
      */
     public GameSettings load() {
         GameSettings defaults = new GameSettings();
-        FileHandle file = Gdx.files.local(filePath);
+        FileHandle file = resolveFileHandle();
         if (!file.exists()) {
             save(defaults);
             return defaults;
@@ -55,9 +56,19 @@ public class SettingsStore {
      */
     public void save(GameSettings settings) {
         GameSettings normalized = normalize(settings, new GameSettings());
-        FileHandle file = Gdx.files.local(filePath);
-        file.parent().mkdirs();
+        FileHandle file = resolveFileHandle();
+        FileHandle parent = file.parent();
+        if (parent != null) {
+            parent.mkdirs();
+        }
         file.writeString(json.prettyPrint(normalized), false, "UTF-8");
+    }
+
+    private FileHandle resolveFileHandle() {
+        if (Paths.get(filePath).isAbsolute()) {
+            return Gdx.files.absolute(filePath);
+        }
+        return Gdx.files.local(filePath);
     }
 
     private GameSettings normalize(GameSettings loaded, GameSettings defaults) {

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter;
+import java.nio.file.Paths;
 
 /**
  * Loads and saves {@link GameState} snapshots from a local JSON file.
@@ -29,7 +30,7 @@ public class GameStateStore {
      * @return {@code true} when the configured save file exists
      */
     public boolean exists() {
-        return Gdx.files.local(filePath).exists();
+        return resolveFileHandle().exists();
     }
 
     /**
@@ -42,8 +43,11 @@ public class GameStateStore {
             return;
         }
 
-        FileHandle file = Gdx.files.local(filePath);
-        file.parent().mkdirs();
+        FileHandle file = resolveFileHandle();
+        FileHandle parent = file.parent();
+        if (parent != null) {
+            parent.mkdirs();
+        }
         file.writeString(json.prettyPrint(state), false, "UTF-8");
     }
 
@@ -53,7 +57,7 @@ public class GameStateStore {
      * @return loaded snapshot or {@code null} when missing/invalid
      */
     public GameState load() {
-        FileHandle file = Gdx.files.local(filePath);
+        FileHandle file = resolveFileHandle();
         if (!file.exists()) {
             return null;
         }
@@ -90,6 +94,13 @@ public class GameStateStore {
             save(state);
         }
         return state;
+    }
+
+    private FileHandle resolveFileHandle() {
+        if (Paths.get(filePath).isAbsolute()) {
+            return Gdx.files.absolute(filePath);
+        }
+        return Gdx.files.local(filePath);
     }
 }
 

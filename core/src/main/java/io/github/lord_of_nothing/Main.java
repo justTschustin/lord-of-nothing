@@ -41,6 +41,7 @@ import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.hud.TileInspectorRenderer;
 import io.github.lord_of_nothing.menu.MainMenu;
 import io.github.lord_of_nothing.menu.SettingsMenu;
+import io.github.lord_of_nothing.persistence.UserConfigPaths;
 import io.github.lord_of_nothing.settings.GameSettings;
 import io.github.lord_of_nothing.settings.ResolutionSettings;
 import io.github.lord_of_nothing.settings.SettingsStore;
@@ -49,8 +50,6 @@ import io.github.lord_of_nothing.settings.SettingsStore;
  * Main LibGDX application entry point for core game logic and rendering.
  */
 public class Main extends ApplicationAdapter {
-    private static final String SAVE_FILE_PATH = "../config/savegame.json";
-
     private ShapeRenderer shapeRenderer;
     private OrthographicCamera camera;
     private SpriteBatch batch;
@@ -87,13 +86,16 @@ public class Main extends ApplicationAdapter {
      */
     @Override
     public void create() {
+        final String saveFilePath = UserConfigPaths.resolveSavePath();
+        final String settingsFilePath = UserConfigPaths.resolveSettingsPath();
+
         shapeRenderer = new ShapeRenderer();
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
         grassTexture = new Texture("tiles/Floor_Grass.png");
 
         gameStateHandler = new GameStateHandler();
-        gameStateStore = new GameStateStore(SAVE_FILE_PATH);
+        gameStateStore = new GameStateStore(saveFilePath);
         gameStateHandler.resetNewGame();
 
         gridRenderer = new GridRenderer();
@@ -132,7 +134,7 @@ public class Main extends ApplicationAdapter {
 
         MainMenu mainMenu = new MainMenu(eventBus, gameStateStore.exists());
         SettingsMenu settingsMenu = new SettingsMenu(eventBus);
-        settingsStore = new SettingsStore("../config/settings.json");
+        settingsStore = new SettingsStore(settingsFilePath);
         gameSettings = settingsStore.load();
         tickHandler.setGameSpeed(gameSettings.gameSpeed);
 

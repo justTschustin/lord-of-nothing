@@ -5,6 +5,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.utils.Json;
 import io.github.lord_of_nothing.Main;
+import io.github.lord_of_nothing.persistence.UserConfigPaths;
 import io.github.lord_of_nothing.settings.GameSettings;
 
 import java.nio.charset.StandardCharsets;
@@ -15,7 +16,7 @@ import java.nio.file.Paths;
 /** Launches the desktop (LWJGL3) application. */
 public class Lwjgl3Launcher {
     private static final Json json = new Json();
-    private static final String settingsFilePath = "../config/settings.json";
+    private static final String settingsFilePath = UserConfigPaths.resolveSettingsPath();
 
     /**
      * Desktop JVM entry point.
@@ -94,7 +95,8 @@ public class Lwjgl3Launcher {
 //        configuration.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.ANGLE_GLES20, 0, 0);
 
         configuration.setForegroundFPS(30);
-        configuration.setAutoIconify(false);
+        // Keep fullscreen Alt-Tab behavior working on Windows by iconifying on focus loss.
+        configuration.setAutoIconify(true);
 
         // Neutral default: start windowed unless persisted settings request fullscreen.
         configuration.setWindowedMode(1080, 720);
