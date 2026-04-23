@@ -9,8 +9,8 @@ import java.util.LinkedHashMap;
 
 public class ResolutionSettings {
     public static final ResolutionDto DEFAULT_RESOLUTION = new ResolutionDto(1920, 1080);
-    private static final int MIN_WIDTH = 1920;
-    private static final int MIN_HEIGHT = 1080;
+    private static final int MIN_WIDTH = 1080;
+    private static final int MIN_HEIGHT = 720;
     private static final ResolutionDto[] BASELINE_RESOLUTIONS = new ResolutionDto[] {
         new ResolutionDto(1920, 1080)
     };

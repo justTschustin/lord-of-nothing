@@ -101,7 +101,7 @@ public class Lwjgl3Launcher {
         // Neutral default: start windowed unless persisted settings request fullscreen.
         configuration.setWindowedMode(1080, 720);
 
-        configuration.setWindowSizeLimits(800, 600, 9999, 9999);
+        configuration.setWindowSizeLimits(1080, 720, 9999, 9999);
         configuration.setResizable(false);
 
         configuration.setPauseWhenMinimized(true);
