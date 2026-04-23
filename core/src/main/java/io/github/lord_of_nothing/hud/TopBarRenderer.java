@@ -25,7 +25,8 @@ public class TopBarRenderer {
     private final GlyphLayout glyphLayout = new GlyphLayout();
     private final PauseOverlay pauseOverlay = new PauseOverlay();
     private PauseButton pauseButton;
-
+    private static final float ICON_SIZE = 28f;
+    private static final float TEXT_OFFSET = 35f;
     private static final float PAUSE_BUTTON_WIDTH = 70f;
     private static final float PAUSE_BUTTON_HEIGHT = 24f;
     private static final float PAUSE_BUTTON_MARGIN = 10f;
@@ -56,7 +57,7 @@ public class TopBarRenderer {
     }
 
     /**
-     * <summary>Loads the graphical assets required for the ornate top bar background and corners.</summary>
+     * Loads the graphical assets required for the ornate top bar background and corners.
      * @param bg The repeatable background texture. @param corner The ornate corner texture to be mirrored.
      */
     public void loadAssets(Texture bg, Texture corner, Texture edge, Texture wood, Texture stone, Texture food, Texture citizen, Texture soldier, Texture capacity, Texture day, Texture hour) {
@@ -129,14 +130,14 @@ public class TopBarRenderer {
     }
 
     /**
-     * <summary>Assigns a texture to a specific resource type for HUD display.</summary>
+     * Assigns a texture to a specific resource type for HUD display.
      * <param name="type">The resource type.</param> <param name="tex">The icon texture.</param>
      */
     public void setResourceIcon(ResourceType type, Texture tex) {
         resourceIcons.put(type, tex);
     }
     /**
-     * <summary>Sets the specific icons used for the in-game calendar and clock display.</summary>
+     * Sets the specific icons used for the in-game calendar and clock display.
      * <param name="day">Icon for the current day.</param> <param name="clock">Icon for the current hour.</param>
      */
     public void setTimeIcons(Texture day, Texture clock) {
@@ -144,15 +145,15 @@ public class TopBarRenderer {
         this.hourIcon = clock;
     }
     /**
-     * <summary>Renders a resource group consisting of an icon and a value at a fixed horizontal position.</summary>
-     * <remarks>By using fixed offsets for the text, we prevent horizontal shifting when values change width.</remarks>
+     * Renders a resource icon and its value with increased dimensions for better visibility.
+     * <remarks>Adjusts the vertical alignment to keep the larger icons centered within the 40px bar height.</remarks>
      */
     private void drawResourceGroup(SpriteBatch batch, ResourceType type, int amount, float x, float y) {
         Texture icon = resourceIcons.get(type);
         if (icon != null) {
-            batch.draw(icon, x, y - 5, 20, 20); // Icon fix auf 20x20
+            batch.draw(icon, x, y - 8, ICON_SIZE, ICON_SIZE);
         }
-        font.draw(batch, String.valueOf(amount), x + 30, y + 12);
+        font.draw(batch, String.valueOf(amount), x + TEXT_OFFSET, y + 12);
     }
 
     /**
@@ -181,7 +182,7 @@ public class TopBarRenderer {
     }
 
     /**
-     * <summary>Renders a full frame by stretching edge textures between the four static corners.</summary>
+     * Renders a full frame by stretching edge textures between the four static corners.
      * <remarks>Calculates the remaining width between corners to prevent overlapping and visual artifacts.</remarks>
      */
     private void renderDecoratedFrame(SpriteBatch batch, GameWindow window, Texture bg, Texture corner, Texture edge) {
