@@ -11,6 +11,7 @@ import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.button.PauseButton;
 import io.github.lord_of_nothing.events.EventBus;
 import io.github.lord_of_nothing.events.UiElementCreatedEvent;
+import io.github.lord_of_nothing.game.GameStateHandler;
 import io.github.lord_of_nothing.game.ResourceStateView;
 import io.github.lord_of_nothing.resources.ResourceType;
 
@@ -121,7 +122,16 @@ public class TopBarRenderer {
         font.draw(batch, String.valueOf(currentIngameDay), rightEdgeX + 25, y + 12);
 
         if (hourIcon != null) batch.draw(hourIcon, rightEdgeX + 70, y - 5, 20, 20);
-        font.draw(batch, currentIngameHour + ":00", rightEdgeX + 95, y + 12);        pauseButton.render(batch);
+        font.draw(batch, currentIngameHour + ":00", rightEdgeX + 95, y + 12);
+        pauseButton.render(batch);
+
+        if (resources instanceof GameStateHandler) {
+            GameStateHandler gsh = (GameStateHandler) resources;
+            float ty = window.getTopBarY() + 10;
+            renderResourceTooltip(batch, window, ResourceType.WOOD, 40, ty, gsh.getHourlyIncome(ResourceType.WOOD));
+            renderResourceTooltip(batch, window, ResourceType.STONE, 140, ty, gsh.getHourlyIncome(ResourceType.STONE));
+            renderResourceTooltip(batch, window, ResourceType.FOOD, 240, ty, gsh.getHourlyIncome(ResourceType.FOOD));
+        }
         batch.end();
 
         if (paused) {
@@ -211,6 +221,65 @@ public class TopBarRenderer {
         batch.draw(corner, width - cSize, y, cSize, cSize, 0, 0, corner.getWidth(), corner.getHeight(), true, true); // BR
     }
 
+    /**
+     * <summary>Checks if the mouse is hovering over a resource slot and renders a decorative tooltip with income details.</summary>
+     * <remarks>Reuses the ornate frame rendering logic to maintain UI consistency across the HUD.</remarks>
+     */
+    private void renderResourceTooltip(SpriteBatch batch, GameWindow window, ResourceType type, float x, float y, int income) {
+        float mx = Gdx.input.getX();
+        float my = Gdx.graphics.getHeight() - Gdx.input.getY(); // Flip Y for screen coords
+
+        // Check if mouse is within the slot (roughly 100px width per resource)
+        if (mx >= x && mx <= x + 100 && my >= y - 10 && my <= y + 30) {
+            float ttW = 180, ttH = 70;
+            float ttX = mx - ttW / 2;
+            float ttY = y - ttH - 10;
+
+            // Draw Ornate Frame (reuse your logic)
+            renderDecoratedFrameAt(batch, ttX, ttY, ttW, ttH, 20f);
+
+            font.setColor(Color.YELLOW);
+            font.draw(batch, type.name(), ttX + 20, ttY + ttH - 15);
+            font.setColor(Color.WHITE);
+            font.draw(batch, "Income: +" + income + "/h", ttX + 20, ttY + ttH - 40);
+        }
+    }
+
+    /**
+        * <summary>Helper to render the ornate border at any given position and size.</summary>
+        */
+    private void renderDecoratedFrameAt(SpriteBatch batch, float x, float y, float w, float h, float cSize) {
+        float eH = 8f; // Thickness of the edge texture
+        int srcW = cornerTexture.getWidth();
+        int srcH = cornerTexture.getHeight();
+        int eSrcW = edgeTexture.getWidth();
+        int eSrcH = edgeTexture.getHeight();
+
+        // 1. Background
+        batch.draw(bgTexture, x, y, w, h);
+
+        // 2. Horizontal Edges (Top & Bottom)
+        float edgeWidth = w - (2 * cSize);
+        if (edgeWidth > 0) {
+            // Top edge
+            batch.draw(edgeTexture, x + cSize, y + h - eH, edgeWidth, eH);
+            // Bottom edge (flipped vertically)
+            batch.draw(edgeTexture, x + cSize, y, edgeWidth, eH, 0, 0, eSrcW, eSrcH, false, true);
+        }
+
+        // 3. Ornate Corners (Drawing clockwise from Top-Left)
+        // Top-Left (Original orientation)
+        batch.draw(cornerTexture, x, y + h - cSize, cSize, cSize);
+
+        // Top-Right (Flipped horizontally)
+        batch.draw(cornerTexture, x + w - cSize, y + h - cSize, cSize, cSize, 0, 0, srcW, srcH, true, false);
+
+        // Bottom-Right (Flipped horizontally and vertically)
+        batch.draw(cornerTexture, x + w - cSize, y, cSize, cSize, 0, 0, srcW, srcH, true, true);
+
+        // Bottom-Left (Flipped vertically)
+        batch.draw(cornerTexture, x, y, cSize, cSize, 0, 0, srcW, srcH, false, true);
+    }
     /**
      * Disposes renderer-owned font resources.
      */
