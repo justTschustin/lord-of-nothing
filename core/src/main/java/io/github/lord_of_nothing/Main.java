@@ -104,6 +104,16 @@ public class Main extends ApplicationAdapter {
             new Texture("icons/Placeholder_Day.png"),
             new Texture("icons/Placeholder_Time.png")
         );
+        topBarRenderer.setResourceIcon(ResourceType.WOOD, new Texture("icons/Wood.png"));
+        topBarRenderer.setResourceIcon(ResourceType.STONE, new Texture("icons/Placeholder_Stone.png"));
+        topBarRenderer.setResourceIcon(ResourceType.FOOD, new Texture("icons/Placeholder_Food.png"));
+        topBarRenderer.setResourceIcon(ResourceType.CITIZENS_TOTAL, new Texture("icons/Placeholder_Citizen.png"));
+        topBarRenderer.setResourceIcon(ResourceType.SOLDIERS, new Texture("icons/Placeholder_Soldier.png"));
+        topBarRenderer.setResourceIcon(ResourceType.CITIZENS_CAPACITY, new Texture("icons/Placeholder_Capacity.png"));
+        topBarRenderer.setTimeIcons(
+            new Texture("icons/Placeholder_Day.png"),
+            new Texture("icons/Placeholder_Time.png")
+        );
         eventBus = new EventBus();
         flowState = new FlowState();
         tickHandler = new TickHandler();

@@ -14,6 +14,9 @@ import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 import io.github.lord_of_nothing.game.ResourceStateView;
 import io.github.lord_of_nothing.resources.ResourceType;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Renders the top resource bar and its pause controls.
  */
@@ -29,6 +32,7 @@ public class TopBarRenderer {
     private Texture bgTexture;
     private Texture cornerTexture;
     private Texture edgeTexture;
+    private Map<ResourceType, Texture> resourceIcons = new HashMap<>();
     private Texture woodIcon;
     private Texture stoneIcon;
     private Texture foodIcon;
@@ -101,29 +105,54 @@ public class TopBarRenderer {
 
         batch.begin();
         renderDecoratedFrame(batch, window, bgTexture, cornerTexture, edgeTexture);
-        float y = window.getTopBarY() + 25;
+        float y = window.getTopBarY() + 10;
         float x = 10;
         float gap = 30;
-        String[] labels = {
-            "WOOD: " + resources.getResourceAmount(ResourceType.WOOD),
-            "STONE: " + resources.getResourceAmount(ResourceType.STONE),
-            "FOOD: " + resources.getResourceAmount(ResourceType.FOOD),
-            "CITIZENS: " + resources.getResourceAmount(ResourceType.CITIZENS_TOTAL),
-            "CAPACITY: " + resources.getResourceAmount(ResourceType.CITIZENS_CAPACITY),
-            "SOLDIERS: " + resources.getResourceAmount(ResourceType.SOLDIERS),
-            "Day: " + currentIngameDay + " Time: " + currentIngameHour + ":00"
-        };
-        for (String label : labels) {
-            font.draw(batch, label, x, y);
-            glyphLayout.setText(font, label);
-            x += glyphLayout.width + gap;
-        }
-        pauseButton.render(batch);
+        drawResourceGroup(batch, ResourceType.WOOD, resources.getResourceAmount(ResourceType.WOOD), 40, y);
+        drawResourceGroup(batch, ResourceType.STONE, resources.getResourceAmount(ResourceType.STONE), 140, y);
+        drawResourceGroup(batch, ResourceType.FOOD, resources.getResourceAmount(ResourceType.FOOD), 240, y);
+        drawResourceGroup(batch, ResourceType.CITIZENS_TOTAL, resources.getResourceAmount(ResourceType.CITIZENS_TOTAL), 340, y);
+        drawResourceGroup(batch, ResourceType.SOLDIERS, resources.getResourceAmount(ResourceType.SOLDIERS), 460, y);
+        drawResourceGroup(batch, ResourceType.CITIZENS_CAPACITY, resources.getResourceAmount(ResourceType.CITIZENS_CAPACITY), 580, y);
+        float rightEdgeX = Gdx.graphics.getWidth() - 250;
+
+        if (dayIcon != null) batch.draw(dayIcon, rightEdgeX, y - 5, 20, 20);
+        font.draw(batch, String.valueOf(currentIngameDay), rightEdgeX + 25, y + 12);
+
+        if (hourIcon != null) batch.draw(hourIcon, rightEdgeX + 70, y - 5, 20, 20);
+        font.draw(batch, currentIngameHour + ":00", rightEdgeX + 95, y + 12);        pauseButton.render(batch);
         batch.end();
 
         if (paused) {
             pauseOverlay.render(shapeRenderer, batch, eventBus);
         }
+    }
+
+    /**
+     * <summary>Assigns a texture to a specific resource type for HUD display.</summary>
+     * <param name="type">The resource type.</param> <param name="tex">The icon texture.</param>
+     */
+    public void setResourceIcon(ResourceType type, Texture tex) {
+        resourceIcons.put(type, tex);
+    }
+    /**
+     * <summary>Sets the specific icons used for the in-game calendar and clock display.</summary>
+     * <param name="day">Icon for the current day.</param> <param name="clock">Icon for the current hour.</param>
+     */
+    public void setTimeIcons(Texture day, Texture clock) {
+        this.dayIcon = day;
+        this.hourIcon = clock;
+    }
+    /**
+     * <summary>Renders a resource group consisting of an icon and a value at a fixed horizontal position.</summary>
+     * <remarks>By using fixed offsets for the text, we prevent horizontal shifting when values change width.</remarks>
+     */
+    private void drawResourceGroup(SpriteBatch batch, ResourceType type, int amount, float x, float y) {
+        Texture icon = resourceIcons.get(type);
+        if (icon != null) {
+            batch.draw(icon, x, y - 5, 20, 20); // Icon fix auf 20x20
+        }
+        font.draw(batch, String.valueOf(amount), x + 30, y + 12);
     }
 
     /**
