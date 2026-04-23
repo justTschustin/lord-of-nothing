@@ -91,6 +91,18 @@ public class Main extends ApplicationAdapter {
         tileInspectorRenderer = new TileInspectorRenderer();
 
         topBarRenderer = new TopBarRenderer();
+        topBarRenderer.loadAssets(
+            new Texture("ui/topbar_bg.png"),
+            new Texture("ui/topbar_corner.png"),
+            new Texture("icons/Wood"),
+            new Texture("icons/Placeholder_Stone"),
+            new Texture("icons/Placeholder_Food"),
+            new Texture("icons/Placeholder_Citizen"),
+            new Texture("icons/Placeholder_Soldier"),
+            new Texture("icons/Placeholder_Capacity"),
+            new Texture("icons/Placeholder_Day"),
+            new Texture("icons/Placeholder_Hour")
+        );
         eventBus = new EventBus();
         flowState = new FlowState();
         tickHandler = new TickHandler();

@@ -2,6 +2,7 @@ package io.github.lord_of_nothing.hud;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -25,6 +26,16 @@ public class TopBarRenderer {
     private static final float PAUSE_BUTTON_WIDTH = 70f;
     private static final float PAUSE_BUTTON_HEIGHT = 24f;
     private static final float PAUSE_BUTTON_MARGIN = 10f;
+    private Texture bgTexture;
+    private Texture cornerTexture;
+    private Texture woodIcon;
+    private Texture stoneIcon;
+    private Texture foodIcon;
+    private Texture citizenIcon;
+    private Texture soldierIcon;
+    private Texture capacityIcon;
+    private Texture dayIcon;
+    private Texture hourIcon;
 
     /**
      * Registers top-bar UI elements.
@@ -39,6 +50,22 @@ public class TopBarRenderer {
         }
     }
 
+    /**
+     * <summary>Loads the graphical assets required for the ornate top bar background and corners.</summary>
+     * @param bg The repeatable background texture. @param corner The ornate corner texture to be mirrored.
+     */
+    public void loadAssets(Texture bg, Texture corner, Texture wood, Texture stone, Texture food, Texture citizen, Texture soldier, Texture capacity, Texture day, Texture hour) {
+        this.bgTexture = bg;
+        this.cornerTexture = corner;
+        this.woodIcon = wood;
+        this.stoneIcon = stone;
+        this.foodIcon = food;
+        this.citizenIcon = citizen;
+        this.soldierIcon = soldier;
+        this.capacityIcon = capacity;
+        this.dayIcon = day;
+        this.hourIcon = hour;
+    }
     /**
      * Renders the top bar, resource counters, and optional pause overlay.
      *
@@ -71,6 +98,7 @@ public class TopBarRenderer {
         pauseOverlay.setActive(paused);
 
         batch.begin();
+        renderDecoratedFrame(batch, window, bgTexture, cornerTexture, GameWindow.TOP_BAR_HEIGHT * 1.2f);
         float y = window.getTopBarY() + 25;
         float x = 10;
         float gap = 30;
@@ -119,6 +147,28 @@ public class TopBarRenderer {
         }
 
         pauseButton.setBounds(x, y, PAUSE_BUTTON_WIDTH, PAUSE_BUTTON_HEIGHT);
+    }
+
+    /**
+     * <summary>Renders an ornate UI frame by combining a tiled background with static corner ornaments and stretched edges.</summary>
+     * <remarks>Corners are drawn at a fixed scale to prevent distortion of complex ornaments, while edges adapt to the screen width.</remarks>
+     */
+    private void renderDecoratedFrame(SpriteBatch batch, GameWindow window, Texture bg, Texture corner, float cornerSize) {
+        float width = Gdx.graphics.getWidth();
+        float height = GameWindow.TOP_BAR_HEIGHT;
+        float y = window.getTopBarY();
+
+        // 1. Background (tiled or stretched)
+        batch.draw(bg, 0, y, width, height);
+
+        // 2. Corners (Top-Left, Top-Right, Bottom-Left, Bottom-Right)
+        // We flip the same texture to save memory and ensure symmetry
+        batch.draw(corner, 0, y + height - cornerSize, cornerSize, cornerSize); // TL
+        batch.draw(corner, width, y + height - cornerSize, -cornerSize, cornerSize); // TR
+        batch.draw(corner, 0, y, cornerSize, -cornerSize); // BL
+        batch.draw(corner, width, y, -cornerSize, -cornerSize); // BR
+
+        // 3. Optional: Add a simple line or edge texture between corners
     }
 
     /**
