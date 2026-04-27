@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter;
+import java.nio.file.Paths;
 
 /**
  * Loads and saves {@link GameSettings} from a local JSON file.
@@ -30,7 +31,7 @@ public class SettingsStore {
      */
     public GameSettings load() {
         GameSettings defaults = new GameSettings();
-        FileHandle file = Gdx.files.local(filePath);
+        FileHandle file = resolveFileHandle();
         if (!file.exists()) {
             save(defaults);
             return defaults;
@@ -55,9 +56,19 @@ public class SettingsStore {
      */
     public void save(GameSettings settings) {
         GameSettings normalized = normalize(settings, new GameSettings());
-        FileHandle file = Gdx.files.local(filePath);
-        file.parent().mkdirs();
+        FileHandle file = resolveFileHandle();
+        FileHandle parent = file.parent();
+        if (parent != null) {
+            parent.mkdirs();
+        }
         file.writeString(json.prettyPrint(normalized), false, "UTF-8");
+    }
+
+    private FileHandle resolveFileHandle() {
+        if (Paths.get(filePath).isAbsolute()) {
+            return Gdx.files.absolute(filePath);
+        }
+        return Gdx.files.local(filePath);
     }
 
     private GameSettings normalize(GameSettings loaded, GameSettings defaults) {
@@ -69,8 +80,15 @@ public class SettingsStore {
         normalized.fullscreen = loaded.fullscreen;
         normalized.windowedWidth = loaded.windowedWidth > 0 ? loaded.windowedWidth : defaults.windowedWidth;
         normalized.windowedHeight = loaded.windowedHeight > 0 ? loaded.windowedHeight : defaults.windowedHeight;
-        normalized.gameSpeed = loaded.gameSpeed > 0 ? loaded.gameSpeed : defaults.gameSpeed;
+        normalized.gameSpeed = normalizeGameSpeed(loaded.gameSpeed, defaults.gameSpeed);
         return normalized;
+    }
+
+    private int normalizeGameSpeed(int requested, int fallback) {
+        if (requested == 1 || requested == 2 || requested == 4) {
+            return requested;
+        }
+        return fallback;
     }
 }
 

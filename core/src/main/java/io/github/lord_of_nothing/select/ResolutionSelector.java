@@ -3,6 +3,7 @@ package io.github.lord_of_nothing.select;
 import io.github.lord_of_nothing.events.EventBus;
 import io.github.lord_of_nothing.events.ResolutionChangedEvent;
 import io.github.lord_of_nothing.settings.GameSettings;
+import io.github.lord_of_nothing.settings.ResolutionDto;
 import io.github.lord_of_nothing.settings.ResolutionSettings;
 
 public class ResolutionSelector extends DropDownSelect {
@@ -43,8 +44,8 @@ public class ResolutionSelector extends DropDownSelect {
 
         String widthValue = String.valueOf(settings.windowedWidth);
         for (int i = 0; i < labels.size(); i++) {
-            String label = labels.get(i);
-            if (widthValue.equals(options.get(label))) {
+            ResolutionDto resolution = ResolutionSettings.getResolutionFromLabel(labels.get(i));
+            if (widthValue.equals(String.valueOf(resolution.width))) {
                 setSelectedIndex(i);
                 return;
             }
@@ -61,7 +62,8 @@ public class ResolutionSelector extends DropDownSelect {
         if (hoveredOptionIndex >= 0) {
             selectedIndex = hoveredOptionIndex;
             open = false;
-            eventBus.publish(new ResolutionChangedEvent(this.getSelectedValue()));
+            ResolutionDto selectedResolution = ResolutionSettings.getResolutionFromLabel(getSelectedLabel());
+            eventBus.publish(new ResolutionChangedEvent(selectedResolution));
             return;
         }
 

@@ -20,8 +20,12 @@
 ``` 
 
 ## Runtime settings file
-- Desktop runs write settings to `config/settings.json` in the project root.
-- The file is auto-created with defaults and kept complete (missing keys are re-added on load).
+- Desktop runs write config per user in OS-standard folders:
+  - Windows: `%APPDATA%\\Lord of Nothing\\settings.json`
+  - macOS: `~/Library/Application Support/Lord of Nothing/settings.json`
+  - Linux: `$XDG_CONFIG_HOME/lord-of-nothing/settings.json` (fallback `~/.config/lord-of-nothing/settings.json`)
+- Savegames are written alongside settings as `savegame.json`.
+- Files are auto-created with defaults and kept complete (missing keys are re-added on load).
 
 
 
