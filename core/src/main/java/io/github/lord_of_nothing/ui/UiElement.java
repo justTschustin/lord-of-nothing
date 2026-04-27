@@ -40,4 +40,16 @@ public interface UiElement {
      * @param enabled enabled state to apply
      */
     void setEnabled(boolean enabled);
+
+    /**
+     * Handles mouse-wheel scrolling over this element.
+     *
+     * @param x cursor x coordinate in world space
+     * @param y cursor y coordinate in world space
+     * @param amountY wheel delta where positive values scroll downward
+     * @return {@code true} if the scroll event was consumed
+     */
+    default boolean onScroll(float x, float y, float amountY) {
+        return false;
+    }
 }

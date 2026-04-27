@@ -21,6 +21,10 @@ import java.util.Map;
 public class DropDownSelect implements UiElement {
     protected static final float OPTION_HEIGHT = 36f;
     private static final int MAX_VISIBLE_OPTIONS = 6;
+    private static final float SCROLLBAR_WIDTH = 6f;
+    private static final float SCROLLBAR_SIDE_PADDING = 6f;
+    private static final float SCROLLBAR_TOP_BOTTOM_PADDING = 2f;
+    private static final float SCROLLBAR_MIN_THUMB_HEIGHT = 16f;
     private static final Texture WHITE_PIXEL = createWhitePixel();
     private static final GlyphLayout GLYPH_LAYOUT = new GlyphLayout();
 
@@ -117,6 +121,7 @@ public class DropDownSelect implements UiElement {
 
     public void setBounds(float x, float y, float width, float height) {
         bounds.set(x, y, width, height);
+        clampScrollOffset();
     }
 
     /**
@@ -138,9 +143,22 @@ public class DropDownSelect implements UiElement {
             return;
         }
 
-        int maxOffset = Math.max(0, labels.size() - getVisibleOptionCount());
         int nextOffset = scrollOffset + Math.round(amountY);
-        scrollOffset = Math.max(0, Math.min(maxOffset, nextOffset));
+        scrollOffset = nextOffset;
+        clampScrollOffset();
+    }
+
+    @Override
+    public boolean onScroll(float x, float y, float amountY) {
+        if (!enabled || !open || !hasScrollableOverflow()) {
+            return false;
+        }
+        if (!isPointInsideExpandedArea(x, y)) {
+            return false;
+        }
+
+        scrollBy(amountY);
+        return true;
     }
 
     @Override
@@ -242,12 +260,57 @@ public class DropDownSelect implements UiElement {
             font.draw(batch, GLYPH_LAYOUT, textX, textY);
         }
 
+        renderScrollbar(batch, visibleCount);
+
         // Restore the incoming batch tint so other UI elements keep their own colors.
         batch.setColor(previous);
     }
 
+    private void renderScrollbar(SpriteBatch batch, int visibleCount) {
+        if (!hasScrollableOverflow()) {
+            return;
+        }
+
+        float listHeight = visibleCount * OPTION_HEIGHT;
+        float trackHeight = Math.max(1f, listHeight - (2f * SCROLLBAR_TOP_BOTTOM_PADDING));
+        float trackX = bounds.x + bounds.width - SCROLLBAR_SIDE_PADDING - SCROLLBAR_WIDTH;
+        float trackY = bounds.y - listHeight + SCROLLBAR_TOP_BOTTOM_PADDING;
+
+        batch.setColor(0.12f, 0.12f, 0.12f, 0.9f);
+        batch.draw(WHITE_PIXEL, trackX, trackY, SCROLLBAR_WIDTH, trackHeight);
+
+        float visibleRatio = visibleCount / (float) labels.size();
+        float thumbHeight = Math.max(SCROLLBAR_MIN_THUMB_HEIGHT, trackHeight * visibleRatio);
+        thumbHeight = Math.min(trackHeight, thumbHeight);
+
+        int maxOffset = Math.max(1, labels.size() - visibleCount);
+        float scrollRatio = scrollOffset / (float) maxOffset;
+        float thumbTravel = Math.max(0f, trackHeight - thumbHeight);
+        float thumbY = trackY + (thumbTravel * (1f - scrollRatio));
+
+        batch.setColor(0.72f, 0.72f, 0.72f, 0.95f);
+        batch.draw(WHITE_PIXEL, trackX, thumbY, SCROLLBAR_WIDTH, thumbHeight);
+    }
+
     private int getVisibleOptionCount() {
         return Math.min(MAX_VISIBLE_OPTIONS, labels.size());
+    }
+
+    private boolean hasScrollableOverflow() {
+        return labels.size() > getVisibleOptionCount();
+    }
+
+    private boolean isPointInsideExpandedArea(float x, float y) {
+        if (bounds.contains(x, y)) {
+            return true;
+        }
+        if (!open) {
+            return false;
+        }
+
+        int visibleCount = getVisibleOptionCount();
+        float listBottom = bounds.y - (visibleCount * OPTION_HEIGHT);
+        return x >= bounds.x && x <= bounds.x + bounds.width && y >= listBottom && y <= bounds.y;
     }
 
     private void ensureSelectionIsVisible() {
@@ -262,6 +325,11 @@ public class DropDownSelect implements UiElement {
             }
         }
 
+        scrollOffset = Math.max(0, Math.min(maxOffset, scrollOffset));
+    }
+
+    private void clampScrollOffset() {
+        int maxOffset = Math.max(0, labels.size() - getVisibleOptionCount());
         scrollOffset = Math.max(0, Math.min(maxOffset, scrollOffset));
     }
 
