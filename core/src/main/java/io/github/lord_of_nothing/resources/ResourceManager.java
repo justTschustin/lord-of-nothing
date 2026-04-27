@@ -48,6 +48,16 @@ public class ResourceManager implements ResourceStateMutator {
     public int getAmount(ResourceType type) { return resources.getOrDefault(type, 0); }
 
     /**
+     * Sets the absolute amount for a resource type.
+     *
+     * @param type resource type
+     * @param amount absolute value to store
+     */
+    public void setAmount(ResourceType type, int amount) {
+        resources.put(type, Math.max(0, amount));
+    }
+
+    /**
      * Adds an amount to a resource type.
      *
      * @param type resource type

@@ -30,8 +30,8 @@ public class SettingsMenu {
 
     private final BitmapFont font = new BitmapFont();
     private final List<UiElement> settingsControls = new ArrayList<>();
-    private final GameSpeedSelector gameSpeedSelector;
     private final ResolutionSelector resolutionSelector;
+    private final GameSpeedSelector gameSpeedSelector;
 
     /**
      * Creates the settings menu and its buttons.
@@ -56,15 +56,6 @@ public class SettingsMenu {
             false
         ));
 
-        gameSpeedSelector = new GameSpeedSelector(
-            x,
-            toggleY,
-            BUTTON_WIDTH,
-            BUTTON_HEIGHT,
-            eventBus
-        );
-        settingsControls.add(gameSpeedSelector);
-
         resolutionSelector = new ResolutionSelector(
             0,
             x,
@@ -74,6 +65,15 @@ public class SettingsMenu {
             eventBus
         );
         settingsControls.add(resolutionSelector);
+
+        gameSpeedSelector = new GameSpeedSelector(
+            x,
+            toggleY,
+            BUTTON_WIDTH,
+            BUTTON_HEIGHT,
+            eventBus
+        );
+        settingsControls.add(gameSpeedSelector);
 
         settingsControls.add(new TextButton(
             x,
@@ -106,8 +106,8 @@ public class SettingsMenu {
      * @param gameSettings loaded settings to mirror in UI controls
      */
     public void syncDisplaySettings(GameSettings gameSettings) {
-        gameSpeedSelector.syncFromSettings(gameSettings);
         resolutionSelector.syncFromSettings(gameSettings);
+        gameSpeedSelector.syncFromSettings(gameSettings);
     }
 
     /**
