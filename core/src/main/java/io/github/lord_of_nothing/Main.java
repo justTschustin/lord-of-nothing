@@ -92,7 +92,7 @@ public class Main extends ApplicationAdapter {
 
         topBarRenderer = new TopBarRenderer();
         topBarRenderer.loadAssets(
-            new Texture("hud/TopbarBG_Placeholder.png"),
+            new Texture("hud/Topbar_wood.png"),
             new Texture("hud/Corner_Placeholder.png"),
             new Texture("hud/Border_Placeholder.png"),
             new Texture("icons/Wood.png"),

@@ -73,6 +73,8 @@ public class TopBarRenderer {
         this.capacityIcon = capacity;
         this.dayIcon = day;
         this.hourIcon = hour;
+        bgTexture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+        edgeTexture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
     }
     /**
      * Renders the top bar, resource counters, and optional pause overlay.
@@ -192,35 +194,41 @@ public class TopBarRenderer {
     }
 
     /**
-     * Renders a full frame by stretching edge textures between the four static corners.
-     * <remarks>Calculates the remaining width between corners to prevent overlapping and visual artifacts.</remarks>
+     * Renders a full frame by tiling background and edge textures between the four static corners.
+     * <remarks>Tiles textures without stretching them across the whole top bar.</remarks>
      */
     private void renderDecoratedFrame(SpriteBatch batch, GameWindow window, Texture bg, Texture corner, Texture edge) {
         float width = Gdx.graphics.getWidth();
         float height = GameWindow.TOP_BAR_HEIGHT;
         float y = window.getTopBarY();
         float cSize = height; // Ecken so groß wie die Bar
-        float eHeight = 8f;   // Höhe deiner Kanten-Textur (anpassen!)
+        float eHeight = 8f;   // Höhe der Kanten-Textur auf dem Bildschirm
 
-        // 1. Hintergrund
-        batch.draw(bg, 0, y, width, height);
+        // 1. Hintergrund gekachelt, aber nicht rangezoomt.
+        // Ein kompletter 64x64-Tile wird auf die Höhe der Topbar skaliert.
+        float bgScale = height / bg.getHeight();
+        int bgSrcWidth = Math.round(width / bgScale);
+        int bgSrcHeight = bg.getHeight();
+        batch.draw(bg, 0, y, width, height, 0, 0, bgSrcWidth, bgSrcHeight, false, false);
 
-        // 2. Horizontale Kanten (Oben & Unten)
-        // Die Breite ist: Gesamtbreite minus 2x Eckengröße
+        // 2. Horizontale Kanten gekachelt statt gestreckt.
         float edgeWidth = width - (2 * cSize);
+        float edgeScale = eHeight / edge.getHeight();
+        int edgeSrcWidth = Math.round(edgeWidth / edgeScale);
+        int edgeSrcHeight = edge.getHeight();
 
         // Obere Kante
-        batch.draw(edge, cSize, y + height - eHeight, edgeWidth, eHeight);
-        // Untere Kante (Gespiegelt, damit Schatten/Glanz korrekt sind)
-        batch.draw(edge, cSize, y, edgeWidth, eHeight, 0, 0, edge.getWidth(), edge.getHeight(), false, true);
+        batch.draw(edge, cSize, y + height - eHeight, edgeWidth, eHeight, 0, 0, edgeSrcWidth, edgeSrcHeight, false, false);
 
-        // 3. Ecken (wie zuvor, liegen über den Kanten)
+        // Untere Kante gespiegelt
+        batch.draw(edge, cSize, y, edgeWidth, eHeight, 0, 0, edgeSrcWidth, edgeSrcHeight, false, true);
+
+        // 3. Ecken bleiben statisch/skaliert und liegen über den Kanten.
         batch.draw(corner, 0, y, cSize, cSize); // TL
         batch.draw(corner, width - cSize, y, cSize, cSize, 0, 0, corner.getWidth(), corner.getHeight(), true, false); // TR
         batch.draw(corner, 0, y, cSize, cSize, 0, 0, corner.getWidth(), corner.getHeight(), false, true); // BL
         batch.draw(corner, width - cSize, y, cSize, cSize, 0, 0, corner.getWidth(), corner.getHeight(), true, true); // BR
     }
-
     /**
      * <summary>Checks if the mouse is hovering over a resource slot and renders a decorative tooltip with income details.</summary>
      * <remarks>Reuses the ornate frame rendering logic to maintain UI consistency across the HUD.</remarks>
@@ -246,39 +254,44 @@ public class TopBarRenderer {
     }
 
     /**
-        * <summary>Helper to render the ornate border at any given position and size.</summary>
+        * <summary>Renders an ornate frame with correctly tiled background and edges by mapping screen coordinates to texture wrap units.</summary>
+        * <remarks>Ensures a 1:1 pixel ratio for textures to prevent stretching, utilizing TextureWrap.Repeat for seamless tiling.</remarks>
         */
     private void renderDecoratedFrameAt(SpriteBatch batch, float x, float y, float w, float h, float cSize) {
-        float eH = 8f; // Thickness of the edge texture
-        int srcW = cornerTexture.getWidth();
-        int srcH = cornerTexture.getHeight();
-        int eSrcW = edgeTexture.getWidth();
-        int eSrcH = edgeTexture.getHeight();
+        float eH = 8f; // Die gewünschte Dicke des Rahmens auf dem Bildschirm
 
-        // 1. Background
-        batch.draw(bgTexture, x, y, w, h);
+        // 1. Tiled Background
+        // Wir nutzen die Ziel-Dimensionen (w, h) direkt als Quell-Dimensionen (srcWidth, srcHeight).
+        // Dadurch weiß OpenGL: "Nimm so viele Textur-Pixel wie der Bereich auf dem Screen groß ist".
+        batch.draw(bgTexture, x, y, w, h, 0, 0, (int)w, (int)h, false, false);
 
-        // 2. Horizontal Edges (Top & Bottom)
-        float edgeWidth = w - (2 * cSize);
-        if (edgeWidth > 0) {
-            // Top edge
-            batch.draw(edgeTexture, x + cSize, y + h - eH, edgeWidth, eH);
-            // Bottom edge (flipped vertically)
-            batch.draw(edgeTexture, x + cSize, y, edgeWidth, eH, 0, 0, eSrcW, eSrcH, false, true);
-        }
+        // 2. Tiled Edges (Kanten)
+        float hEdgeW = w - (2 * cSize);
+        float vEdgeH = h - (2 * cSize);
 
-        // 3. Ornate Corners (Drawing clockwise from Top-Left)
-        // Top-Left (Original orientation)
-        batch.draw(cornerTexture, x, y + h - cSize, cSize, cSize);
+        // Horizontale Kanten (Kacheln nur in der Breite, Höhe 'eH' bleibt fix)
+        // srcHeight muss der echten Texturhöhe entsprechen, damit die Profillinie nicht gestreckt wird!
+        int edgeTexH = edgeTexture.getHeight();
+        int edgeTexW = edgeTexture.getWidth();
 
-        // Top-Right (Flipped horizontally)
-        batch.draw(cornerTexture, x + w - cSize, y + h - cSize, cSize, cSize, 0, 0, srcW, srcH, true, false);
+        // Oben
+        batch.draw(edgeTexture, x + cSize, y + h - eH, hEdgeW, eH, 0, 0, (int)hEdgeW, edgeTexH, false, false);
+        // Unten (Gespiegelt)
+        batch.draw(edgeTexture, x + cSize, y, hEdgeW, eH, 0, 0, (int)hEdgeW, edgeTexH, false, true);
 
-        // Bottom-Right (Flipped horizontally and vertically)
-        batch.draw(cornerTexture, x + w - cSize, y, cSize, cSize, 0, 0, srcW, srcH, true, true);
+        // Vertikale Kanten (Wir kacheln in der Höhe 'vEdgeH', Breite 'eH' bleibt fix)
+        // Links
+        batch.draw(edgeTexture, x, y + cSize, eH, vEdgeH, 0, 0, edgeTexH, (int)vEdgeH, false, false);
+        // Rechts (Gespiegelt)
+        batch.draw(edgeTexture, x + w - eH, y + cSize, eH, vEdgeH, 0, 0, edgeTexH, (int)vEdgeH, true, false);
 
-        // Bottom-Left (Flipped vertically)
-        batch.draw(cornerTexture, x, y, cSize, cSize, 0, 0, srcW, srcH, false, true);
+        // 3. Static Corners (Ecken werden skaliert, nicht gekachelt)
+        int sW = cornerTexture.getWidth();
+        int sH = cornerTexture.getHeight();
+        batch.draw(cornerTexture, x, y + h - cSize, cSize, cSize, 0, 0, sW, sH, false, false); // TL
+        batch.draw(cornerTexture, x + w - cSize, y + h - cSize, cSize, cSize, 0, 0, sW, sH, true, false); // TR
+        batch.draw(cornerTexture, x + w - cSize, y, cSize, cSize, 0, 0, sW, sH, true, true); // BR
+        batch.draw(cornerTexture, x, y, cSize, cSize, 0, 0, sW, sH, false, true); // BL
     }
     /**
      * Disposes renderer-owned font resources.
