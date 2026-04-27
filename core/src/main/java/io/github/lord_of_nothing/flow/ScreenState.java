@@ -8,6 +8,7 @@ public enum ScreenState {
     GAMEPLAY,
     POPUP,
     PAUSED,
-    SETTINGS
+    SETTINGS,
+    GAME_OVER
 }
 

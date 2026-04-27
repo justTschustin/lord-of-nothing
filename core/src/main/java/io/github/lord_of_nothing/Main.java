@@ -39,6 +39,7 @@ import io.github.lord_of_nothing.grid.GridRenderer;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.hud.SidebarRenderer;
 import io.github.lord_of_nothing.hud.TopBarRenderer;
+import io.github.lord_of_nothing.hud.GameOverOverlay;
 import io.github.lord_of_nothing.hud.PopupOverlay;
 import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.hud.TileInspectorRenderer;
@@ -69,6 +70,7 @@ public class Main extends ApplicationAdapter {
     private TileInspectorBar tileInspectorBar;
     private TileInspectorRenderer tileInspectorRenderer;
     private PopupOverlay popupOverlay;
+    private GameOverOverlay gameOverOverlay;
     private final Queue<String> pendingPopupMessages = new ArrayDeque<>();
 
     private EventBus eventBus;
@@ -83,6 +85,7 @@ public class Main extends ApplicationAdapter {
     private final ExecutorService saveExecutor = Executors.newSingleThreadExecutor();
     private final AtomicInteger pendingSaveTasks = new AtomicInteger(0);
     private volatile boolean savingInProgress;
+    private volatile boolean autoSaveEnabled = true;
     private boolean timeProgressionPaused;
 
     /**
@@ -119,6 +122,7 @@ public class Main extends ApplicationAdapter {
 
         topBarRenderer = new TopBarRenderer();
         eventBus = new EventBus();
+        gameOverOverlay = new GameOverOverlay(eventBus);
         flowState = new FlowState();
         tickHandler = new TickHandler();
 
@@ -197,9 +201,12 @@ public class Main extends ApplicationAdapter {
             if (event instanceof BackToMainMenuEvent) {
                 pendingPopupMessages.clear();
                 popupOverlay.hide();
+                gameOverOverlay.hide();
                 gridInputHandler.setExclusiveUiElement(null);
                 gameStateHandler.resetRaidTimeline();
                 menuFlowCoordinator.returnToMainMenu();
+                timeProgressionPaused = false;
+                autoSaveEnabled = true;
             }
             if (event instanceof PauseGameEvent) {
                 gameplayFlowCoordinator.pauseGame();
@@ -255,9 +262,12 @@ public class Main extends ApplicationAdapter {
                 gameStateHandler.getCurrentIngameDay(),
                 gameStateHandler
             );
+            boolean raidDefeatDetected = tickHandler.consumePendingRaidDefeat();
             for (int i = 0; i < completedDays; i++) {
                 gameStateHandler.advanceIngameDay();
-                triggerAutoSave();
+                if (!raidDefeatDetected) {
+                    triggerAutoSave();
+                }
             }
 
             String raidPopupMessage;
@@ -265,7 +275,11 @@ public class Main extends ApplicationAdapter {
                 queuePopupMessage(raidPopupMessage);
             }
 
-            if (flowState.getScreenState() != ScreenState.POPUP && !pendingPopupMessages.isEmpty()) {
+            if (raidDefeatDetected) {
+                enterGameOver();
+            }
+
+            if (flowState.getScreenState() == ScreenState.GAMEPLAY && !pendingPopupMessages.isEmpty()) {
                 showNextPendingPopup();
             }
         }
@@ -299,7 +313,7 @@ public class Main extends ApplicationAdapter {
             tickHandler.getGameSpeed(),
             timeProgressionPaused,
             savingInProgress,
-            flowState.getScreenState() == ScreenState.POPUP
+            flowState.getScreenState() == ScreenState.POPUP || flowState.getScreenState() == ScreenState.GAME_OVER
         );
         tileInspectorRenderer.render(
             shapeRenderer, batch, gameWindow, tileInspectorBar, buildingTextures, eventBus,
@@ -309,6 +323,10 @@ public class Main extends ApplicationAdapter {
 
         if (flowState.getScreenState() == ScreenState.POPUP) {
             popupOverlay.render(shapeRenderer, batch);
+        }
+
+        if (flowState.getScreenState() == ScreenState.GAME_OVER) {
+            gameOverOverlay.render(shapeRenderer, batch);
         }
     }
 
@@ -369,6 +387,7 @@ public class Main extends ApplicationAdapter {
         grassTexture.dispose();
         topBarRenderer.dispose();
         popupOverlay.dispose();
+        gameOverOverlay.dispose();
         settingsFlowCoordinator.dispose();
         menuFlowCoordinator.dispose();
     }
@@ -377,9 +396,11 @@ public class Main extends ApplicationAdapter {
         gameStateHandler.resetNewGame();
         tickHandler.resetTimeline();
         timeProgressionPaused = false;
+        autoSaveEnabled = true;
         gridInputHandler.resetTransientState();
         pendingPopupMessages.clear();
         popupOverlay.hide();
+        gameOverOverlay.hide();
         gridInputHandler.setExclusiveUiElement(null);
         gameStateHandler.resetRaidTimeline();
         gameplayFlowCoordinator.startGame();
@@ -397,18 +418,45 @@ public class Main extends ApplicationAdapter {
 
         tickHandler.resetTimeline();
         timeProgressionPaused = false;
+        autoSaveEnabled = true;
         gridInputHandler.resetTransientState();
+        pendingPopupMessages.clear();
+        popupOverlay.hide();
+        gameOverOverlay.hide();
+        gridInputHandler.setExclusiveUiElement(null);
         gameplayFlowCoordinator.startGame();
     }
 
+    private void enterGameOver() {
+        if (flowState.getScreenState() == ScreenState.GAME_OVER) {
+            return;
+        }
+
+        pendingPopupMessages.clear();
+        popupOverlay.hide();
+        flowState.setPaused(true);
+        flowState.setScreenState(ScreenState.GAME_OVER);
+        timeProgressionPaused = true;
+        autoSaveEnabled = false;
+        gameOverOverlay.show();
+        gridInputHandler.setExclusiveUiElement(gameOverOverlay.getBackToMenuButton());
+        gameStateStore.delete();
+    }
+
     private void triggerAutoSave() {
+        if (!autoSaveEnabled) {
+            return;
+        }
+
         final GameState snapshot = gameStateHandler.getSnapshot();
         pendingSaveTasks.incrementAndGet();
         savingInProgress = true;
 
         saveExecutor.submit(() -> {
             try {
-                gameStateStore.save(snapshot);
+                if (autoSaveEnabled) {
+                    gameStateStore.save(snapshot);
+                }
             } finally {
                 if (pendingSaveTasks.decrementAndGet() <= 0) {
                     pendingSaveTasks.set(0);
