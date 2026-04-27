@@ -297,9 +297,9 @@ public class Main extends ApplicationAdapter {
             eventBus,
             flowState.getScreenState() == ScreenState.PAUSED,
             tickHandler.getGameSpeed(),
-            flowState.getScreenState() == ScreenState.POPUP,
             timeProgressionPaused,
-            savingInProgress
+            savingInProgress,
+            flowState.getScreenState() == ScreenState.POPUP
         );
         tileInspectorRenderer.render(
             shapeRenderer, batch, gameWindow, tileInspectorBar, buildingTextures, eventBus,
