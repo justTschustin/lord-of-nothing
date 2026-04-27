@@ -36,10 +36,11 @@ public final class RaidMechanic {
      * @param state mutable game state handler
      * @param currentDay newly started in-game day
      * @param popupConsumer sink for popup messages
+     * @return {@code true} when the raid defeats the village on this day
      */
-    public static void processDay(GameStateHandler state, int currentDay, Consumer<String> popupConsumer) {
+    public static boolean processDay(GameStateHandler state, int currentDay, Consumer<String> popupConsumer) {
         if (state == null || currentDay < 1) {
-            return;
+            return false;
         }
 
         Integer scheduledRaidDay = state.getNextRaidScheduledDay();
@@ -52,10 +53,13 @@ public final class RaidMechanic {
         }
 
         if (scheduledRaidDay != null && currentDay >= scheduledRaidDay) {
-            announceRaidArrival(state, currentDay, popupConsumer);
+            boolean defeated = announceRaidArrival(state, currentDay, popupConsumer);
             state.setNextRaidScheduledDay(null);
             state.setNextRaidDeterminationDay(currentDay + randomIntInclusive(RAID_REST_MIN_DAYS, RAID_REST_MAX_DAYS));
+            return defeated;
         }
+
+        return false;
     }
 
     private static void scheduleAndAnnounceRaid(
@@ -85,17 +89,27 @@ public final class RaidMechanic {
         System.out.println("Raid scheduled for " + state.getNextRaidScheduledDay());
     }
 
-    private static void announceRaidArrival(GameStateHandler state, int currentDay, Consumer<String> popupConsumer) {
+    private static boolean announceRaidArrival(GameStateHandler state, int currentDay, Consumer<String> popupConsumer) {
         int banditMin = 15 + (currentDay / 2);
         int banditMax = 15 + currentDay;
         int bandits = randomIntInclusive(banditMin, banditMax);
         int soldiers = state.getResourceAmount(ResourceType.SOLDIERS);
+        boolean defeated = soldiers < bandits;
 
         emitPopup(
             popupConsumer,
             "The raid has begun! " + bandits + " bandits are attacking the village, and "
                 + soldiers + " soldiers are defending."
         );
+
+        if (defeated) {
+            emitPopup(
+                popupConsumer,
+                "Your soldiers were overwhelmed. The village has fallen."
+            );
+        }
+
+        return defeated;
     }
 
     private static void emitPopup(Consumer<String> popupConsumer, String message) {
