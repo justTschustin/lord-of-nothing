@@ -69,7 +69,7 @@ public class TickHandler {
      * @param gameSpeed speed multiplier (1, 2, or 4)
      */
     public void setGameSpeed(int gameSpeed) {
-        if (gameSpeed != 1 && gameSpeed != 2 && gameSpeed != 4) {
+        if (gameSpeed < 1) {
             return;
         }
         this.gameSpeed = gameSpeed;
