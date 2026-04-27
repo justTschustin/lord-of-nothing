@@ -3,7 +3,7 @@ package io.github.lord_of_nothing.game;
 import io.github.lord_of_nothing.resources.ResourceType;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +11,7 @@ import java.util.Map;
  * Persistence-oriented game-state snapshot.
  */
 public class GameState {
-	private Map<ResourceType, Integer> resources = new EnumMap<>(ResourceType.class);
+	private Map<ResourceType, Integer> resources = new HashMap<>();
 	private GridState grid = new GridState();
 	private int currentIngameDay = 1;
 
@@ -20,7 +20,49 @@ public class GameState {
 	}
 
 	public void setResources(Map<ResourceType, Integer> resources) {
-		this.resources = resources == null ? new EnumMap<>(ResourceType.class) : resources;
+		this.resources = new HashMap<>();
+		if (resources == null) {
+			return;
+		}
+
+		Map<?, ?> rawResources = resources;
+		for (Map.Entry<?, ?> entry : rawResources.entrySet()) {
+			ResourceType type = toResourceType(entry.getKey());
+			if (type == null) {
+				continue;
+			}
+
+			int amount = toInt(entry.getValue());
+			this.resources.put(type, Math.max(0, amount));
+		}
+	}
+
+	private ResourceType toResourceType(Object key) {
+		if (key instanceof ResourceType) {
+			return (ResourceType) key;
+		}
+		if (key instanceof String) {
+			try {
+				return ResourceType.valueOf((String) key);
+			} catch (IllegalArgumentException ignored) {
+				return null;
+			}
+		}
+		return null;
+	}
+
+	private int toInt(Object value) {
+		if (value instanceof Number) {
+			return ((Number) value).intValue();
+		}
+		if (value instanceof String) {
+			try {
+				return Integer.parseInt((String) value);
+			} catch (NumberFormatException ignored) {
+				return 0;
+			}
+		}
+		return 0;
 	}
 
 	public GridState getGrid() {
@@ -42,6 +84,7 @@ public class GameState {
 	public static class GridState {
 		private int width;
 		private int height;
+		private List<TileState> tiles = new ArrayList<>();
 		private List<BuildingPlacementState> placements = new ArrayList<>();
 
 		public int getWidth() {
@@ -67,12 +110,21 @@ public class GameState {
 		public void setPlacements(List<BuildingPlacementState> placements) {
 			this.placements = placements == null ? new ArrayList<>() : placements;
 		}
+
+		public List<TileState> getTiles() {
+			return tiles;
+		}
+
+		public void setTiles(List<TileState> tiles) {
+			this.tiles = tiles == null ? new ArrayList<>() : tiles;
+		}
 	}
 
 	public static class BuildingPlacementState {
 		private String buildingType;
 		private int x;
 		private int y;
+		private int currentWorkers;
 
 		public String getBuildingType() {
 			return buildingType;
@@ -96,6 +148,66 @@ public class GameState {
 
 		public void setY(int y) {
 			this.y = y;
+		}
+
+		public int getCurrentWorkers() {
+			return currentWorkers;
+		}
+
+		public void setCurrentWorkers(int currentWorkers) {
+			this.currentWorkers = Math.max(0, currentWorkers);
+		}
+	}
+
+	public static class TileState {
+		private int x;
+		private int y;
+		private String tileType;
+		private String buildingType;
+		private Integer assignedVillagers;
+
+		public int getX() {
+			return x;
+		}
+
+		public void setX(int x) {
+			this.x = x;
+		}
+
+		public int getY() {
+			return y;
+		}
+
+		public void setY(int y) {
+			this.y = y;
+		}
+
+		public String getTileType() {
+			return tileType;
+		}
+
+		public void setTileType(String tileType) {
+			this.tileType = tileType;
+		}
+
+		public String getBuildingType() {
+			return buildingType;
+		}
+
+		public void setBuildingType(String buildingType) {
+			this.buildingType = buildingType;
+		}
+
+		public Integer getAssignedVillagers() {
+			return assignedVillagers;
+		}
+
+		public void setAssignedVillagers(Integer assignedVillagers) {
+			if (assignedVillagers == null) {
+				this.assignedVillagers = null;
+				return;
+			}
+			this.assignedVillagers = Math.max(0, assignedVillagers);
 		}
 	}
 

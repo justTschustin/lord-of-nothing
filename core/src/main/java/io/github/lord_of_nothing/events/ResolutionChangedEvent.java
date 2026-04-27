@@ -1,17 +1,19 @@
 package io.github.lord_of_nothing.events;
 
+import io.github.lord_of_nothing.settings.ResolutionDto;
+
 /**
  * Event that requests resolution adjustment
  */
 @SuppressWarnings("unused")
 public class ResolutionChangedEvent implements Event {
-    private final String resolution;
+    private final ResolutionDto resolution;
 
-    public ResolutionChangedEvent(String resolution) {
+    public ResolutionChangedEvent(ResolutionDto resolution) {
         this.resolution = resolution;
     }
 
-    public String getResolution() {
+    public ResolutionDto getResolution() {
         return resolution;
     }
 }

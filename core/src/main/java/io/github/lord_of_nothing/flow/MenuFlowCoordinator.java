@@ -6,6 +6,8 @@ import io.github.lord_of_nothing.events.EventBus;
 import io.github.lord_of_nothing.grid.GridInputHandler;
 import io.github.lord_of_nothing.menu.MainMenu;
 
+import java.util.function.BooleanSupplier;
+
 /**
  * Coordinates transitions and rendering for the main-menu flow.
  */
@@ -13,6 +15,7 @@ public class MenuFlowCoordinator {
     private final EventBus eventBus;
     private final GridInputHandler gridInputHandler;
     private final FlowState flowState;
+    private final BooleanSupplier hasSaveFile;
     private MainMenu mainMenu;
 
     /**
@@ -22,17 +25,20 @@ public class MenuFlowCoordinator {
      * @param gridInputHandler input handler to reconfigure during transitions
      * @param flowState mutable flow state
      * @param mainMenu menu view instance
+     * @param hasSaveFile callback that reports whether a save file exists
      */
     public MenuFlowCoordinator(
         EventBus eventBus,
         GridInputHandler gridInputHandler,
         FlowState flowState,
-        MainMenu mainMenu
+        MainMenu mainMenu,
+        BooleanSupplier hasSaveFile
     ) {
         this.eventBus = eventBus;
         this.gridInputHandler = gridInputHandler;
         this.flowState = flowState;
         this.mainMenu = mainMenu;
+        this.hasSaveFile = hasSaveFile;
     }
 
     /**
@@ -47,7 +53,7 @@ public class MenuFlowCoordinator {
         gridInputHandler.setGameplayEnabled(false);
 
         mainMenu.dispose();
-        mainMenu = new MainMenu(eventBus);
+        mainMenu = new MainMenu(eventBus, hasSaveFile.getAsBoolean());
     }
 
     /**

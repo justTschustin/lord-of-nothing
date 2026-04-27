@@ -1,5 +1,6 @@
 package io.github.lord_of_nothing.grid;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
@@ -202,6 +203,27 @@ public class GridInputHandler extends InputAdapter {
             || handleGridPlacement(touchPos.x, touchPos.y);
     }
 
+    /**
+     * Routes mouse-wheel input to UI elements from top-most to bottom-most.
+     */
+    @Override
+    public boolean scrolled(float amountX, float amountY) {
+        touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+        camera.unproject(touchPos);
+
+        for (int i = uiElements.size() - 1; i >= 0; i--) {
+            UiElement element = uiElements.get(i);
+            if (!element.isEnabled()) {
+                continue;
+            }
+            if (element.onScroll(touchPos.x, touchPos.y, amountY)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     /**
      * Dispatches a click to the first matching UI element.
@@ -366,6 +388,15 @@ public class GridInputHandler extends InputAdapter {
      */
     public Building getPendingBuilding() {
         return pendingBuilding;
+    }
+
+    /**
+     * Clears transient interaction state when starting a fresh run.
+     */
+    public void resetTransientState() {
+        pendingBuilding = null;
+        tileInspectorBar.close();
+        grid.setHovered(-1, -1);
     }
 
     /**
