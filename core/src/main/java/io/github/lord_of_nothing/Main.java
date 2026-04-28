@@ -105,7 +105,7 @@ public class Main extends ApplicationAdapter {
         buildingTextures.put("sawmill", new Texture("buildings/Sawmill.png"));
         buildingTextures.put("quarry", new Texture("buildings/Quarry.png"));
         buildingTextures.put("field", new Texture("buildings/Field.png"));
-        buildingTextures.put("barrack", new Texture("buildings/Placeholder_2x2_1.png"));
+        buildingTextures.put("barrack", new Texture("buildings/Barracks.png"));
         sidebar = new Sidebar();
         sidebarRenderer = new SidebarRenderer();
         tileInspectorBar = new TileInspectorBar();
