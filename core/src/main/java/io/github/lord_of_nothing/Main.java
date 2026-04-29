@@ -142,7 +142,8 @@ public class Main extends ApplicationAdapter {
             sidebar,
             gameStateHandler,
             eventBus,
-            tileInspectorBar
+            tileInspectorBar,
+            eventLog
         );
         gridInputHandler.setGameplayEnabled(false);
 
@@ -403,6 +404,8 @@ public class Main extends ApplicationAdapter {
     }
 
     private void startNewGame() {
+        eventLog.clear();
+        eventLog.addMessage("Welcome, Lord of Nothing!", false);
         gameStateHandler.resetNewGame();
         tickHandler.resetTimeline();
         timeProgressionPaused = false;

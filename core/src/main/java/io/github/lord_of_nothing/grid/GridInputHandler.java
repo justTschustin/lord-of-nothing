@@ -18,6 +18,7 @@ import io.github.lord_of_nothing.events.ResumeGameEvent;
 import io.github.lord_of_nothing.events.StartGameEvent;
 import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 import io.github.lord_of_nothing.game.ResourceStateMutator;
+import io.github.lord_of_nothing.hud.EventLog;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.resources.ResourceType;
@@ -49,6 +50,7 @@ public class GridInputHandler extends InputAdapter {
     private UiElement exclusiveUiElement;
     private final GameWindow window;
     private final TileInspectorBar tileInspectorBar;
+    private final EventLog eventLog;
 
 
     /**
@@ -68,7 +70,8 @@ public class GridInputHandler extends InputAdapter {
         Sidebar sidebar,
         ResourceStateMutator resources,
         EventBus eventBus,
-        TileInspectorBar tileInspectorBar
+        TileInspectorBar tileInspectorBar,
+        EventLog eventLog
     ) {
         this.camera = camera;
         this.grid = grid;
@@ -76,6 +79,7 @@ public class GridInputHandler extends InputAdapter {
         this.sidebar = sidebar;
         this.window = window;
         this.tileInspectorBar = tileInspectorBar;
+        this.eventLog = eventLog;
 
         eventBus.subscribe(event -> {
             if (event instanceof UiElementCreatedEvent) {
@@ -233,15 +237,13 @@ public class GridInputHandler extends InputAdapter {
         camera.unproject(touchPos);
 
         for (int i = uiElements.size() - 1; i >= 0; i--) {
-            UiElement element = uiElements.get(i);
-            if (!element.isEnabled()) {
-                continue;
-            }
-            if (element.onScroll(touchPos.x, touchPos.y, amountY)) {
-                return true;
-            }
+            if (uiElements.get(i).isEnabled() && uiElements.get(i).onScroll(touchPos.x, touchPos.y, amountY)) return true;
         }
 
+        if (touchPos.x >= window.getRightMarginX()) {
+            eventLog.scroll(amountY);
+            return true;
+        }
         return false;
     }
 
@@ -341,6 +343,8 @@ public class GridInputHandler extends InputAdapter {
                 grid.placeBuilding(tileX, tileY, pendingBuilding);
                 pendingBuilding = null;
                 return true;
+            } else {
+                eventLog.addMessage("Construction failed: Insufficient resources!", true);
             }
         }
         return false;
@@ -430,4 +434,6 @@ public class GridInputHandler extends InputAdapter {
             resources.addResource(ResourceType.CITIZENS_CAPACITY, b.getCitizenCapacity());
         }
     }
+
+
 }

@@ -157,8 +157,7 @@ public class TickHandler {
                         resourceState.addResource(ResourceType.CITIZENS_AVAILABLE, arrivedCitizens);
                         log.addMessage(arrivedCitizens + " settlers arrived.", true);                    }
                     else {
-                        log.addMessage("Warning: No housing available for new settlers!", true);
-                    }
+                        log.addMessage("Housing full! Potential settlers left.", true);                    }
                 }
             }
 
