@@ -31,7 +31,8 @@ public class MainMenu {
     private final SettingsButton settingsButton;
     private final ExitButton exitButton;
     private final Texture background;
-    private final Texture clouds;// Replace the default constructor with one that loads your specific font file
+    private final Texture clouds;
+    private final Texture titleText;
 
     private float cloudOffsetX = 0f; // horizontal offset of clouds in pixel
 
@@ -44,6 +45,7 @@ public class MainMenu {
     public MainMenu(EventBus eventBus, boolean hasSaveFile) {
         background = new Texture("menu/main-menu-background.png");
         clouds = new Texture("menu/main-menu-clouds.png");
+        titleText = new Texture("menu/title-text.png");
 
         // Enable texture wrapping for cloud scroll effect
         clouds.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.ClampToEdge);
@@ -128,16 +130,19 @@ public class MainMenu {
         batch.draw(clouds, cloudW - cloudOffsetX, cloudY, cloudW, cloudH);
 
         // Title
-        font.getData().setScale(2f);
+        float aspect = 470f / 90f; // text-title image aspect ratio
+        float titleW = BUTTON_WIDTH + 250; // a bit bigger than buttons size
+        float titleH = titleW / aspect; // maintain aspect ratio
+        float titleX = getPositionX() + (BUTTON_WIDTH - titleW) / 2f;
+        float titleY = getBaseY() + actionButtons.size() * (BUTTON_HEIGHT + BUTTON_GAP) + 20f;
 
-        com.badlogic.gdx.graphics.g2d.GlyphLayout layout = new com.badlogic.gdx.graphics.g2d.GlyphLayout(font, "Lord of Nothing");
-        float textWidth = layout.width;
+        // Title shadow
+        float shadowOffset = 3f;
+        batch.setColor(0f, 0f, 0f, 0.5f);
+        batch.draw(titleText, titleX + shadowOffset, titleY - shadowOffset, titleW, titleH);
 
-        float titleX = getPositionX() + (BUTTON_WIDTH / 2f) - (textWidth / 2f);
-        float titleY = getBaseY() + actionButtons.size() * (BUTTON_HEIGHT + BUTTON_GAP) +  50f;
-
-        font.draw(batch, "Lord of Nothing", titleX, titleY);
-        font.getData().setScale(2f);
+        batch.setColor(1f, 1f, 1f, 1f); // reset title to full color
+        batch.draw(titleText, titleX, titleY, titleW, titleH);
 
         // Buttons
         for (Button actionButton : actionButtons) {
@@ -156,6 +161,7 @@ public class MainMenu {
         font.dispose();
         background.dispose();
         clouds.dispose();
+        titleText.dispose();
     }
 
     /**
