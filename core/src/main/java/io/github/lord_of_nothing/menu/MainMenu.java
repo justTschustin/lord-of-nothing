@@ -21,8 +21,8 @@ import java.util.List;
  * Renders and manages the main menu UI & background.
  */
 public class MainMenu {
-    private static final float BUTTON_WIDTH = 220f;
-    private static final float BUTTON_HEIGHT = 44f;
+    private static final float BUTTON_WIDTH = 275f;
+    private static final float BUTTON_HEIGHT = 75f;
     private static final float BUTTON_GAP = 14f;
     private static final float CLOUD_SPEED = 5f;
 
@@ -31,7 +31,7 @@ public class MainMenu {
     private final SettingsButton settingsButton;
     private final ExitButton exitButton;
     private final Texture background;
-    private final Texture clouds;
+    private final Texture clouds;// Replace the default constructor with one that loads your specific font file
 
     private float cloudOffsetX = 0f; // horizontal offset of clouds in pixel
 
@@ -104,9 +104,13 @@ public class MainMenu {
         setButtonLayout();
 
         // Advance cloud scroll frame-by-frame, wrapping back to 0 when offset exceeds image width
+        float cloudW = Gdx.graphics.getWidth();
+        float cloudH = Gdx.graphics.getHeight();
+
         cloudOffsetX += CLOUD_SPEED * Gdx.graphics.getDeltaTime();
-        if (cloudOffsetX >= clouds.getWidth()) {
-            cloudOffsetX -= clouds.getWidth();
+
+        if (cloudOffsetX > cloudW) {
+            cloudOffsetX -= cloudW;
         }
 
         int screenW = Gdx.graphics.getWidth();
@@ -115,21 +119,23 @@ public class MainMenu {
         batch.begin();
 
         // Background
-        batch.draw(background, 0, 0, screenW, screenH);
+        batch.draw(background, 0, 0, cloudW, cloudH);
 
         // Clouds
         float cloudY = 0;
-        float cloudW = screenW;
-        float cloudH = screenH;
 
         batch.draw(clouds, -cloudOffsetX, cloudY, cloudW, cloudH);
         batch.draw(clouds, cloudW - cloudOffsetX, cloudY, cloudW, cloudH);
 
         // Title
         font.getData().setScale(2f);
-        shapeRenderer.setColor(0.08f, 0.08f, 0.08f, 1f);
-        float titleX = getPositionX();
-        float titleY = getBaseY() + actionButtons.size() * (BUTTON_HEIGHT + BUTTON_GAP) + 50f;
+
+        com.badlogic.gdx.graphics.g2d.GlyphLayout layout = new com.badlogic.gdx.graphics.g2d.GlyphLayout(font, "Lord of Nothing");
+        float textWidth = layout.width;
+
+        float titleX = getPositionX() + (BUTTON_WIDTH / 2f) - (textWidth / 2f);
+        float titleY = getBaseY() + actionButtons.size() * (BUTTON_HEIGHT + BUTTON_GAP) +  50f;
+
         font.draw(batch, "Lord of Nothing", titleX, titleY);
         font.getData().setScale(2f);
 
