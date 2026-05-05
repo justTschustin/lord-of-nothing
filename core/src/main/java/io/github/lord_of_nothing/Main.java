@@ -96,7 +96,7 @@ public class Main extends ApplicationAdapter {
             new Texture("hud/Corner_Placeholder.png"),
             new Texture("hud/Border_Placeholder.png"),
             new Texture("icons/Wood.png"),
-            new Texture("icons/Placeholder_Stone.png"),
+            new Texture("icons/Stone.png"),
             new Texture("icons/Food.png"),
             new Texture("icons/Citizen.png"),
             new Texture("icons/Soldier.png"),
@@ -105,7 +105,7 @@ public class Main extends ApplicationAdapter {
             new Texture("icons/Time.png")
         );
         topBarRenderer.setResourceIcon(ResourceType.WOOD, new Texture("icons/Wood.png"));
-        topBarRenderer.setResourceIcon(ResourceType.STONE, new Texture("icons/Placeholder_Stone.png"));
+        topBarRenderer.setResourceIcon(ResourceType.STONE, new Texture("icons/Stone.png"));
         topBarRenderer.setResourceIcon(ResourceType.FOOD, new Texture("icons/Food.png"));
         topBarRenderer.setResourceIcon(ResourceType.CITIZENS_TOTAL, new Texture("icons/Citizen.png"));
         topBarRenderer.setResourceIcon(ResourceType.SOLDIERS, new Texture("icons/Soldier.png"));
