@@ -119,7 +119,6 @@ public class MainMenu {
         int screenH = Gdx.graphics.getHeight();
 
         batch.begin();
-
         // Background
         batch.draw(background, 0, 0, cloudW, cloudH);
 
