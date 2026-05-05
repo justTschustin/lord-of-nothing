@@ -26,8 +26,8 @@ public class TopBarRenderer {
     private final GlyphLayout glyphLayout = new GlyphLayout();
     private final PauseOverlay pauseOverlay = new PauseOverlay();
     private PauseButton pauseButton;
-    private static final float ICON_SIZE = 28f;
-    private static final float TEXT_OFFSET = 35f;
+    private static final float ICON_SIZE = 34f;
+    private static final float TEXT_OFFSET = 42f;
     private static final float PAUSE_BUTTON_WIDTH = 70f;
     private static final float PAUSE_BUTTON_HEIGHT = 24f;
     private static final float PAUSE_BUTTON_MARGIN = 10f;
@@ -118,13 +118,17 @@ public class TopBarRenderer {
         drawResourceGroup(batch, ResourceType.CITIZENS_TOTAL, resources.getResourceAmount(ResourceType.CITIZENS_TOTAL), 340, y);
         drawResourceGroup(batch, ResourceType.SOLDIERS, resources.getResourceAmount(ResourceType.SOLDIERS), 460, y);
         drawResourceGroup(batch, ResourceType.CITIZENS_CAPACITY, resources.getResourceAmount(ResourceType.CITIZENS_CAPACITY), 580, y);
-        float rightEdgeX = Gdx.graphics.getWidth() - 250;
+        float rightEdgeX = Gdx.graphics.getWidth() - 320;
 
-        if (dayIcon != null) batch.draw(dayIcon, rightEdgeX, y - 5, 20, 20);
-        font.draw(batch, String.valueOf(currentIngameDay), rightEdgeX + 25, y + 12);
-
-        if (hourIcon != null) batch.draw(hourIcon, rightEdgeX + 70, y - 5, 20, 20);
-        font.draw(batch, currentIngameHour + ":00", rightEdgeX + 95, y + 12);
+        if (dayIcon != null) {
+            batch.draw(dayIcon, rightEdgeX, y - 8, ICON_SIZE, ICON_SIZE);
+            font.draw(batch, String.valueOf(currentIngameDay), rightEdgeX + TEXT_OFFSET, y + 12);
+        }
+        float clockX = rightEdgeX + 100;
+        if (hourIcon != null) {
+            batch.draw(hourIcon, clockX, y - 8, ICON_SIZE, ICON_SIZE);
+            font.draw(batch, currentIngameHour + ":00", clockX + TEXT_OFFSET, y + 12);
+        }
         pauseButton.render(batch);
 
         if (resources instanceof GameStateHandler) {
@@ -204,26 +208,20 @@ public class TopBarRenderer {
         float cSize = height; // Ecken so groß wie die Bar
         float eHeight = 8f;   // Höhe der Kanten-Textur auf dem Bildschirm
 
-        // 1. Hintergrund gekachelt, aber nicht rangezoomt.
-        // Ein kompletter 64x64-Tile wird auf die Höhe der Topbar skaliert.
         float bgScale = height / bg.getHeight();
         int bgSrcWidth = Math.round(width / bgScale);
         int bgSrcHeight = bg.getHeight();
         batch.draw(bg, 0, y, width, height, 0, 0, bgSrcWidth, bgSrcHeight, false, false);
 
-        // 2. Horizontale Kanten gekachelt statt gestreckt.
         float edgeWidth = width - (2 * cSize);
         float edgeScale = eHeight / edge.getHeight();
         int edgeSrcWidth = Math.round(edgeWidth / edgeScale);
         int edgeSrcHeight = edge.getHeight();
 
-        // Obere Kante
         batch.draw(edge, cSize, y + height - eHeight, edgeWidth, eHeight, 0, 0, edgeSrcWidth, edgeSrcHeight, false, false);
 
-        // Untere Kante gespiegelt
         batch.draw(edge, cSize, y, edgeWidth, eHeight, 0, 0, edgeSrcWidth, edgeSrcHeight, false, true);
 
-        // 3. Ecken bleiben statisch/skaliert und liegen über den Kanten.
         batch.draw(corner, 0, y, cSize, cSize); // TL
         batch.draw(corner, width - cSize, y, cSize, cSize, 0, 0, corner.getWidth(), corner.getHeight(), true, false); // TR
         batch.draw(corner, 0, y, cSize, cSize, 0, 0, corner.getWidth(), corner.getHeight(), false, true); // BL
@@ -260,32 +258,20 @@ public class TopBarRenderer {
     private void renderDecoratedFrameAt(SpriteBatch batch, float x, float y, float w, float h, float cSize) {
         float eH = 8f; // Die gewünschte Dicke des Rahmens auf dem Bildschirm
 
-        // 1. Tiled Background
-        // Wir nutzen die Ziel-Dimensionen (w, h) direkt als Quell-Dimensionen (srcWidth, srcHeight).
-        // Dadurch weiß OpenGL: "Nimm so viele Textur-Pixel wie der Bereich auf dem Screen groß ist".
         batch.draw(bgTexture, x, y, w, h, 0, 0, (int)w, (int)h, false, false);
 
-        // 2. Tiled Edges (Kanten)
         float hEdgeW = w - (2 * cSize);
         float vEdgeH = h - (2 * cSize);
 
-        // Horizontale Kanten (Kacheln nur in der Breite, Höhe 'eH' bleibt fix)
-        // srcHeight muss der echten Texturhöhe entsprechen, damit die Profillinie nicht gestreckt wird!
         int edgeTexH = edgeTexture.getHeight();
         int edgeTexW = edgeTexture.getWidth();
 
-        // Oben
         batch.draw(edgeTexture, x + cSize, y + h - eH, hEdgeW, eH, 0, 0, (int)hEdgeW, edgeTexH, false, false);
-        // Unten (Gespiegelt)
         batch.draw(edgeTexture, x + cSize, y, hEdgeW, eH, 0, 0, (int)hEdgeW, edgeTexH, false, true);
 
-        // Vertikale Kanten (Wir kacheln in der Höhe 'vEdgeH', Breite 'eH' bleibt fix)
-        // Links
         batch.draw(edgeTexture, x, y + cSize, eH, vEdgeH, 0, 0, edgeTexH, (int)vEdgeH, false, false);
-        // Rechts (Gespiegelt)
         batch.draw(edgeTexture, x + w - eH, y + cSize, eH, vEdgeH, 0, 0, edgeTexH, (int)vEdgeH, true, false);
 
-        // 3. Static Corners (Ecken werden skaliert, nicht gekachelt)
         int sW = cornerTexture.getWidth();
         int sH = cornerTexture.getHeight();
         batch.draw(cornerTexture, x, y + h - cSize, cSize, cSize, 0, 0, sW, sH, false, false); // TL

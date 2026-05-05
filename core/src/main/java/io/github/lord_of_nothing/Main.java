@@ -89,7 +89,11 @@ public class Main extends ApplicationAdapter {
         sidebarRenderer = new SidebarRenderer();
         tileInspectorBar = new TileInspectorBar();
         tileInspectorRenderer = new TileInspectorRenderer();
+        Texture uiBg = new Texture("hud/Topbar_wood.png");
+        Texture uiCorner = new Texture("hud/Corner_Placeholder.png");
+        Texture uiEdge = new Texture("hud/Border_Placeholder.png");
 
+        sidebarRenderer.loadAssets(uiBg, uiCorner, uiEdge);
         topBarRenderer = new TopBarRenderer();
         topBarRenderer.loadAssets(
             new Texture("hud/Topbar_wood.png"),
