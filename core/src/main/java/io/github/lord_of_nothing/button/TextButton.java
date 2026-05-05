@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import io.github.lord_of_nothing.events.EventBus;
 
 /**
@@ -17,8 +19,7 @@ public class TextButton extends Button {
     private static final GlyphLayout GLYPH_LAYOUT = new GlyphLayout();
 
     private String text;
-    private final BitmapFont font = new BitmapFont();
-
+    private final BitmapFont font = createFont();
     /**
      * Creates a text button and publishes it as a UI element.
      *
@@ -87,7 +88,7 @@ public class TextButton extends Button {
     public void render(SpriteBatch batch) {
         Color previous = batch.getColor();
 
-        batch.setColor(0.22f, 0.22f, 0.22f, 0.95f);
+        batch.setColor(0.98f, 0.98f, 0.98f, 1f);
         batch.draw(WHITE_PIXEL, bounds.x, bounds.y, bounds.width, bounds.height);
 
         GLYPH_LAYOUT.setText(font, text);
@@ -106,11 +107,25 @@ public class TextButton extends Button {
      */
     private static Texture createWhitePixel() {
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        pixmap.setColor(Color.WHITE);
+        pixmap.setColor(Color.DARK_GRAY);
         pixmap.fill();
 
         Texture texture = new Texture(pixmap);
         pixmap.dispose();
         return texture;
+    }
+
+    private static BitmapFont createFont() {
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(
+            Gdx.files.internal("fonts/Fredoka-variable-font.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter params =
+            new FreeTypeFontGenerator.FreeTypeFontParameter();
+        params.size = 24;
+        params.color = Color.WHITE;
+        params.borderWidth = 0.7f;
+
+        BitmapFont f = generator.generateFont(params);
+        generator.dispose();
+        return f;
     }
 }
