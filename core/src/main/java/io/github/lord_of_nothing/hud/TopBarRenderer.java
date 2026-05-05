@@ -144,39 +144,40 @@ public class TopBarRenderer {
         drawResourceGroup(batch, ResourceType.CITIZENS_TOTAL, resources.getResourceAmount(ResourceType.CITIZENS_TOTAL), 340, y);
         drawResourceGroup(batch, ResourceType.SOLDIERS, resources.getResourceAmount(ResourceType.SOLDIERS), 460, y);
         drawResourceGroup(batch, ResourceType.CITIZENS_CAPACITY, resources.getResourceAmount(ResourceType.CITIZENS_CAPACITY), 580, y);
-        float rightEdgeX = Gdx.graphics.getWidth() - 320;
+        float controlsLeftX = pauseButton.getX();
+        if (speedButtons[0] != null) controlsLeftX = speedButtons[0].getX();
+        if (timeProgressionToggleButton != null) controlsLeftX = timeProgressionToggleButton.getX();
 
-        if (dayIcon != null) {
-            batch.draw(dayIcon, rightEdgeX, y - 8, ICON_SIZE, ICON_SIZE);
-            font.draw(batch, String.valueOf(currentIngameDay), rightEdgeX + TEXT_OFFSET, y + 12);
+        // 2. Handle "Saving..." text and shift anchor further left if active
+        if (savingInProgress) {
+            String savingText = "saving...";
+            glyphLayout.setText(font, savingText);
+            float savingX = controlsLeftX - glyphLayout.width - 20f;
+            font.draw(batch, savingText, Math.max(10f, savingX), y + 12);
+            controlsLeftX = savingX; // New anchor for time icons
         }
-        float clockX = rightEdgeX + 100;
+
+        // 3. Position Clock and Day relative to the controls anchor
+        float spacing = 110f; // Gap between Day and Clock groups
+        float clockX = controlsLeftX - spacing;
+        float dayX = clockX - spacing;
+
+        // Render Clock
         if (hourIcon != null) {
             batch.draw(hourIcon, clockX, y - 8, ICON_SIZE, ICON_SIZE);
             font.draw(batch, currentIngameHour + ":00", clockX + TEXT_OFFSET, y + 12);
         }
 
-        if (savingInProgress) {
-            String savingText = "saving...";
-            glyphLayout.setText(font, savingText);
-            float controlsLeftX = pauseButton.getX();
-            if (speedButtons[0] != null) {
-                controlsLeftX = speedButtons[0].getX();
-            }
-            if (timeProgressionToggleButton != null) {
-                controlsLeftX = timeProgressionToggleButton.getX();
-            }
-            float savingX = controlsLeftX - glyphLayout.width - 18f;
-            font.draw(batch, savingText, Math.max(10f, savingX), y);
+        // Render Day
+        if (dayIcon != null) {
+            batch.draw(dayIcon, dayX, y - 8, ICON_SIZE, ICON_SIZE);
+            font.draw(batch, String.valueOf(currentIngameDay), dayX + TEXT_OFFSET, y + 12);
         }
 
-        if (timeProgressionToggleButton != null) {
-            timeProgressionToggleButton.render(batch);
-        }
+        // 4. Render Buttons
+        if (timeProgressionToggleButton != null) timeProgressionToggleButton.render(batch);
         for (GameSpeedButton speedButton : speedButtons) {
-            if (speedButton != null) {
-                speedButton.render(batch);
-            }
+            if (speedButton != null) speedButton.render(batch);
         }
         pauseButton.render(batch);
 

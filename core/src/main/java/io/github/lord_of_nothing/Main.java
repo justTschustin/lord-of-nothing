@@ -42,6 +42,7 @@ import io.github.lord_of_nothing.hud.TileInspectorRenderer;
 import io.github.lord_of_nothing.menu.MainMenu;
 import io.github.lord_of_nothing.menu.SettingsMenu;
 import io.github.lord_of_nothing.persistence.UserConfigPaths;
+import io.github.lord_of_nothing.resources.ResourceType;
 import io.github.lord_of_nothing.settings.GameSettings;
 import io.github.lord_of_nothing.settings.ResolutionSettings;
 import io.github.lord_of_nothing.settings.SettingsStore;
