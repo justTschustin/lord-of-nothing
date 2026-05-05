@@ -166,4 +166,12 @@ public class TickHandler {
         int intervalCount = (clampedDay - 1) / DEFAULT_CITIZEN_ARRIVAL_BORDER_INCREASE_INTERVAL_DAYS;
         return intervalCount * DEFAULT_CITIZEN_ARRIVAL_BORDER_INCREASE;
     }
+
+    /**
+     * Resets transient tick progress so a new or loaded game starts at a clean day timeline.
+     */
+    public void resetTimeline() {
+        accumulatorSeconds = 0f;
+        tickProgressInDay = 0;
+    }
 }

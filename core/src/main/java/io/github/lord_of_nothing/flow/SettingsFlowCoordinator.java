@@ -6,23 +6,23 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.events.EventBus;
-import io.github.lord_of_nothing.events.GameSpeedChangedEvent;
 import io.github.lord_of_nothing.events.ResolutionChangedEvent;
 import io.github.lord_of_nothing.events.ToggleFullscreenEvent;
 import io.github.lord_of_nothing.grid.GridInputHandler;
 import io.github.lord_of_nothing.hud.TopBarRenderer;
 import io.github.lord_of_nothing.menu.SettingsMenu;
 import io.github.lord_of_nothing.settings.GameSettings;
-import io.github.lord_of_nothing.settings.ResolutionSettings;
+import io.github.lord_of_nothing.settings.ResolutionDto;
 import io.github.lord_of_nothing.settings.SettingsStore;
-
-import java.util.Map;
-import java.util.function.IntConsumer;
 
 /**
  * Coordinates entering, leaving, rendering, and persisting settings flow.
  */
 public class SettingsFlowCoordinator {
+    // Caps how many frames we wait for backend-reported size to settle after a mode switch.
+    // This avoids long UI stalls while still giving fullscreen changes time to apply.
+    private static final int DISPLAY_MODE_APPLY_MAX_RETRIES = 6;
+
     private final FlowState flowState;
     private final GridInputHandler gridInputHandler;
     private final TopBarRenderer topBarRenderer;
@@ -32,7 +32,6 @@ public class SettingsFlowCoordinator {
     private final SettingsStore settingsStore;
     private final GameSettings gameSettings;
     private final Runnable registerMainMenuUiElements;
-    private final IntConsumer applyGameSpeed;
 
     /**
      * Creates a settings-flow coordinator.
@@ -45,7 +44,6 @@ public class SettingsFlowCoordinator {
      * @param eventBus event bus used for UI registration
      * @param settingsStore persistence for display settings
      * @param gameSettings loaded settings model
-     * @param applyGameSpeed callback that applies runtime simulation speed
      * @param registerMainMenuUiElements callback to rebuild main-menu UI elements
      */
     public SettingsFlowCoordinator(
@@ -57,7 +55,6 @@ public class SettingsFlowCoordinator {
         EventBus eventBus,
         SettingsStore settingsStore,
         GameSettings gameSettings,
-        IntConsumer applyGameSpeed,
         Runnable registerMainMenuUiElements
     ) {
         this.flowState = flowState;
@@ -68,26 +65,24 @@ public class SettingsFlowCoordinator {
         this.eventBus = eventBus;
         this.settingsStore = settingsStore;
         this.gameSettings = gameSettings;
-        this.applyGameSpeed = applyGameSpeed;
         this.registerMainMenuUiElements = registerMainMenuUiElements;
 
         settingsMenu.syncDisplaySettings(gameSettings);
 
         eventBus.subscribe(event -> {
             if (event instanceof ResolutionChangedEvent) {
-                Map.Entry<Integer, Integer> resolution = ResolutionSettings.getResolutionFromWidth(Integer.parseInt(((ResolutionChangedEvent) event).getResolution()));
-                gameSettings.windowedWidth = resolution.getKey();
-                gameSettings.windowedHeight = resolution.getValue();
+                ResolutionDto resolution = ((ResolutionChangedEvent) event).getResolution();
+                if (resolution == null) {
+                    return;
+                }
+
+                gameSettings.windowedWidth = resolution.width;
+                gameSettings.windowedHeight = resolution.height;
                 saveDisplaySettings();
                 applyDisplaySettings();
             }
             if (event instanceof ToggleFullscreenEvent) {
                 toggleFullscreenMode();
-            }
-            if (event instanceof GameSpeedChangedEvent) {
-                gameSettings.gameSpeed = sanitizeGameSpeed(((GameSpeedChangedEvent) event).getGameSpeed());
-                applySimulationSpeed();
-                saveDisplaySettings();
             }
         });
     }
@@ -132,6 +127,7 @@ public class SettingsFlowCoordinator {
      */
     public void toggleFullscreenMode() {
         gameSettings.fullscreen = !gameSettings.fullscreen;
+        saveDisplaySettings();
         applyDisplaySettings();
     }
 
@@ -152,27 +148,125 @@ public class SettingsFlowCoordinator {
 
     private void applyDisplaySettings(Runnable onApplied) {
         if (gameSettings.fullscreen) {
-            final Graphics.DisplayMode dm = Gdx.graphics.getDisplayMode();
-            Gdx.graphics.setFullscreenMode(dm);
+            Graphics.DisplayMode preferredMode = resolveFullscreenMode(
+                gameSettings.windowedWidth,
+                gameSettings.windowedHeight
+            );
+
+            if (isCurrentFullscreenMode(preferredMode)) {
+                applyLayoutFromCurrentSize();
+                if (onApplied != null) {onApplied.run();}
+                return;
+            }
+
+            final Graphics.DisplayMode appliedMode;
+            if (!Gdx.graphics.setFullscreenMode(preferredMode)) {
+                // Fall back to the desktop mode if the selected mode cannot be applied.
+                appliedMode = Gdx.graphics.getDisplayMode();
+                if (!isCurrentFullscreenMode(appliedMode)) {
+                    Gdx.graphics.setFullscreenMode(appliedMode);
+                }
+            } else {
+                appliedMode = preferredMode;
+            }
 
             // Wait until the backend reports the new size (may take a few frames).
-            waitForDisplaySize(dm.width, dm.height, 20, () -> {
-                gameWindow.resize(dm.width, dm.height);
-                gridInputHandler.updateLayout(gameWindow);
+            waitForDisplaySize(appliedMode.width, appliedMode.height, DISPLAY_MODE_APPLY_MAX_RETRIES, () -> {
+                applyLayoutFromCurrentSize();
                 if (onApplied != null) {onApplied.run();}
             });
         } else {
             final int w = gameSettings.windowedWidth;
             final int h = gameSettings.windowedHeight;
+
+            if (!Gdx.graphics.isFullscreen() && Gdx.graphics.getWidth() == w && Gdx.graphics.getHeight() == h) {
+                applyLayoutFromCurrentSize();
+                if (onApplied != null) {onApplied.run();}
+                return;
+            }
+
             Gdx.graphics.setWindowedMode(w, h);
             // Windowed mode usually takes effect immediately
-            gameWindow.resize(w, h);
-            gridInputHandler.updateLayout(gameWindow);
+            applyLayoutFromCurrentSize();
             if (onApplied != null) {onApplied.run();}
         }
     }
 
-    // helper: poll for display size changes via postRunnable, limited retries
+    /**
+     * Checks if we are already in fullscreen with the requested mode dimensions.
+     * This lets us skip redundant mode switches, which can cause visible stalls.
+     */
+    private boolean isCurrentFullscreenMode(Graphics.DisplayMode mode) {
+        if (!Gdx.graphics.isFullscreen() || mode == null) {
+            return false;
+        }
+
+        Graphics.DisplayMode currentMode = Gdx.graphics.getDisplayMode();
+        return currentMode != null && currentMode.width == mode.width && currentMode.height == mode.height;
+    }
+
+    /**
+     * Applies layout updates using the size currently reported by the backend.
+     * We use runtime values instead of requested values because platforms can clamp/scale dimensions.
+     */
+    private void applyLayoutFromCurrentSize() {
+        int width = resolveLayoutWidth();
+        int height = resolveLayoutHeight();
+        gameWindow.resize(width, height);
+        gridInputHandler.updateLayout(gameWindow);
+    }
+
+    private int resolveLayoutWidth() {
+        if (gameSettings.fullscreen) {
+            return Math.max(1, gameSettings.windowedWidth);
+        }
+        return Math.max(1, Gdx.graphics.getWidth());
+    }
+
+    private int resolveLayoutHeight() {
+        if (gameSettings.fullscreen) {
+            return Math.max(1, gameSettings.windowedHeight);
+        }
+        return Math.max(1, Gdx.graphics.getHeight());
+    }
+
+    /**
+     * Resolves the fullscreen mode for a requested width/height on the current monitor.
+     * We match only by resolution (width/height).
+     * If no match exists, we fall back to the monitor's current desktop mode.
+     */
+    private Graphics.DisplayMode resolveFullscreenMode(int targetWidth, int targetHeight) {
+        Graphics.Monitor monitor = Gdx.graphics.getMonitor();
+        Graphics.DisplayMode[] modes = Gdx.graphics.getDisplayModes(monitor);
+
+        Graphics.DisplayMode closest = null;
+        long closestDistance = Long.MAX_VALUE;
+
+        for (Graphics.DisplayMode mode : modes) {
+            if (mode.width == targetWidth && mode.height == targetHeight) {
+                return mode;
+            }
+
+            long dw = (long) mode.width - targetWidth;
+            long dh = (long) mode.height - targetHeight;
+            long distance = (dw * dw) + (dh * dh);
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closest = mode;
+            }
+        }
+
+        if (closest != null) {
+            return closest;
+        }
+
+        return Gdx.graphics.getDisplayMode(monitor);
+    }
+
+    /**
+     * Polls for the expected display size across frames using postRunnable.
+     * Mode changes can apply asynchronously, so we retry briefly before continuing with current size.
+     */
     private void waitForDisplaySize(int expectedW, int expectedH, int retriesLeft, Runnable onReady) {
         Gdx.app.postRunnable(() -> {
             int cw = Gdx.graphics.getWidth();
@@ -183,7 +277,7 @@ public class SettingsFlowCoordinator {
                 // try again next frame
                 waitForDisplaySize(expectedW, expectedH, retriesLeft - 1, onReady);
             } else {
-                // give up and use expected values
+                // give up and continue with currently reported window size
                 onReady.run();
             }
         });
@@ -213,25 +307,6 @@ public class SettingsFlowCoordinator {
         settingsMenu.render(shapeRenderer, batch);
     }
 
-    /**
-     * Applies the sanitized game-speed setting to the running simulation.
-     */
-    private void applySimulationSpeed() {
-        applyGameSpeed.accept(sanitizeGameSpeed(gameSettings.gameSpeed));
-    }
-
-    /**
-     * Normalizes persisted speed values to supported multipliers.
-     *
-     * @param speed persisted speed value
-     * @return valid speed multiplier (1, 2, or 4)
-     */
-    private int sanitizeGameSpeed(int speed) {
-        if (speed == 1 || speed == 2 || speed == 4) {
-            return speed;
-        }
-        return 1;
-    }
 
     /**
      * Disposes settings-menu resources.
