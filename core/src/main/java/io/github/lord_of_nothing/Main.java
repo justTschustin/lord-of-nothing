@@ -88,36 +88,10 @@ public class Main extends ApplicationAdapter {
         sidebar = new Sidebar();
         sidebarRenderer = new SidebarRenderer();
         tileInspectorBar = new TileInspectorBar();
-        tileInspectorRenderer = new TileInspectorRenderer();
         Texture uiBg = new Texture("hud/Topbar_wood.png");
         Texture uiCorner = new Texture("hud/Corner_Placeholder.png");
         Texture uiEdge = new Texture("hud/Border_Placeholder.png");
-
-        sidebarRenderer.loadAssets(uiBg, uiCorner, uiEdge);
-        topBarRenderer = new TopBarRenderer();
-        topBarRenderer.loadAssets(
-            new Texture("hud/Topbar_wood.png"),
-            new Texture("hud/Corner_Placeholder.png"),
-            new Texture("hud/Border_Placeholder.png"),
-            new Texture("icons/Wood.png"),
-            new Texture("icons/Stone.png"),
-            new Texture("icons/Food.png"),
-            new Texture("icons/Citizen.png"),
-            new Texture("icons/Soldier.png"),
-            new Texture("icons/Capacity.png"),
-            new Texture("icons/Day.png"),
-            new Texture("icons/Time.png")
-        );
-        topBarRenderer.setResourceIcon(ResourceType.WOOD, new Texture("icons/Wood.png"));
-        topBarRenderer.setResourceIcon(ResourceType.STONE, new Texture("icons/Stone.png"));
-        topBarRenderer.setResourceIcon(ResourceType.FOOD, new Texture("icons/Food.png"));
-        topBarRenderer.setResourceIcon(ResourceType.CITIZENS_TOTAL, new Texture("icons/Citizen.png"));
-        topBarRenderer.setResourceIcon(ResourceType.SOLDIERS, new Texture("icons/Soldier.png"));
-        topBarRenderer.setResourceIcon(ResourceType.CITIZENS_CAPACITY, new Texture("icons/Capacity.png"));
-        topBarRenderer.setTimeIcons(
-            new Texture("icons/Day.png"),
-            new Texture("icons/Time.png")
-        );
+        initializeHudRenderers(uiBg, uiCorner, uiEdge);
         eventBus = new EventBus();
         flowState = new FlowState();
         tickHandler = new TickHandler();
@@ -261,6 +235,41 @@ public class Main extends ApplicationAdapter {
             () -> gridInputHandler.deleteSelectedBuilding()
         );
     }
+    /**
+     * Centralizes UI asset loading and distributes shared textures to the HUD renderers.
+     * Reuses texture instances for background, borders, and icons to optimize memory and simplify resource disposal.
+     */
+    private void initializeHudRenderers(Texture uiBg, Texture uiCorner, Texture uiEdge) {
+        // Shared Icon Map to avoid loading same files multiple times
+        Map<ResourceType, Texture> icons = new HashMap<>();
+        icons.put(ResourceType.WOOD, new Texture("icons/Wood.png"));
+        icons.put(ResourceType.STONE, new Texture("icons/Stone.png"));
+        icons.put(ResourceType.FOOD, new Texture("icons/Food.png"));
+        icons.put(ResourceType.CITIZENS_TOTAL, new Texture("icons/Citizen.png"));
+        icons.put(ResourceType.SOLDIERS, new Texture("icons/Soldier.png"));
+        icons.put(ResourceType.CITIZENS_CAPACITY, new Texture("icons/Capacity.png"));
+
+        Texture dayIcon = new Texture("icons/Day.png");
+        Texture timeIcon = new Texture("icons/Time.png");
+
+        // Initialize and configure TopBar
+        topBarRenderer = new TopBarRenderer();
+        topBarRenderer.loadAssets(uiBg, uiCorner, uiEdge,
+            icons.get(ResourceType.WOOD), icons.get(ResourceType.STONE), icons.get(ResourceType.FOOD),
+            icons.get(ResourceType.CITIZENS_TOTAL), icons.get(ResourceType.SOLDIERS),
+            icons.get(ResourceType.CITIZENS_CAPACITY), dayIcon, timeIcon);
+
+        // Map icons for tooltip/resource groups inside TopBar
+        icons.forEach(topBarRenderer::setResourceIcon);
+        topBarRenderer.setTimeIcons(dayIcon, timeIcon);
+
+        // Initialize remaining HUD components with shared frames
+        sidebarRenderer = new SidebarRenderer();
+        sidebarRenderer.loadAssets(uiBg, uiCorner, uiEdge);
+
+        tileInspectorRenderer = new TileInspectorRenderer();
+        tileInspectorRenderer.loadAssets(uiBg, uiCorner, uiEdge);
+    }
 
     /**
      * Resumes gameplay when the application regains focus while paused.
@@ -285,5 +294,6 @@ public class Main extends ApplicationAdapter {
         topBarRenderer.dispose();
         settingsFlowCoordinator.dispose();
         menuFlowCoordinator.dispose();
+        tileInspectorRenderer.dispose();
     }
 }
