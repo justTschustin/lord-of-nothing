@@ -107,7 +107,7 @@ public class TextButton extends Button {
      */
     private static Texture createWhitePixel() {
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        pixmap.setColor(Color.WHITE);
+        pixmap.setColor(Color.DARK_GRAY);
         pixmap.fill();
 
         Texture texture = new Texture(pixmap);
@@ -121,7 +121,7 @@ public class TextButton extends Button {
         FreeTypeFontGenerator.FreeTypeFontParameter params =
             new FreeTypeFontGenerator.FreeTypeFontParameter();
         params.size = 24;
-        params.color = Color.GRAY;
+        params.color = Color.WHITE;
         params.borderWidth = 0.7f;
 
         BitmapFont f = generator.generateFont(params);
