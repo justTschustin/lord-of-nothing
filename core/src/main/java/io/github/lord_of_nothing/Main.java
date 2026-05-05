@@ -100,23 +100,23 @@ public class Main extends ApplicationAdapter {
             new Texture("hud/Corner_Placeholder.png"),
             new Texture("hud/Border_Placeholder.png"),
             new Texture("icons/Wood.png"),
-            new Texture("icons/Placeholder_Stone.png"),
-            new Texture("icons/Placeholder_Food.png"),
-            new Texture("icons/Placeholder_Citizen.png"),
-            new Texture("icons/Placeholder_Soldier.png"),
-            new Texture("icons/Placeholder_Capacity.png"),
-            new Texture("icons/Placeholder_Day.png"),
-            new Texture("icons/Placeholder_Time.png")
+            new Texture("icons/Stone.png"),
+            new Texture("icons/Food.png"),
+            new Texture("icons/Citizen.png"),
+            new Texture("icons/Soldier.png"),
+            new Texture("icons/Capacity.png"),
+            new Texture("icons/Day.png"),
+            new Texture("icons/Time.png")
         );
         topBarRenderer.setResourceIcon(ResourceType.WOOD, new Texture("icons/Wood.png"));
-        topBarRenderer.setResourceIcon(ResourceType.STONE, new Texture("icons/Placeholder_Stone.png"));
-        topBarRenderer.setResourceIcon(ResourceType.FOOD, new Texture("icons/Placeholder_Food.png"));
-        topBarRenderer.setResourceIcon(ResourceType.CITIZENS_TOTAL, new Texture("icons/Placeholder_Citizen.png"));
-        topBarRenderer.setResourceIcon(ResourceType.SOLDIERS, new Texture("icons/Placeholder_Soldier.png"));
-        topBarRenderer.setResourceIcon(ResourceType.CITIZENS_CAPACITY, new Texture("icons/Placeholder_Capacity.png"));
+        topBarRenderer.setResourceIcon(ResourceType.STONE, new Texture("icons/Stone.png"));
+        topBarRenderer.setResourceIcon(ResourceType.FOOD, new Texture("icons/Food.png"));
+        topBarRenderer.setResourceIcon(ResourceType.CITIZENS_TOTAL, new Texture("icons/Citizen.png"));
+        topBarRenderer.setResourceIcon(ResourceType.SOLDIERS, new Texture("icons/Soldier.png"));
+        topBarRenderer.setResourceIcon(ResourceType.CITIZENS_CAPACITY, new Texture("icons/Capacity.png"));
         topBarRenderer.setTimeIcons(
-            new Texture("icons/Placeholder_Day.png"),
-            new Texture("icons/Placeholder_Time.png")
+            new Texture("icons/Day.png"),
+            new Texture("icons/Time.png")
         );
         eventBus = new EventBus();
         flowState = new FlowState();
