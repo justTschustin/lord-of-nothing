@@ -13,6 +13,7 @@ import io.github.lord_of_nothing.hud.TopBarRenderer;
 import io.github.lord_of_nothing.menu.SettingsMenu;
 import io.github.lord_of_nothing.settings.GameSettings;
 import io.github.lord_of_nothing.settings.ResolutionDto;
+import io.github.lord_of_nothing.settings.ResolutionSettings;
 import io.github.lord_of_nothing.settings.SettingsStore;
 
 /**
@@ -176,6 +177,21 @@ public class SettingsFlowCoordinator {
                 if (onApplied != null) {onApplied.run();}
             });
         } else {
+            ResolutionDto clampedWindowedResolution = ResolutionSettings.clampToWindowedBounds(
+                gameSettings.windowedWidth,
+                gameSettings.windowedHeight,
+                Gdx.graphics.getDisplayMode()
+            );
+            boolean windowedResolutionAdjusted =
+                clampedWindowedResolution.width != gameSettings.windowedWidth ||
+                    clampedWindowedResolution.height != gameSettings.windowedHeight;
+            gameSettings.windowedWidth = clampedWindowedResolution.width;
+            gameSettings.windowedHeight = clampedWindowedResolution.height;
+
+            if (windowedResolutionAdjusted) {
+                saveDisplaySettings();
+            }
+
             final int w = gameSettings.windowedWidth;
             final int h = gameSettings.windowedHeight;
 

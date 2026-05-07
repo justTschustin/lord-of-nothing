@@ -1,5 +1,6 @@
 package io.github.lord_of_nothing.settings;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 
 import java.util.Arrays;
@@ -8,25 +9,29 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 public class ResolutionSettings {
-    public static final ResolutionDto DEFAULT_RESOLUTION = new ResolutionDto(1920, 1080);
     private static final int MIN_WIDTH = 1080;
     private static final int MIN_HEIGHT = 720;
     private static final ResolutionDto[] BASELINE_RESOLUTIONS = new ResolutionDto[] {
         new ResolutionDto(1920, 1080)
     };
-    public static ResolutionDto[] resolutions = new ResolutionDto[] {DEFAULT_RESOLUTION};
+    private static ResolutionDto defaultResolution = new ResolutionDto(MIN_WIDTH, MIN_HEIGHT);
+    public static ResolutionDto[] resolutions = new ResolutionDto[] {};
 
     private ResolutionSettings() {}
 
     public static void initialize(Graphics.DisplayMode[] displayModes) {
+        Graphics.DisplayMode maxWindowedMode = Gdx.graphics == null ? null : Gdx.graphics.getDisplayMode();
+        defaultResolution = getSafeDefaultResolution(maxWindowedMode);
+
         if (displayModes == null || displayModes.length == 0) {
-            resolutions = new ResolutionDto[] {DEFAULT_RESOLUTION};
+            resolutions = new ResolutionDto[] {defaultResolution};
             return;
         }
 
         LinkedHashMap<String, ResolutionDto> uniqueResolutions = new LinkedHashMap<>();
+        uniqueResolutions.putIfAbsent(defaultResolution.toString(), defaultResolution);
         for (ResolutionDto baseline : BASELINE_RESOLUTIONS) {
-            if (isBelowMinimumResolution(baseline.width, baseline.height)) {
+            if (isWindowedResolutionTooSmallOrTooLarge(baseline.width, baseline.height, maxWindowedMode)) {
                 continue;
             }
             uniqueResolutions.putIfAbsent(baseline.toString(), baseline);
@@ -36,7 +41,7 @@ public class ResolutionSettings {
             if (mode == null) {
                 continue;
             }
-            if (isBelowMinimumResolution(mode.width, mode.height)) {
+            if (isWindowedResolutionTooSmallOrTooLarge(mode.width, mode.height, maxWindowedMode)) {
                 continue;
             }
             ResolutionDto dto = new ResolutionDto(mode.width, mode.height);
@@ -44,7 +49,7 @@ public class ResolutionSettings {
         }
 
         if (uniqueResolutions.isEmpty()) {
-            resolutions = new ResolutionDto[] {DEFAULT_RESOLUTION};
+            resolutions = new ResolutionDto[] {defaultResolution};
             return;
         }
 
@@ -56,7 +61,7 @@ public class ResolutionSettings {
 
     public static ResolutionDto getResolutionFromLabel(String label) {
         if (label == null) {
-            return DEFAULT_RESOLUTION;
+            return getDefaultResolution();
         }
 
         for (ResolutionDto resolution : resolutions) {
@@ -64,7 +69,16 @@ public class ResolutionSettings {
                 return resolution;
             }
         }
-        return DEFAULT_RESOLUTION;
+        return getDefaultResolution();
+    }
+
+    public static ResolutionDto getDefaultResolution() {
+        if (defaultResolution != null) {
+            return defaultResolution;
+        }
+
+        Graphics.DisplayMode currentMode = Gdx.graphics == null ? null : Gdx.graphics.getDisplayMode();
+        return getSafeDefaultResolution(currentMode);
     }
 
     public static HashMap<String, String> getResolutionsStrings() {
@@ -76,8 +90,36 @@ public class ResolutionSettings {
         return result;
     }
 
-    private static boolean isBelowMinimumResolution(int width, int height) {
-        return width < MIN_WIDTH || height < MIN_HEIGHT;
+    public static ResolutionDto clampToWindowedBounds(int width, int height, Graphics.DisplayMode maxWindowedMode) {
+        int clampedWidth = Math.max(MIN_WIDTH, width);
+        int clampedHeight = Math.max(MIN_HEIGHT, height);
+
+        if (maxWindowedMode != null) {
+            clampedWidth = Math.min(clampedWidth, maxWindowedMode.width);
+            clampedHeight = Math.min(clampedHeight, maxWindowedMode.height);
+        }
+
+        return new ResolutionDto(clampedWidth, clampedHeight);
+    }
+
+    private static boolean isWindowedResolutionTooSmallOrTooLarge(
+        int width,
+        int height,
+        Graphics.DisplayMode maxWindowedMode
+    ) {
+        if (width < MIN_WIDTH || height < MIN_HEIGHT) {
+            return true;
+        }
+
+        return maxWindowedMode != null && (width > maxWindowedMode.width || height > maxWindowedMode.height);
+    }
+
+    private static ResolutionDto getSafeDefaultResolution(Graphics.DisplayMode maxWindowedMode) {
+        if (maxWindowedMode == null) {
+            return new ResolutionDto(MIN_WIDTH, MIN_HEIGHT);
+        }
+
+        return clampToWindowedBounds(maxWindowedMode.width, maxWindowedMode.height, maxWindowedMode);
     }
 
 }
