@@ -61,6 +61,20 @@ public class AudioManager {
     }
 
     /**
+     * Setzt die Master-Lautstärke (0.0 bis 1.0).
+     */
+    public void setMasterVolume(float volume) {
+        this.masterVolume = Math.max(0, Math.min(1, volume));
+        if (currentMusic != null) {
+            currentMusic.setVolume(this.masterVolume);
+        }
+    }
+
+    public float getMasterVolume() {
+        return masterVolume;
+    }
+
+    /**
      * Stoppt die Musik.
      */
     public void stopPlaylist() {

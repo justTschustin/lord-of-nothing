@@ -16,6 +16,7 @@ import io.github.lord_of_nothing.select.GameSpeedSelector;
 import io.github.lord_of_nothing.select.ResolutionSelector;
 import io.github.lord_of_nothing.settings.GameSettings;
 import io.github.lord_of_nothing.ui.UiElement;
+import io.github.lord_of_nothing.select.VolumeSlider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,7 @@ public class SettingsMenu {
     private final List<UiElement> settingsControls = new ArrayList<>();
     private final ResolutionSelector resolutionSelector;
     private final GameSpeedSelector gameSpeedSelector;
+    private final VolumeSlider volumeSlider;
 
     /**
      * Creates the settings menu and its buttons.
@@ -75,6 +77,15 @@ public class SettingsMenu {
         );
         settingsControls.add(gameSpeedSelector);
 
+        volumeSlider = new VolumeSlider(
+            x,
+            toggleY,
+            BUTTON_WIDTH,
+            BUTTON_HEIGHT,
+            eventBus
+        );
+        settingsControls.add(volumeSlider);
+
         settingsControls.add(new TextButton(
             x,
             backY,
@@ -108,6 +119,7 @@ public class SettingsMenu {
     public void syncDisplaySettings(GameSettings gameSettings) {
         resolutionSelector.syncFromSettings(gameSettings);
         gameSpeedSelector.syncFromSettings(gameSettings);
+        volumeSlider.syncFromSettings(gameSettings);
     }
 
     /**
@@ -136,6 +148,7 @@ public class SettingsMenu {
      */
     public void dispose() {
         font.dispose();
+        volumeSlider.dispose();
     }
 
     /**
@@ -157,13 +170,20 @@ public class SettingsMenu {
 
     private void renderControls(SpriteBatch batch) {
         for (UiElement control : settingsControls) {
-            if (!(control instanceof DropDownSelect)) {
+            if (!(control instanceof DropDownSelect) && !(control instanceof VolumeSlider)) {
                 control.render(batch);
             }
         }
 
         for (UiElement control : settingsControls) {
             if (control instanceof DropDownSelect && !((DropDownSelect) control).isOpen()) {
+                control.render(batch);
+            }
+        }
+
+        // Render VolumeSlider nach den geschlossenen Dropdowns
+        for (UiElement control : settingsControls) {
+            if (control instanceof VolumeSlider) {
                 control.render(batch);
             }
         }
@@ -197,6 +217,9 @@ public class SettingsMenu {
     }
 
     private float getControlHeight(UiElement control) {
+        if (control instanceof VolumeSlider) {
+            return ((VolumeSlider) control).getHeight();
+        }
         if (control instanceof DropDownSelect) {
             return ((DropDownSelect) control).getHeight();
         }
@@ -207,7 +230,9 @@ public class SettingsMenu {
     }
 
     private void setControlBounds(UiElement control, float x, float y, float height) {
-        if (control instanceof DropDownSelect) {
+        if (control instanceof VolumeSlider) {
+            ((VolumeSlider) control).setBounds(x, y, BUTTON_WIDTH, height);
+        } else if (control instanceof DropDownSelect) {
             ((DropDownSelect) control).setBounds(x, y, BUTTON_WIDTH, height);
         } else if (control instanceof Button) {
             ((Button) control).setBounds(x, y, BUTTON_WIDTH, height);

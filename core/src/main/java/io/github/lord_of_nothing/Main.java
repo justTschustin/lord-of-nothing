@@ -24,6 +24,7 @@ import io.github.lord_of_nothing.events.OpenSettingsMenuEvent;
 import io.github.lord_of_nothing.events.PauseGameEvent;
 import io.github.lord_of_nothing.events.ResumeGameEvent;
 import io.github.lord_of_nothing.events.StartGameEvent;
+import io.github.lord_of_nothing.events.MusicVolumeChangedEvent;
 import io.github.lord_of_nothing.flow.FlowState;
 import io.github.lord_of_nothing.flow.GameplayFlowCoordinator;
 import io.github.lord_of_nothing.flow.MenuFlowCoordinator;
@@ -121,6 +122,7 @@ public class Main extends ApplicationAdapter {
         flowState = new FlowState();
         tickHandler = new TickHandler();
 
+
         gridInputHandler = new GridInputHandler(
             camera,
             gameStateHandler.getCurrentGrid(),
@@ -142,6 +144,7 @@ public class Main extends ApplicationAdapter {
         settingsStore = new SettingsStore(settingsFilePath);
         gameSettings = settingsStore.load();
         tickHandler.setGameSpeed(gameSettings.gameSpeed);
+        audioManager.setMasterVolume(gameSettings.masterVolume);
 
         menuFlowCoordinator = new MenuFlowCoordinator(
             eventBus,
@@ -192,6 +195,12 @@ public class Main extends ApplicationAdapter {
                     gameSettings.gameSpeed = tickHandler.getGameSpeed();
                     settingsStore.save(gameSettings);
                 }
+            }
+            if (event instanceof MusicVolumeChangedEvent) {
+                float volume = ((MusicVolumeChangedEvent) event).getVolume();
+                audioManager.setMasterVolume(volume);
+                gameSettings.masterVolume = volume;
+                settingsStore.save(gameSettings);
             }
             if (event instanceof BackToMainMenuEvent) {
                 menuFlowCoordinator.returnToMainMenu();
