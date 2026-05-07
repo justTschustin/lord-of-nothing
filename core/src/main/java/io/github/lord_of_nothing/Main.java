@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import io.github.lord_of_nothing.audio.AudioManager;
 import io.github.lord_of_nothing.events.BackToMainMenuEvent;
 import io.github.lord_of_nothing.events.CloseSettingsMenuEvent;
 import io.github.lord_of_nothing.events.EventBus;
@@ -79,6 +80,7 @@ public class Main extends ApplicationAdapter {
     private final AtomicInteger pendingSaveTasks = new AtomicInteger(0);
     private volatile boolean savingInProgress;
     private boolean timeProgressionPaused;
+    private AudioManager audioManager;
 
     /**
      * Initialisiert die Kernkomponenten, lädt Grafikressourcen und konfiguriert die Eingabeverarbeitung.
@@ -92,6 +94,7 @@ public class Main extends ApplicationAdapter {
         shapeRenderer = new ShapeRenderer();
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
+        audioManager = new AudioManager();
         grassTexture = new Texture("tiles/Floor_Grass.png");
 
         gameStateHandler = new GameStateHandler();
@@ -110,6 +113,8 @@ public class Main extends ApplicationAdapter {
         sidebarRenderer = new SidebarRenderer();
         tileInspectorBar = new TileInspectorBar();
         tileInspectorRenderer = new TileInspectorRenderer();
+
+        audioManager.startPlaylist();
 
         topBarRenderer = new TopBarRenderer();
         eventBus = new EventBus();
@@ -304,12 +309,14 @@ public class Main extends ApplicationAdapter {
     @Override
     public void dispose() {
         saveExecutor.shutdownNow();
+        audioManager.stopPlaylist();
         shapeRenderer.dispose();
         batch.dispose();
         grassTexture.dispose();
         topBarRenderer.dispose();
         settingsFlowCoordinator.dispose();
         menuFlowCoordinator.dispose();
+        audioManager.dispose();
     }
 
     private void startNewGame() {
