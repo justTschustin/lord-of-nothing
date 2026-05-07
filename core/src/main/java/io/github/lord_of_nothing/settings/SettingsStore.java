@@ -85,7 +85,7 @@ public class SettingsStore {
     }
 
     private int normalizeGameSpeed(int requested, int fallback) {
-        if (requested == 1 || requested == 2 || requested == 4) {
+        if (requested >= 1) {
             return requested;
         }
         return fallback;
