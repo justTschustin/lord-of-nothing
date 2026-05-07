@@ -36,7 +36,7 @@ public class EventLogRenderer {
         // Draw text
         batch.begin();
         List<String> msgs = log.getMessages();
-        float startY = window.getOffsetY() + 20; // Die unterste Zeile im Fenster
+        float startY = window.getOffsetY() + 20;
         int visibleRows = 8;
 
         for (int i = 0; i < visibleRows; i++) {

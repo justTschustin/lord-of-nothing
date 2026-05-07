@@ -237,12 +237,13 @@ public class GridInputHandler extends InputAdapter {
         camera.unproject(touchPos);
 
         for (int i = uiElements.size() - 1; i >= 0; i--) {
-            if (uiElements.get(i).isEnabled() && uiElements.get(i).onScroll(touchPos.x, touchPos.y, amountY)) return true;
+            if (uiElements.get(i).isEnabled() && uiElements.get(i).onScroll(touchPos.x, touchPos.y, amountY))
+            {return true;}
         }
 
         if (touchPos.x >= window.getRightMarginX()) {
             eventLog.scroll(amountY);
-            return true;
+            {return true;}
         }
         return false;
     }
