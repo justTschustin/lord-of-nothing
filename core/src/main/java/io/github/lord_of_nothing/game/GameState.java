@@ -14,6 +14,8 @@ public class GameState {
 	private Map<ResourceType, Integer> resources = new HashMap<>();
 	private GridState grid = new GridState();
 	private int currentIngameDay = 1;
+	private Integer nextRaidScheduledDay;
+	private Integer nextRaidDeterminationDay;
 
 	public Map<ResourceType, Integer> getResources() {
 		return resources;
@@ -79,6 +81,30 @@ public class GameState {
 
 	public void setCurrentIngameDay(int currentIngameDay) {
 		this.currentIngameDay = Math.max(1, currentIngameDay);
+	}
+
+	public Integer getNextRaidScheduledDay() {
+		return nextRaidScheduledDay;
+	}
+
+	public void setNextRaidScheduledDay(Integer nextRaidScheduledDay) {
+		if (nextRaidScheduledDay == null) {
+			this.nextRaidScheduledDay = null;
+			return;
+		}
+		this.nextRaidScheduledDay = Math.max(1, nextRaidScheduledDay);
+	}
+
+	public Integer getNextRaidDeterminationDay() {
+		return nextRaidDeterminationDay;
+	}
+
+	public void setNextRaidDeterminationDay(Integer nextRaidDeterminationDay) {
+		if (nextRaidDeterminationDay == null) {
+			this.nextRaidDeterminationDay = null;
+			return;
+		}
+		this.nextRaidDeterminationDay = Math.max(1, nextRaidDeterminationDay);
 	}
 
 	public static class GridState {
