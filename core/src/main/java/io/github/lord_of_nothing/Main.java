@@ -110,9 +110,9 @@ public class Main extends ApplicationAdapter {
         sidebar = new Sidebar();
         sidebarRenderer = new SidebarRenderer();
         tileInspectorBar = new TileInspectorBar();
-        Texture uiBg = new Texture("hud/wood.png");
-        Texture uiCorner = new Texture("hud/Corner_Placeholder.png");
-        Texture uiEdge = new Texture("hud/Border_Placeholder.png");
+        Texture uiBg = new Texture("hud/HUD_Wood.png");
+        Texture uiCorner = new Texture("hud/HUD_Corner_Overlay.png");
+        Texture uiEdge = new Texture("hud/HUD_Border_Overlay.png");
         initializeHudRenderers(uiBg, uiCorner, uiEdge);
         eventBus = new EventBus();
         flowState = new FlowState();
