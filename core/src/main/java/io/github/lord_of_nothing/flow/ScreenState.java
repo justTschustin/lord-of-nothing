@@ -6,7 +6,9 @@ package io.github.lord_of_nothing.flow;
 public enum ScreenState {
     MAIN_MENU,
     GAMEPLAY,
+    POPUP,
     PAUSED,
-    SETTINGS
+    SETTINGS,
+    GAME_OVER
 }
 

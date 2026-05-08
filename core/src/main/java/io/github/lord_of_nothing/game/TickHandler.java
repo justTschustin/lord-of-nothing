@@ -2,6 +2,9 @@ package io.github.lord_of_nothing.game;
 
 import io.github.lord_of_nothing.resources.ResourceType;
 
+import java.util.ArrayDeque;
+import java.util.Queue;
+
 
 /**
  * Tracks fixed-interval simulation ticks independently from render framerate.
@@ -28,6 +31,8 @@ public class TickHandler {
     private int gameSpeed = DEFAULT_GAME_SPEED;
     private float accumulatorSeconds;
     private int tickProgressInDay;
+    private final Queue<String> pendingRaidPopupMessages = new ArrayDeque<>();
+    private boolean pendingRaidDefeat;
 
     /** Creates a tick handler with fixed default timing values. */
     public TickHandler() {}
@@ -65,7 +70,7 @@ public class TickHandler {
      * @param gameSpeed speed multiplier (1, 2, or 4)
      */
     public void setGameSpeed(int gameSpeed) {
-        if (gameSpeed != 1 && gameSpeed != 2 && gameSpeed != 4) {
+        if (gameSpeed < 1) {
             return;
         }
         this.gameSpeed = gameSpeed;
@@ -156,9 +161,44 @@ public class TickHandler {
             if (tickProgressInDay >= getTicksPerDay()) {
                 tickProgressInDay = 0;
                 completedDays++;
+
+                if (resourceState instanceof GameStateHandler) {
+                    int newlyStartedDay = currentIngameDay + completedDays;
+                    boolean defeated = RaidMechanic.processDay(
+                        (GameStateHandler) resourceState,
+                        newlyStartedDay,
+                        pendingRaidPopupMessages::add
+                    );
+                    if (defeated) {
+                        pendingRaidDefeat = true;
+                        break;
+                    }
+                }
             }
         }
         return completedDays;
+    }
+
+    /**
+     * Returns whether a raid defeat was detected since the last poll.
+     *
+     * @return {@code true} once per detected defeat
+     */
+    public boolean consumePendingRaidDefeat() {
+        if (!pendingRaidDefeat) {
+            return false;
+        }
+        pendingRaidDefeat = false;
+        return true;
+    }
+
+    /**
+     * Retrieves and removes the next queued raid popup message, if any.
+     *
+     * @return next raid popup text or {@code null}
+     */
+    public String pollNextRaidPopupMessage() {
+        return pendingRaidPopupMessages.poll();
     }
 
     private int getCitizenArrivalBorderIncrease(int currentIngameDay) {
@@ -173,5 +213,6 @@ public class TickHandler {
     public void resetTimeline() {
         accumulatorSeconds = 0f;
         tickProgressInDay = 0;
+        pendingRaidDefeat = false;
     }
 }

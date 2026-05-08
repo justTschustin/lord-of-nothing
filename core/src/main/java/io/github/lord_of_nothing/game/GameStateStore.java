@@ -34,6 +34,19 @@ public class GameStateStore {
     }
 
     /**
+     * Deletes the configured save file when it exists.
+     *
+     * @return {@code true} when no save file remains afterwards
+     */
+    public boolean delete() {
+        FileHandle file = resolveFileHandle();
+        if (!file.exists()) {
+            return true;
+        }
+        return file.delete();
+    }
+
+    /**
      * Saves a snapshot to disk as pretty-printed JSON.
      *
      * @param state snapshot to persist

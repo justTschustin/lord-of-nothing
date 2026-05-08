@@ -46,6 +46,7 @@ public class GridInputHandler extends InputAdapter {
     private final Sidebar sidebar;
     private boolean paused;
     private boolean gameplayEnabled;
+    private UiElement exclusiveUiElement;
     private final GameWindow window;
     private final TileInspectorBar tileInspectorBar;
 
@@ -120,6 +121,15 @@ public class GridInputHandler extends InputAdapter {
     }
 
     /**
+     * Sets an exclusive UI element that receives all clicks while active.
+     *
+     * @param exclusiveUiElement modal element to route clicks to, or {@code null} to disable modal routing
+     */
+    public void setExclusiveUiElement(UiElement exclusiveUiElement) {
+        this.exclusiveUiElement = exclusiveUiElement;
+    }
+
+    /**
      * Clears tracked UI elements.
      */
     public void clearUiElements() {
@@ -135,7 +145,7 @@ public class GridInputHandler extends InputAdapter {
      */
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
-        if (paused || !gameplayEnabled) {
+        if (exclusiveUiElement != null || paused || !gameplayEnabled) {
             return false;
         }
         touchPos.set(screenX, screenY, 0);
@@ -185,6 +195,13 @@ public class GridInputHandler extends InputAdapter {
         // Convert Screen Coordinates to World Coordinates
         camera.unproject(touchPos);
 
+        if (exclusiveUiElement != null) {
+            if (exclusiveUiElement.contains(touchPos.x, touchPos.y)) {
+                exclusiveUiElement.onClick();
+            }
+            return true;
+        }
+
         // 0. Check VolumeSlider
         for (UiElement element : uiElements) {
             if (element instanceof io.github.lord_of_nothing.select.VolumeSlider) {
@@ -195,6 +212,13 @@ public class GridInputHandler extends InputAdapter {
             }
         }
 
+        if (handleUiClicks(touchPos.x, touchPos.y)) {
+            return true;
+        }
+
+        if (paused || !gameplayEnabled) {
+            return true;
+        }
         // 1. Check TileInspector Interaction
         if (tileInspectorBar.isOpen()) {
             // Click INSIDE the sidebar: Handle Add/Remove buttons
@@ -223,11 +247,7 @@ public class GridInputHandler extends InputAdapter {
             }
         }
 
-        return handleUiClicks(touchPos.x, touchPos.y)
-            || paused
-            || !gameplayEnabled
-            || handleSidebarInteraction(touchPos.x, touchPos.y)
-            || handleGridPlacement(touchPos.x, touchPos.y);
+        return handleGridPlacement(touchPos.x, touchPos.y);
     }
 
     /**
