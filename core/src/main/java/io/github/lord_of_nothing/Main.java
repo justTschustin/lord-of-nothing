@@ -43,6 +43,8 @@ import io.github.lord_of_nothing.hud.GameOverOverlay;
 import io.github.lord_of_nothing.hud.PopupOverlay;
 import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.hud.TileInspectorRenderer;
+import io.github.lord_of_nothing.hud.EventLog;
+import io.github.lord_of_nothing.hud.EventLogRenderer;
 import io.github.lord_of_nothing.menu.MainMenu;
 import io.github.lord_of_nothing.menu.SettingsMenu;
 import io.github.lord_of_nothing.persistence.UserConfigPaths;
@@ -87,6 +89,8 @@ public class Main extends ApplicationAdapter {
     private volatile boolean savingInProgress;
     private volatile boolean autoSaveEnabled = true;
     private boolean timeProgressionPaused;
+    private EventLog eventLog;
+    private EventLogRenderer eventLogRenderer;
 
     /**
      * Initialisiert die Kernkomponenten, lädt Grafikressourcen und konfiguriert die Eingabeverarbeitung.
@@ -118,13 +122,18 @@ public class Main extends ApplicationAdapter {
         sidebarRenderer = new SidebarRenderer();
         tileInspectorBar = new TileInspectorBar();
         tileInspectorRenderer = new TileInspectorRenderer();
+        tickHandler = new TickHandler();
+        eventLog = new EventLog(
+            gameStateHandler::getCurrentIngameDay,
+            tickHandler::getCurrentIngameHour
+        );
+        eventLogRenderer = new EventLogRenderer();
         popupOverlay = new PopupOverlay(this::dismissActivePopup);
 
         topBarRenderer = new TopBarRenderer();
         eventBus = new EventBus();
         gameOverOverlay = new GameOverOverlay(eventBus);
         flowState = new FlowState();
-        tickHandler = new TickHandler();
 
         gridInputHandler = new GridInputHandler(
             camera,
@@ -133,7 +142,8 @@ public class Main extends ApplicationAdapter {
             sidebar,
             gameStateHandler,
             eventBus,
-            tileInspectorBar
+            tileInspectorBar,
+            eventLog
         );
         gridInputHandler.setGameplayEnabled(false);
 
@@ -260,7 +270,8 @@ public class Main extends ApplicationAdapter {
             int completedDays = tickHandler.update(
                 Gdx.graphics.getDeltaTime(),
                 gameStateHandler.getCurrentIngameDay(),
-                gameStateHandler
+                gameStateHandler,
+                eventLog
             );
             boolean raidDefeatDetected = tickHandler.consumePendingRaidDefeat();
             for (int i = 0; i < completedDays; i++) {
@@ -320,14 +331,6 @@ public class Main extends ApplicationAdapter {
             gameStateHandler,
             () -> gridInputHandler.deleteSelectedBuilding()
         );
-
-        if (flowState.getScreenState() == ScreenState.POPUP) {
-            popupOverlay.render(shapeRenderer, batch);
-        }
-
-        if (flowState.getScreenState() == ScreenState.GAME_OVER) {
-            gameOverOverlay.render(shapeRenderer, batch);
-        }
     }
 
     /**
@@ -393,6 +396,8 @@ public class Main extends ApplicationAdapter {
     }
 
     private void startNewGame() {
+        eventLog.clear();
+        eventLog.addMessage("Welcome, Lord of Nothing!", false);
         gameStateHandler.resetNewGame();
         tickHandler.resetTimeline();
         timeProgressionPaused = false;
