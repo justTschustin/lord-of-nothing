@@ -109,6 +109,7 @@ public class TopBarRenderer {
      * @param currentGameSpeed active simulation speed multiplier
      * @param timeProgressionPaused whether in-game time progression is paused
      * @param savingInProgress whether autosave is currently writing to disk
+     * @param popupVisible whether a blocking popup is currently shown
      */
     public void render(
         ShapeRenderer shapeRenderer,
@@ -121,7 +122,8 @@ public class TopBarRenderer {
         boolean paused,
         int currentGameSpeed,
         boolean timeProgressionPaused,
-        boolean savingInProgress
+        boolean savingInProgress,
+        boolean popupVisible
     ) {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.BLACK);
@@ -129,8 +131,8 @@ public class TopBarRenderer {
         shapeRenderer.end();
 
         setTopBarControlVariables(window, eventBus);
-        pauseButton.setEnabled(!paused);
         updateControlButtonState(currentGameSpeed, !paused, timeProgressionPaused);
+        pauseButton.setEnabled(!paused && !popupVisible);
         pauseOverlay.setActive(paused);
 
         batch.begin();

@@ -45,23 +45,28 @@ public class TileInspectorRenderer {
         float btnW = panelW - 20;
         float btnH = 30f;
 
+        boolean isPlaced = state.isOpen() && state.getSelectedGridX() != -1;
         if (deleteButton == null) {
             deleteButton = new DeleteBuildingButton(btnX, btnY, btnW, btnH, eventBus, onDelete);
         } else {
             deleteButton.setBounds(btnX, btnY, btnW, btnH);
         }
 
-        deleteButton.setEnabled(state.isOpen());
+        deleteButton.setEnabled(isPlaced);
         if (!state.isOpen()) { return; }
 
         // 1. Draw Ornate Frame
         batch.begin();
         renderDecoratedFrameAt(batch, panelX, panelY, panelW, panelH, 30f);
         batch.end();
+        sr.begin(ShapeRenderer.ShapeType.Filled);
+        sr.setColor(0.15f, 0.15f, 0.15f, 0.85f);
+        sr.rect(panelX, panelY, panelW, panelH);
+        sr.end();
 
         Building b = state.getSelected();
-        boolean isPlaced = state.getSelectedGridX() != -1;
 
+        batch.begin();
         batch.begin();
         // 2. Sprite
         float spriteH = panelW * 0.4f;
@@ -70,7 +75,6 @@ public class TileInspectorRenderer {
         float spriteY = panelY + panelH - spriteH - 20;
         batch.draw(textures.get(b.getBuildingTypeKey()), spriteX, spriteY, spriteW, spriteH);
 
-        // 3. Name + Level
         font.setColor(Color.WHITE);
         font.draw(batch, b.getBuildingTypeKey().toUpperCase() + " LVL " + b.getLevel(),
             panelX + 10, spriteY - 20, panelW - 20,
@@ -84,6 +88,8 @@ public class TileInspectorRenderer {
                 + "  (Available: " + available + ")";
             font.draw(batch, workerInfo, panelX + 10, panelY + 135);
             font.draw(batch, "[+] Add        [-] Remove", panelX + 10, panelY + 115);
+        }  else if (!isPlaced) {
+            renderBuildingPreview(batch, b, panelX, spriteY - 60);
         }
         batch.end();
 
@@ -122,6 +128,41 @@ public class TileInspectorRenderer {
         this.edgeTexture = edge;
         this.bgTexture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
         this.edgeTexture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+    }
+
+    /**
+     * <summary>Renders the building preview stats including costs, housing, workers, and yield.</summary>
+     * @param batch The sprite batch used for drawing text. @param b The building template to inspect.
+     * @param panelX The horizontal start position of the panel. @param startY The vertical starting position for the text.
+     */
+    private void renderBuildingPreview(SpriteBatch batch, Building b, float panelX, float startY) {
+        float statsY = startY;
+
+        font.setColor(Color.YELLOW);
+        font.draw(batch, "CONSTRUCTION COSTS:", panelX + 10, statsY);
+        statsY -= 20;
+
+        font.setColor(Color.WHITE);
+        for (java.util.Map.Entry<io.github.lord_of_nothing.resources.ResourceType, Integer> entry : b.getCosts().entrySet()) {
+            font.draw(batch, "- " + entry.getKey().name() + ": " + entry.getValue(), panelX + 20, statsY);
+            statsY -= 15;
+        }
+
+        statsY -= 10;
+        if (b.getCitizenCapacity() > 0) {
+            font.draw(batch, "HOUSING: + " + b.getCitizenCapacity() + " Citizens", panelX + 10, statsY);
+            statsY -= 20;
+        }
+
+        if (b.getMaxWorkers() > 0) {
+            font.draw(batch, "MAX WORKERS: " + b.getMaxWorkers(), panelX + 10, statsY);
+            statsY -= 20;
+        }
+
+        if (b.getProductionType() != null) {
+            String yieldText = "YIELD: " + b.getProductionPerWorker() + " " + b.getProductionType().name() + "/Hour per worker";
+            font.draw(batch, yieldText, panelX + 10, statsY);
+        }
     }
     public void dispose() {
         font.dispose();

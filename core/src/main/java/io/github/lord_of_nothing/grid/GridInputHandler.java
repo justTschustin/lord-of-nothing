@@ -18,6 +18,7 @@ import io.github.lord_of_nothing.events.ResumeGameEvent;
 import io.github.lord_of_nothing.events.StartGameEvent;
 import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 import io.github.lord_of_nothing.game.ResourceStateMutator;
+import io.github.lord_of_nothing.hud.EventLog;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.resources.ResourceType;
@@ -46,8 +47,10 @@ public class GridInputHandler extends InputAdapter {
     private final Sidebar sidebar;
     private boolean paused;
     private boolean gameplayEnabled;
+    private UiElement exclusiveUiElement;
     private final GameWindow window;
     private final TileInspectorBar tileInspectorBar;
+    private final EventLog eventLog;
 
 
     /**
@@ -67,7 +70,8 @@ public class GridInputHandler extends InputAdapter {
         Sidebar sidebar,
         ResourceStateMutator resources,
         EventBus eventBus,
-        TileInspectorBar tileInspectorBar
+        TileInspectorBar tileInspectorBar,
+        EventLog eventLog
     ) {
         this.camera = camera;
         this.grid = grid;
@@ -75,6 +79,7 @@ public class GridInputHandler extends InputAdapter {
         this.sidebar = sidebar;
         this.window = window;
         this.tileInspectorBar = tileInspectorBar;
+        this.eventLog = eventLog;
 
         eventBus.subscribe(event -> {
             if (event instanceof UiElementCreatedEvent) {
@@ -120,6 +125,15 @@ public class GridInputHandler extends InputAdapter {
     }
 
     /**
+     * Sets an exclusive UI element that receives all clicks while active.
+     *
+     * @param exclusiveUiElement modal element to route clicks to, or {@code null} to disable modal routing
+     */
+    public void setExclusiveUiElement(UiElement exclusiveUiElement) {
+        this.exclusiveUiElement = exclusiveUiElement;
+    }
+
+    /**
      * Clears tracked UI elements.
      */
     public void clearUiElements() {
@@ -135,7 +149,7 @@ public class GridInputHandler extends InputAdapter {
      */
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
-        if (paused || !gameplayEnabled) {
+        if (exclusiveUiElement != null || paused || !gameplayEnabled) {
             return false;
         }
         touchPos.set(screenX, screenY, 0);
@@ -168,6 +182,21 @@ public class GridInputHandler extends InputAdapter {
         // Convert Screen Coordinates to World Coordinates
         camera.unproject(touchPos);
 
+        if (exclusiveUiElement != null) {
+            if (exclusiveUiElement.contains(touchPos.x, touchPos.y)) {
+                exclusiveUiElement.onClick();
+            }
+            return true;
+        }
+
+        if (handleUiClicks(touchPos.x, touchPos.y)) {
+            return true;
+        }
+
+        if (paused || !gameplayEnabled) {
+            return true;
+        }
+
         // 1. Check TileInspector Interaction
         if (tileInspectorBar.isOpen()) {
             // Click INSIDE the sidebar: Handle Add/Remove buttons
@@ -196,11 +225,7 @@ public class GridInputHandler extends InputAdapter {
             }
         }
 
-        return handleUiClicks(touchPos.x, touchPos.y)
-            || paused
-            || !gameplayEnabled
-            || handleSidebarInteraction(touchPos.x, touchPos.y)
-            || handleGridPlacement(touchPos.x, touchPos.y);
+        return handleGridPlacement(touchPos.x, touchPos.y);
     }
 
     /**
@@ -212,15 +237,14 @@ public class GridInputHandler extends InputAdapter {
         camera.unproject(touchPos);
 
         for (int i = uiElements.size() - 1; i >= 0; i--) {
-            UiElement element = uiElements.get(i);
-            if (!element.isEnabled()) {
-                continue;
-            }
-            if (element.onScroll(touchPos.x, touchPos.y, amountY)) {
-                return true;
-            }
+            if (uiElements.get(i).isEnabled() && uiElements.get(i).onScroll(touchPos.x, touchPos.y, amountY))
+            {return true;}
         }
 
+        if (touchPos.x >= window.getRightMarginX()) {
+            eventLog.scroll(amountY);
+            {return true;}
+        }
         return false;
     }
 
@@ -262,6 +286,7 @@ public class GridInputHandler extends InputAdapter {
                 else if (clicked instanceof Quarry) {pendingBuilding = new Quarry();}
                 else if (clicked instanceof Field) {pendingBuilding = new Field();}
                 else if (clicked instanceof Barrack) {pendingBuilding = new Barrack();}
+                tileInspectorBar.select(pendingBuilding, -1, -1);
             }
             return true;
         }
@@ -319,6 +344,8 @@ public class GridInputHandler extends InputAdapter {
                 grid.placeBuilding(tileX, tileY, pendingBuilding);
                 pendingBuilding = null;
                 return true;
+            } else {
+                eventLog.addMessage("Construction failed: Insufficient resources!", true);
             }
         }
         return false;
@@ -408,4 +435,6 @@ public class GridInputHandler extends InputAdapter {
             resources.addResource(ResourceType.CITIZENS_CAPACITY, b.getCitizenCapacity());
         }
     }
+
+
 }
