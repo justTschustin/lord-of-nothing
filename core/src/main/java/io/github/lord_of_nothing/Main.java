@@ -338,7 +338,8 @@ public class Main extends ApplicationAdapter {
         tileInspectorRenderer.render(
             shapeRenderer, batch, gameWindow, tileInspectorBar, buildingTextures, eventBus,
             gameStateHandler,
-            () -> gridInputHandler.deleteSelectedBuilding()
+            () -> gridInputHandler.deleteSelectedBuilding(),
+            flowState.getScreenState() == ScreenState.PAUSED
         );
         popupOverlay.render(shapeRenderer, batch);
         gameOverOverlay.render(shapeRenderer, batch);
