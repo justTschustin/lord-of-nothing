@@ -331,14 +331,6 @@ public class Main extends ApplicationAdapter {
             gameStateHandler,
             () -> gridInputHandler.deleteSelectedBuilding()
         );
-        eventLogRenderer.render(shapeRenderer, batch, gameWindow, eventLog, flowState.getScreenState() == ScreenState.PAUSED);
-        if (flowState.getScreenState() == ScreenState.POPUP) {
-            popupOverlay.render(shapeRenderer, batch);
-        }
-
-        if (flowState.getScreenState() == ScreenState.GAME_OVER) {
-            gameOverOverlay.render(shapeRenderer, batch);
-        }
     }
 
     /**
