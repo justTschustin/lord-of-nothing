@@ -53,20 +53,20 @@ public class TileInspectorRenderer {
         }
 
         deleteButton.setEnabled(isPlaced);
-        if (!state.isOpen()) { return; }
 
-        // 1. Draw Ornate Frame
-        batch.begin();
-        renderDecoratedFrameAt(batch, panelX, panelY, panelW, panelH, 30f);
-        batch.end();
+        // 1. Always draw the panel background and frame to cover the gap
         sr.begin(ShapeRenderer.ShapeType.Filled);
         sr.setColor(0.15f, 0.15f, 0.15f, 0.85f);
         sr.rect(panelX, panelY, panelW, panelH);
         sr.end();
+        batch.begin();
+        renderDecoratedFrameAt(batch, panelX, panelY, panelW, panelH, 30f);
+        batch.end();
+
+        if (!state.isOpen()) { return; }
 
         Building b = state.getSelected();
 
-        batch.begin();
         batch.begin();
         // 2. Sprite
         float spriteH = panelW * 0.4f;

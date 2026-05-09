@@ -331,11 +331,17 @@ public class Main extends ApplicationAdapter {
             savingInProgress,
             flowState.getScreenState() == ScreenState.POPUP || flowState.getScreenState() == ScreenState.GAME_OVER
         );
+        eventLogRenderer.render(
+            shapeRenderer, batch, gameWindow, eventLog,
+            flowState.getScreenState() == ScreenState.PAUSED
+        );
         tileInspectorRenderer.render(
             shapeRenderer, batch, gameWindow, tileInspectorBar, buildingTextures, eventBus,
             gameStateHandler,
             () -> gridInputHandler.deleteSelectedBuilding()
         );
+        popupOverlay.render(shapeRenderer, batch);
+        gameOverOverlay.render(shapeRenderer, batch);
     }
     /**
      * Centralizes UI asset loading and distributes shared textures to the HUD renderers.
@@ -368,6 +374,7 @@ public class Main extends ApplicationAdapter {
         // Initialize remaining HUD components with shared frames
         sidebarRenderer = new SidebarRenderer();
         sidebarRenderer.loadAssets(uiBg, uiCorner, uiEdge);
+        eventLogRenderer.loadAssets(uiBg, uiCorner, uiEdge);
 
         tileInspectorRenderer = new TileInspectorRenderer();
         tileInspectorRenderer.loadAssets(uiBg, uiCorner, uiEdge);
