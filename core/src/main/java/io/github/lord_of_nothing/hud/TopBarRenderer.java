@@ -147,8 +147,8 @@ public class TopBarRenderer {
         drawResourceGroup(batch, ResourceType.SOLDIERS, resources.getResourceAmount(ResourceType.SOLDIERS), 460, y);
         drawResourceGroup(batch, ResourceType.CITIZENS_CAPACITY, resources.getResourceAmount(ResourceType.CITIZENS_CAPACITY), 580, y);
         float controlsLeftX = pauseButton.getX();
-        if (speedButtons[0] != null) controlsLeftX = speedButtons[0].getX();
-        if (timeProgressionToggleButton != null) controlsLeftX = timeProgressionToggleButton.getX();
+        if (speedButtons[0] != null) {controlsLeftX = speedButtons[0].getX();}
+        if (timeProgressionToggleButton != null) {controlsLeftX = timeProgressionToggleButton.getX();}
 
         // 2. Handle "Saving..." text and shift anchor further left if active
         if (savingInProgress) {
@@ -177,9 +177,9 @@ public class TopBarRenderer {
         }
 
         // 4. Render Buttons
-        if (timeProgressionToggleButton != null) timeProgressionToggleButton.render(batch);
+        if (timeProgressionToggleButton != null) {timeProgressionToggleButton.render(batch);}
         for (GameSpeedButton speedButton : speedButtons) {
-            if (speedButton != null) speedButton.render(batch);
+            if (speedButton != null) {speedButton.render(batch);}
         }
         pauseButton.render(batch);
 
@@ -199,14 +199,18 @@ public class TopBarRenderer {
 
     /**
      * Assigns a texture to a specific resource type for HUD display.
-     * <param name="type">The resource type.</param> <param name="tex">The icon texture.</param>
+     *
+     * @param type the resource type
+     * @param tex the icon texture
      */
     public void setResourceIcon(ResourceType type, Texture tex) {
         resourceIcons.put(type, tex);
     }
     /**
      * Sets the specific icons used for the in-game calendar and clock display.
-     * <param name="day">Icon for the current day.</param> <param name="clock">Icon for the current hour.</param>
+     *
+     * @param day icon for the current day
+     * @param clock icon for the current hour
      */
     public void setTimeIcons(Texture day, Texture clock) {
         this.dayIcon = day;

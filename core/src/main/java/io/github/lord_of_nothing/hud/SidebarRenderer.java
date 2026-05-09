@@ -5,10 +5,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.buildings.Building;
 import io.github.lord_of_nothing.game.ResourceStateView;
-import io.github.lord_of_nothing.resources.ResourceType;
 
 import java.util.Map;
 
