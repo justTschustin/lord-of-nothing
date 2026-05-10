@@ -233,6 +233,13 @@ public class GridInputHandler extends InputAdapter {
             return true;
         }
 
+        if (handleUiClicks(touchPos.x, touchPos.y)) {
+            return true;
+        }
+
+        if (paused || !gameplayEnabled) {
+            return true;
+        }
         // 1. Check TileInspector Interaction
         if (tileInspectorBar.isOpen()) {
             // Click INSIDE the sidebar: Handle Add/Remove buttons
