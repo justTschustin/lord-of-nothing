@@ -9,11 +9,11 @@ import java.util.function.Consumer;
  * Owns raid timeline scheduling and popup message generation.
  */
 public final class RaidMechanic {
-    public static final int FIRST_RAID_DETERMINATION_DAY = 10;
+    public static final int FIRST_RAID_DETERMINATION_DAY = 7;
     public static final int RAID_WARNING_MIN_DAYS = 5;
-    public static final int RAID_WARNING_MAX_DAYS = 20;
+    public static final int RAID_WARNING_MAX_DAYS = 12;
     public static final int RAID_REST_MIN_DAYS = 10;
-    public static final int RAID_REST_MAX_DAYS = 20;
+    public static final int RAID_REST_MAX_DAYS = 15;
 
     private RaidMechanic() {}
 
