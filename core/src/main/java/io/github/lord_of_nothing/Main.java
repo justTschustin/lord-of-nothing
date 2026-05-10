@@ -70,6 +70,9 @@ public class Main extends ApplicationAdapter {
     private GameWindow gameWindow;
     private TopBarRenderer topBarRenderer;
     private Texture grassTexture;
+    private Texture hudBackgroundTexture;
+    private Texture hudCornerTexture;
+    private Texture hudEdgeTexture;
     private Sidebar sidebar;
     private SidebarRenderer sidebarRenderer;
     private TileInspectorBar tileInspectorBar;
@@ -140,10 +143,10 @@ public class Main extends ApplicationAdapter {
         );
         eventLogRenderer = new EventLogRenderer();
         topBarRenderer = new TopBarRenderer();
-        Texture uiBg = new Texture("hud/HUD_Wood.png");
-        Texture uiCorner = new Texture("hud/HUD_Corner_Overlay.png");
-        Texture uiEdge = new Texture("hud/HUD_Border_Overlay.png");
-        initializeHudRenderers(uiBg, uiCorner, uiEdge);
+        hudBackgroundTexture = new Texture("hud/HUD_Wood.png");
+        hudCornerTexture = new Texture("hud/HUD_Corner_Overlay.png");
+        hudEdgeTexture = new Texture("hud/HUD_Border_Overlay.png");
+        initializeHudRenderers(hudBackgroundTexture, hudCornerTexture, hudEdgeTexture);
         eventBus = new EventBus();
         gameOverOverlay = new GameOverOverlay(eventBus);
         flowState = new FlowState();
@@ -438,6 +441,7 @@ public class Main extends ApplicationAdapter {
         sidebarRenderer = new SidebarRenderer();
         sidebarRenderer.loadAssets(uiBg, uiCorner, uiEdge);
         eventLogRenderer.loadAssets(uiBg, uiCorner, uiEdge);
+        popupOverlay.loadAssets(uiBg, uiCorner, uiEdge);
 
         tileInspectorRenderer = new TileInspectorRenderer();
         tileInspectorRenderer.loadAssets(uiBg, uiCorner, uiEdge);
@@ -463,6 +467,9 @@ public class Main extends ApplicationAdapter {
         shapeRenderer.dispose();
         batch.dispose();
         grassTexture.dispose();
+        hudBackgroundTexture.dispose();
+        hudCornerTexture.dispose();
+        hudEdgeTexture.dispose();
         topBarRenderer.dispose();
         raidBanner.dispose();
         gameOverOverlay.dispose();
