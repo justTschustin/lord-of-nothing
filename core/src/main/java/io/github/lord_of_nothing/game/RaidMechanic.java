@@ -81,8 +81,8 @@ public final class RaidMechanic {
 
         emitPopup(
             popupConsumer,
-            "Prepare for the incoming raid! Our scouts have spotted bandits heading our direction! "
-                + "They should be here in about " + warningMin + " to " + warningMax + " days!"
+            "Scouts have spotted bandits massing nearby... brace yourself for a raid, they strike in "
+                 + warningMin + " to " + warningMax + " days!"
         );
 
         System.out.println("Raid warned to be in " + warningMin + " to " + warningMax + " days");
@@ -98,14 +98,19 @@ public final class RaidMechanic {
 
         emitPopup(
             popupConsumer,
-            "The raid has begun! " + bandits + " bandits are attacking the village, and "
-                + soldiers + " soldiers are defending."
+            "Bandits are upon us! " + bandits + " bandits assault the village! "
+                + soldiers + " soldiers stand between them and ruin."
         );
 
         if (defeated) {
             emitPopup(
                 popupConsumer,
-                "Your soldiers were overwhelmed. The village has fallen."
+                "Your soldiers were overwhelmed. The village has fallen!"
+            );
+        } else {
+            emitPopup(
+                popupConsumer,
+                "Your soldiers fought bravely and repelled the bandits. The village is safe... for now."
             );
         }
 
