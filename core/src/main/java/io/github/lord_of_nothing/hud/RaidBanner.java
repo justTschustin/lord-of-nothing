@@ -105,7 +105,9 @@ public class RaidBanner {
      * Used by GridInputHandler to detect banner clicks
      */
     public boolean contains(float worldX, float worldY) {
-        if (!isActive()) return false;
+        if (!isActive()) {
+            return false;
+        }
         Texture tex = currentType == BannerType.WARNING ? warningTexture : attackTexture;
         float screenW   = Gdx.graphics.getWidth();
         float fullH     = tex.getHeight() * (screenW / tex.getWidth());
@@ -129,7 +131,9 @@ public class RaidBanner {
             }
         }
 
-        if (phase == Phase.IDLE) return;
+        if (phase == Phase.IDLE) {
+            return;
+        }
         timer += delta;
         switch (phase) {
             case EXPANDING:
@@ -148,7 +152,9 @@ public class RaidBanner {
                 if (timer >= COLLAPSE_DURATION) {
                     phase = Phase.IDLE;
                     timer = 0f;
-                    if (onDismissed != null) onDismissed.run();
+                    if (onDismissed != null) {
+                        onDismissed.run();
+                    }
                 }
                 break;
             default:
