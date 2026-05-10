@@ -1,12 +1,12 @@
 package io.github.lord_of_nothing;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
-import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.Queue;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
@@ -40,7 +40,7 @@ import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.hud.SidebarRenderer;
 import io.github.lord_of_nothing.hud.TopBarRenderer;
 import io.github.lord_of_nothing.hud.GameOverOverlay;
-import io.github.lord_of_nothing.hud.PopupOverlay;
+import io.github.lord_of_nothing.hud.RaidBanner;
 import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.hud.TileInspectorRenderer;
 import io.github.lord_of_nothing.menu.MainMenu;
@@ -69,9 +69,8 @@ public class Main extends ApplicationAdapter {
     private SidebarRenderer sidebarRenderer;
     private TileInspectorBar tileInspectorBar;
     private TileInspectorRenderer tileInspectorRenderer;
-    private PopupOverlay popupOverlay;
+    private RaidBanner raidBanner;
     private GameOverOverlay gameOverOverlay;
-    private final Queue<String> pendingPopupMessages = new ArrayDeque<>();
 
     private EventBus eventBus;
     private FlowState flowState;
@@ -88,9 +87,12 @@ public class Main extends ApplicationAdapter {
     private volatile boolean autoSaveEnabled = true;
     private boolean timeProgressionPaused;
 
+    private float gameOverCountdown = -1f; // -1 = not scheduled
+    private static final float NO_COUNTDOWN = -1f;
+
     /**
-     * Initialisiert die Kernkomponenten, lädt Grafikressourcen und konfiguriert die Eingabeverarbeitung.
-     * Stellt sicher, dass alle Render-Systeme und die Spiellogik beim Anwendungsstart bereitstehen.
+     * Initializes the core components, loads graphics resources, and configures input processing
+     * Ensures that all rendering systems and game logic are ready when the application starts
      */
     @Override
     public void create() {
@@ -118,7 +120,7 @@ public class Main extends ApplicationAdapter {
         sidebarRenderer = new SidebarRenderer();
         tileInspectorBar = new TileInspectorBar();
         tileInspectorRenderer = new TileInspectorRenderer();
-        popupOverlay = new PopupOverlay(this::dismissActivePopup);
+        raidBanner = new RaidBanner();
 
         topBarRenderer = new TopBarRenderer();
         eventBus = new EventBus();
@@ -135,6 +137,7 @@ public class Main extends ApplicationAdapter {
             eventBus,
             tileInspectorBar
         );
+        gridInputHandler.setRaidBanner(raidBanner);
         gridInputHandler.setGameplayEnabled(false);
 
         // Build available resolutions before constructing settings UI dropdown options.
@@ -174,10 +177,9 @@ public class Main extends ApplicationAdapter {
             () -> menuFlowCoordinator.registerUiElements()
         );
 
-        // Ensure persisted fullscreen/windowed choice is applied after core systems are wired.
+        // Ensure persistent fullscreen/windowed state
         settingsFlowCoordinator.initializeDisplaySettings(() -> {});
 
-        resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.input.setInputProcessor(gridInputHandler);
 
         eventBus.subscribe(event -> {
@@ -199,14 +201,13 @@ public class Main extends ApplicationAdapter {
                 }
             }
             if (event instanceof BackToMainMenuEvent) {
-                pendingPopupMessages.clear();
-                popupOverlay.hide();
                 gameOverOverlay.hide();
                 gridInputHandler.setExclusiveUiElement(null);
                 gameStateHandler.resetRaidTimeline();
                 menuFlowCoordinator.returnToMainMenu();
                 timeProgressionPaused = false;
                 autoSaveEnabled = true;
+                gameOverCountdown = NO_COUNTDOWN;
             }
             if (event instanceof PauseGameEvent) {
                 gameplayFlowCoordinator.pauseGame();
@@ -236,7 +237,8 @@ public class Main extends ApplicationAdapter {
     }
 
     /**
-     * Updates the render call to pass the generic texture map and the currently selected building object.
+     * Main render loop. Draws the active screen each frame
+     * Handles simulation ticks, raid sequencing, and game-over scheduling
      */
     @Override
     public void render() {
@@ -270,17 +272,58 @@ public class Main extends ApplicationAdapter {
                 }
             }
 
-            String raidPopupMessage;
-            while ((raidPopupMessage = tickHandler.pollNextRaidPopupMessage()) != null) {
-                queuePopupMessage(raidPopupMessage);
+            // Collect all raid messages emitted this day
+            List<String> raidMessages = new ArrayList<>();
+
+            // Tick game-over countdown if scheduled
+            if (gameOverCountdown > NO_COUNTDOWN) {
+                gameOverCountdown -= Gdx.graphics.getDeltaTime();
+                if (gameOverCountdown <= 0f) {
+                    gameOverCountdown = NO_COUNTDOWN;
+                    enterGameOver();
+                }
             }
 
-            if (raidDefeatDetected) {
-                enterGameOver();
+            String raidMsg;
+            while ((raidMsg = tickHandler.pollNextRaidPopupMessage()) != null) {
+                raidMessages.add(raidMsg);
             }
 
-            if (flowState.getScreenState() == ScreenState.GAMEPLAY && !pendingPopupMessages.isEmpty()) {
-                showNextPendingPopup();
+            // Show messages as banners in sequence.
+            // If two messages arrived (attack + outcome), chain them:
+            // the outcome banner shows automatically when the attack banner finishes.
+            if (!raidMessages.isEmpty() && !raidBanner.isActive()) {
+                String firstMsg = raidMessages.get(0);
+                boolean isAttack = firstMsg.contains("Bandits are upon us");
+                RaidBanner.BannerType firstType = isAttack
+                    ? RaidBanner.BannerType.ATTACK
+                    : RaidBanner.BannerType.WARNING;
+
+                if (raidMessages.size() > 1) {
+                    final String outcomeMsg = raidMessages.get(1);
+
+                    if (raidDefeatDetected) {
+                        // Defeat: show outcome text, then trigger game-over after it fades
+                        raidBanner.show(firstType, firstMsg, () -> {
+                            raidBanner.showFloatingText(outcomeMsg);
+                            scheduleGameOver(RaidBanner.FLOATING_DURATION + 0.2f); // Delay game-over by floating text duration + 1 second
+                        });
+                    } else {
+                        // Victory: just show the outcome floating text
+                        raidBanner.show(firstType, firstMsg, () ->
+                            raidBanner.showFloatingText(outcomeMsg));
+                    }
+
+                } else {
+                    if (raidDefeatDetected) {
+                        raidBanner.show(firstType, firstMsg, () ->
+                            scheduleGameOver(1f));
+                    } else {
+                        raidBanner.show(firstType, firstMsg, () -> {});
+                    }
+                }
+            } else if (raidDefeatDetected && !raidBanner.isActive()) {
+                enterGameOver(); // Edge case: defeat with no messages queued
             }
         }
 
@@ -313,7 +356,7 @@ public class Main extends ApplicationAdapter {
             tickHandler.getGameSpeed(),
             timeProgressionPaused,
             savingInProgress,
-            flowState.getScreenState() == ScreenState.POPUP || flowState.getScreenState() == ScreenState.GAME_OVER
+            flowState.getScreenState() == ScreenState.GAME_OVER
         );
         tileInspectorRenderer.render(
             shapeRenderer, batch, gameWindow, tileInspectorBar, buildingTextures, eventBus,
@@ -321,49 +364,17 @@ public class Main extends ApplicationAdapter {
             () -> gridInputHandler.deleteSelectedBuilding()
         );
 
-        if (flowState.getScreenState() == ScreenState.POPUP) {
-            popupOverlay.render(shapeRenderer, batch);
-        }
 
         if (flowState.getScreenState() == ScreenState.GAME_OVER) {
             gameOverOverlay.render(shapeRenderer, batch);
         }
-    }
 
-    /**
-     * Activates the next queued popup and blocks all non-popup input.
-     */
-    private void showNextPendingPopup() {
-        String popupMessage = pendingPopupMessages.poll();
-        if (popupMessage == null) {
-            return;
+        // Raid banner renders on top of everything, every frame
+        raidBanner.update(Gdx.graphics.getDeltaTime());
+        if (raidBanner.isActive() || raidBanner.isFloatingTextActive()) {
+            raidBanner.render(batch);
         }
 
-        popupOverlay.show(popupMessage);
-        flowState.setScreenState(ScreenState.POPUP);
-        gridInputHandler.setExclusiveUiElement(popupOverlay.getConfirmButton());
-    }
-
-    /**
-     * Dismisses the current popup and either shows the next queued one or resumes gameplay.
-     */
-    private void dismissActivePopup() {
-        popupOverlay.hide();
-        gridInputHandler.setExclusiveUiElement(null);
-
-        if (!pendingPopupMessages.isEmpty()) {
-            showNextPendingPopup();
-            return;
-        }
-
-        flowState.setScreenState(ScreenState.GAMEPLAY);
-    }
-
-    private void queuePopupMessage(String message) {
-        if (message == null || message.isEmpty()) {
-            return;
-        }
-        pendingPopupMessages.add(message);
     }
 
     /**
@@ -386,7 +397,7 @@ public class Main extends ApplicationAdapter {
         batch.dispose();
         grassTexture.dispose();
         topBarRenderer.dispose();
-        popupOverlay.dispose();
+        raidBanner.dispose();
         gameOverOverlay.dispose();
         settingsFlowCoordinator.dispose();
         menuFlowCoordinator.dispose();
@@ -395,11 +406,10 @@ public class Main extends ApplicationAdapter {
     private void startNewGame() {
         gameStateHandler.resetNewGame();
         tickHandler.resetTimeline();
+        gameOverCountdown = NO_COUNTDOWN;
         timeProgressionPaused = false;
         autoSaveEnabled = true;
         gridInputHandler.resetTransientState();
-        pendingPopupMessages.clear();
-        popupOverlay.hide();
         gameOverOverlay.hide();
         gridInputHandler.setExclusiveUiElement(null);
         gameStateHandler.resetRaidTimeline();
@@ -420,11 +430,10 @@ public class Main extends ApplicationAdapter {
         timeProgressionPaused = false;
         autoSaveEnabled = true;
         gridInputHandler.resetTransientState();
-        pendingPopupMessages.clear();
-        popupOverlay.hide();
         gameOverOverlay.hide();
         gridInputHandler.setExclusiveUiElement(null);
         gameplayFlowCoordinator.startGame();
+        gameOverCountdown = NO_COUNTDOWN;
     }
 
     private void enterGameOver() {
@@ -432,8 +441,6 @@ public class Main extends ApplicationAdapter {
             return;
         }
 
-        pendingPopupMessages.clear();
-        popupOverlay.hide();
         flowState.setPaused(true);
         flowState.setScreenState(ScreenState.GAME_OVER);
         timeProgressionPaused = true;
@@ -442,6 +449,16 @@ public class Main extends ApplicationAdapter {
         gridInputHandler.setExclusiveUiElement(gameOverOverlay.getBackToMenuButton());
         gameStateStore.delete();
     }
+
+
+    /**
+     * Schedules game over to trigger after a delay in seconds
+     * Used to let the raid outcome floating text finish before the game over overlay appears
+     */
+    private void scheduleGameOver(float delaySeconds) {
+        gameOverCountdown = delaySeconds;
+    }
+
 
     private void triggerAutoSave() {
         if (!autoSaveEnabled) {

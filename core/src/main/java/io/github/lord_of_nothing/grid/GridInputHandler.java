@@ -18,6 +18,7 @@ import io.github.lord_of_nothing.events.ResumeGameEvent;
 import io.github.lord_of_nothing.events.StartGameEvent;
 import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 import io.github.lord_of_nothing.game.ResourceStateMutator;
+import io.github.lord_of_nothing.hud.RaidBanner;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.resources.ResourceType;
@@ -49,6 +50,7 @@ public class GridInputHandler extends InputAdapter {
     private UiElement exclusiveUiElement;
     private final GameWindow window;
     private final TileInspectorBar tileInspectorBar;
+    private RaidBanner raidBanner;
 
 
     /**
@@ -174,6 +176,14 @@ public class GridInputHandler extends InputAdapter {
      */
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        // If the raid banner is active, let it consume the click
+        if (raidBanner != null && raidBanner.isActive()) {
+            if (raidBanner.contains(touchPos.x, touchPos.y)) {
+                raidBanner.dismiss();
+                return true;
+            }
+        }
+
         touchPos.set(screenX, screenY, 0);
         // Convert Screen Coordinates to World Coordinates
         camera.unproject(touchPos);
@@ -428,5 +438,10 @@ public class GridInputHandler extends InputAdapter {
             // Use the merged 'resources' mutator to ensure the UI and TickManager receive the update
             resources.addResource(ResourceType.CITIZENS_CAPACITY, b.getCitizenCapacity());
         }
+    }
+
+    /** Wires the raid banner so clicks on it can be forwarded for dismissal */
+    public void setRaidBanner(RaidBanner raidBanner) {
+        this.raidBanner = raidBanner;
     }
 }
