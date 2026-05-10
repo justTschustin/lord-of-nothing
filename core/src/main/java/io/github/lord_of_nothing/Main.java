@@ -132,7 +132,6 @@ public class Main extends ApplicationAdapter {
             tickHandler::getCurrentIngameHour
         );
         eventLogRenderer = new EventLogRenderer();
-        popupOverlay = new PopupOverlay(this::dismissActivePopup);
         topBarRenderer = new TopBarRenderer();
         Texture uiBg = new Texture("hud/HUD_Wood.png");
         Texture uiCorner = new Texture("hud/HUD_Corner_Overlay.png");
@@ -384,8 +383,13 @@ public class Main extends ApplicationAdapter {
             () -> gridInputHandler.deleteSelectedBuilding(),
             flowState.getScreenState() == ScreenState.PAUSED
         );
-        popupOverlay.render(shapeRenderer, batch);
         gameOverOverlay.render(shapeRenderer, batch);
+        
+        // Render and overlay raid banner
+        raidBanner.update(Gdx.graphics.getDeltaTime());
+        if (raidBanner.isActive() || raidBanner.isFloatingTextActive()) {
+            raidBanner.render(batch);
+        }
     }
     /**
      * Centralizes UI asset loading and distributes shared textures to the HUD renderers.
@@ -423,13 +427,6 @@ public class Main extends ApplicationAdapter {
         tileInspectorRenderer = new TileInspectorRenderer();
         tileInspectorRenderer.loadAssets(uiBg, uiCorner, uiEdge);
     }
-
-        // Render and overlay raid banner
-        raidBanner.update(Gdx.graphics.getDeltaTime());
-        if (raidBanner.isActive() || raidBanner.isFloatingTextActive()) {
-            raidBanner.render(batch);
-        }
-
     }
 
     /**
