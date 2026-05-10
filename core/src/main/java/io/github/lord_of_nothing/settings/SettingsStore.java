@@ -22,6 +22,7 @@ public class SettingsStore {
         this.filePath = filePath;
         json.setOutputType(JsonWriter.OutputType.json);
         json.setUsePrototypes(false);
+        System.out.println(java.nio.file.Paths.get(filePath).toAbsolutePath());
     }
 
     /**
@@ -86,7 +87,7 @@ public class SettingsStore {
     }
 
     private int normalizeGameSpeed(int requested, int fallback) {
-        if (requested == 1 || requested == 2 || requested == 4) {
+        if (requested >= 1) {
             return requested;
         }
         return fallback;

@@ -1,5 +1,7 @@
 package io.github.lord_of_nothing;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -39,11 +41,16 @@ import io.github.lord_of_nothing.grid.GridRenderer;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.hud.SidebarRenderer;
 import io.github.lord_of_nothing.hud.TopBarRenderer;
+import io.github.lord_of_nothing.hud.GameOverOverlay;
+import io.github.lord_of_nothing.hud.RaidBanner;
 import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.hud.TileInspectorRenderer;
+import io.github.lord_of_nothing.hud.EventLog;
+import io.github.lord_of_nothing.hud.EventLogRenderer;
 import io.github.lord_of_nothing.menu.MainMenu;
 import io.github.lord_of_nothing.menu.SettingsMenu;
 import io.github.lord_of_nothing.persistence.UserConfigPaths;
+import io.github.lord_of_nothing.resources.ResourceType;
 import io.github.lord_of_nothing.settings.GameSettings;
 import io.github.lord_of_nothing.settings.ResolutionSettings;
 import io.github.lord_of_nothing.settings.SettingsStore;
@@ -67,6 +74,8 @@ public class Main extends ApplicationAdapter {
     private SidebarRenderer sidebarRenderer;
     private TileInspectorBar tileInspectorBar;
     private TileInspectorRenderer tileInspectorRenderer;
+    private RaidBanner raidBanner;
+    private GameOverOverlay gameOverOverlay;
 
     private EventBus eventBus;
     private FlowState flowState;
@@ -80,12 +89,18 @@ public class Main extends ApplicationAdapter {
     private final ExecutorService saveExecutor = Executors.newSingleThreadExecutor();
     private final AtomicInteger pendingSaveTasks = new AtomicInteger(0);
     private volatile boolean savingInProgress;
+    private volatile boolean autoSaveEnabled = true;
     private boolean timeProgressionPaused;
     private AudioManager audioManager;
+    private EventLog eventLog;
+    private EventLogRenderer eventLogRenderer;
+
+    private float gameOverCountdown = -1f; // -1 = not scheduled
+    private static final float NO_COUNTDOWN = -1f;
 
     /**
-     * Initialisiert die Kernkomponenten, lädt Grafikressourcen und konfiguriert die Eingabeverarbeitung.
-     * Stellt sicher, dass alle Render-Systeme und die Spiellogik beim Anwendungsstart bereitstehen.
+     * Initializes the core components, loads graphics resources, and configures input processing
+     * Ensures that all rendering systems and game logic are ready when the application starts
      */
     @Override
     public void create() {
@@ -117,10 +132,21 @@ public class Main extends ApplicationAdapter {
 
         audioManager.startPlaylist();
 
-        topBarRenderer = new TopBarRenderer();
-        eventBus = new EventBus();
-        flowState = new FlowState();
+        raidBanner = new RaidBanner();
         tickHandler = new TickHandler();
+        eventLog = new EventLog(
+            gameStateHandler::getCurrentIngameDay,
+            tickHandler::getCurrentIngameHour
+        );
+        eventLogRenderer = new EventLogRenderer();
+        topBarRenderer = new TopBarRenderer();
+        Texture uiBg = new Texture("hud/HUD_Wood.png");
+        Texture uiCorner = new Texture("hud/HUD_Corner_Overlay.png");
+        Texture uiEdge = new Texture("hud/HUD_Border_Overlay.png");
+        initializeHudRenderers(uiBg, uiCorner, uiEdge);
+        eventBus = new EventBus();
+        gameOverOverlay = new GameOverOverlay(eventBus);
+        flowState = new FlowState();
 
 
         gridInputHandler = new GridInputHandler(
@@ -130,8 +156,10 @@ public class Main extends ApplicationAdapter {
             sidebar,
             gameStateHandler,
             eventBus,
-            tileInspectorBar
+            tileInspectorBar,
+            eventLog
         );
+        gridInputHandler.setRaidBanner(raidBanner);
         gridInputHandler.setGameplayEnabled(false);
 
         // Build available resolutions before constructing settings UI dropdown options.
@@ -172,10 +200,9 @@ public class Main extends ApplicationAdapter {
             () -> menuFlowCoordinator.registerUiElements()
         );
 
-        // Ensure persisted fullscreen/windowed choice is applied after core systems are wired.
+        // Ensure a persistent fullscreen/windowed state
         settingsFlowCoordinator.initializeDisplaySettings(() -> {});
 
-        resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.input.setInputProcessor(gridInputHandler);
 
         eventBus.subscribe(event -> {
@@ -203,7 +230,13 @@ public class Main extends ApplicationAdapter {
                 settingsStore.save(gameSettings);
             }
             if (event instanceof BackToMainMenuEvent) {
+                gameOverOverlay.hide();
+                gridInputHandler.setExclusiveUiElement(null);
+                gameStateHandler.resetRaidTimeline();
                 menuFlowCoordinator.returnToMainMenu();
+                timeProgressionPaused = false;
+                autoSaveEnabled = true;
+                gameOverCountdown = NO_COUNTDOWN;
             }
             if (event instanceof PauseGameEvent) {
                 gameplayFlowCoordinator.pauseGame();
@@ -233,7 +266,8 @@ public class Main extends ApplicationAdapter {
     }
 
     /**
-     * Updates the render call to pass the generic texture map and the currently selected building object.
+     * Main render loop. Draws the active screen each frame
+     * Handles simulation ticks, raid sequencing, and game-over scheduling
      */
     @Override
     public void render() {
@@ -257,11 +291,69 @@ public class Main extends ApplicationAdapter {
             int completedDays = tickHandler.update(
                 Gdx.graphics.getDeltaTime(),
                 gameStateHandler.getCurrentIngameDay(),
-                gameStateHandler
+                gameStateHandler,
+                eventLog
             );
+            boolean raidDefeatDetected = tickHandler.consumePendingRaidDefeat();
             for (int i = 0; i < completedDays; i++) {
                 gameStateHandler.advanceIngameDay();
-                triggerAutoSave();
+                if (!raidDefeatDetected) {
+                    triggerAutoSave();
+                }
+            }
+
+            // Collect all raid messages emitted this day
+            List<String> raidMessages = new ArrayList<>();
+
+            // Tick game-over countdown if scheduled
+            if (gameOverCountdown > NO_COUNTDOWN) {
+                gameOverCountdown -= Gdx.graphics.getDeltaTime();
+                if (gameOverCountdown <= 0f) {
+                    gameOverCountdown = NO_COUNTDOWN;
+                    enterGameOver();
+                }
+            }
+
+            String raidMsg;
+            while ((raidMsg = tickHandler.pollNextRaidPopupMessage()) != null) {
+                raidMessages.add(raidMsg);
+            }
+
+            // Show messages as banners in sequence.
+            // If two messages arrive (attack and outcome), chain them:
+            // the outcome banner shows automatically when the attack banner finishes.
+            if (!raidMessages.isEmpty() && !raidBanner.isActive()) {
+                String firstMsg = raidMessages.get(0);
+                boolean isAttack = firstMsg.contains("Bandits are upon us");
+                RaidBanner.BannerType firstType = isAttack
+                    ? RaidBanner.BannerType.ATTACK
+                    : RaidBanner.BannerType.WARNING;
+
+                if (raidMessages.size() > 1) {
+                    final String outcomeMsg = raidMessages.get(1);
+
+                    if (raidDefeatDetected) {
+                        // Defeat: show outcome text, then trigger game-over after it fades
+                        raidBanner.show(firstType, firstMsg, () -> {
+                            raidBanner.showFloatingText(outcomeMsg);
+                            scheduleGameOver(RaidBanner.FLOATING_DURATION + 0.2f); // Delay game-over by floating text duration + 1 second
+                        });
+                    } else {
+                        // Victory: just show the outcome floating text
+                        raidBanner.show(firstType, firstMsg, () ->
+                            raidBanner.showFloatingText(outcomeMsg));
+                    }
+
+                } else {
+                    if (raidDefeatDetected) {
+                        raidBanner.show(firstType, firstMsg, () ->
+                            scheduleGameOver(1f));
+                    } else {
+                        raidBanner.show(firstType, firstMsg, () -> {});
+                    }
+                }
+            } else if (raidDefeatDetected && !raidBanner.isActive()) {
+                enterGameOver(); // Edge case: defeat with no messages queued
             }
         }
 
@@ -293,13 +385,62 @@ public class Main extends ApplicationAdapter {
             flowState.getScreenState() == ScreenState.PAUSED,
             tickHandler.getGameSpeed(),
             timeProgressionPaused,
-            savingInProgress
+            savingInProgress,
+            flowState.getScreenState() == ScreenState.GAME_OVER
+        );
+        eventLogRenderer.render(
+            shapeRenderer, batch, gameWindow, eventLog,
+            flowState.getScreenState() == ScreenState.PAUSED
         );
         tileInspectorRenderer.render(
             shapeRenderer, batch, gameWindow, tileInspectorBar, buildingTextures, eventBus,
             gameStateHandler,
-            () -> gridInputHandler.deleteSelectedBuilding()
+            () -> gridInputHandler.deleteSelectedBuilding(),
+            flowState.getScreenState() == ScreenState.PAUSED
         );
+        gameOverOverlay.render(shapeRenderer, batch);
+
+        // Render and overlay raid banner
+        raidBanner.update(Gdx.graphics.getDeltaTime());
+        if (raidBanner.isActive() || raidBanner.isFloatingTextActive()) {
+            raidBanner.render(batch);
+        }
+    }
+    /**
+     * Centralizes UI asset loading and distributes shared textures to the HUD renderers.
+     * Reuses texture instances for the background, borders, and icons to optimize memory and simplify resource disposal.
+     */
+    private void initializeHudRenderers(Texture uiBg, Texture uiCorner, Texture uiEdge) {
+        // Shared Icon Map to avoid loading the same files multiple times
+        Map<ResourceType, Texture> icons = new HashMap<>();
+        icons.put(ResourceType.WOOD, new Texture("icons/Wood.png"));
+        icons.put(ResourceType.STONE, new Texture("icons/Stone.png"));
+        icons.put(ResourceType.FOOD, new Texture("icons/Food.png"));
+        icons.put(ResourceType.CITIZENS_TOTAL, new Texture("icons/Citizen.png"));
+        icons.put(ResourceType.SOLDIERS, new Texture("icons/Soldier.png"));
+        icons.put(ResourceType.CITIZENS_CAPACITY, new Texture("icons/Capacity.png"));
+
+        Texture dayIcon = new Texture("icons/Day.png");
+        Texture timeIcon = new Texture("icons/Time.png");
+
+        // Initialize and configure TopBar
+        topBarRenderer = new TopBarRenderer();
+        topBarRenderer.loadAssets(uiBg, uiCorner, uiEdge,
+            icons.get(ResourceType.WOOD), icons.get(ResourceType.STONE), icons.get(ResourceType.FOOD),
+            icons.get(ResourceType.CITIZENS_TOTAL), icons.get(ResourceType.SOLDIERS),
+            icons.get(ResourceType.CITIZENS_CAPACITY), dayIcon, timeIcon);
+
+        // Map icons for tooltip/resource groups inside TopBar
+        icons.forEach(topBarRenderer::setResourceIcon);
+        topBarRenderer.setTimeIcons(dayIcon, timeIcon);
+
+        // Initialize remaining HUD components with shared frames
+        sidebarRenderer = new SidebarRenderer();
+        sidebarRenderer.loadAssets(uiBg, uiCorner, uiEdge);
+        eventLogRenderer.loadAssets(uiBg, uiCorner, uiEdge);
+
+        tileInspectorRenderer = new TileInspectorRenderer();
+        tileInspectorRenderer.loadAssets(uiBg, uiCorner, uiEdge);
     }
 
     /**
@@ -313,7 +454,7 @@ public class Main extends ApplicationAdapter {
     }
 
     /**
-     * Saves settings and disposes rendering resources.
+     * Save settings and disposes of rendering resources.
      */
     @Override
     public void dispose() {
@@ -323,16 +464,26 @@ public class Main extends ApplicationAdapter {
         batch.dispose();
         grassTexture.dispose();
         topBarRenderer.dispose();
+        raidBanner.dispose();
+        gameOverOverlay.dispose();
         settingsFlowCoordinator.dispose();
         menuFlowCoordinator.dispose();
         audioManager.dispose();
+        tileInspectorRenderer.dispose();
     }
 
     private void startNewGame() {
+        eventLog.clear();
+        eventLog.addMessage("Welcome, Lord of Nothing!", false);
         gameStateHandler.resetNewGame();
         tickHandler.resetTimeline();
+        gameOverCountdown = NO_COUNTDOWN;
         timeProgressionPaused = false;
+        autoSaveEnabled = true;
         gridInputHandler.resetTransientState();
+        gameOverOverlay.hide();
+        gridInputHandler.setExclusiveUiElement(null);
+        gameStateHandler.resetRaidTimeline();
         gameplayFlowCoordinator.startGame();
     }
 
@@ -348,18 +499,52 @@ public class Main extends ApplicationAdapter {
 
         tickHandler.resetTimeline();
         timeProgressionPaused = false;
+        autoSaveEnabled = true;
         gridInputHandler.resetTransientState();
+        gameOverOverlay.hide();
+        gridInputHandler.setExclusiveUiElement(null);
         gameplayFlowCoordinator.startGame();
+        gameOverCountdown = NO_COUNTDOWN;
     }
 
+    private void enterGameOver() {
+        if (flowState.getScreenState() == ScreenState.GAME_OVER) {
+            return;
+        }
+
+        flowState.setPaused(true);
+        flowState.setScreenState(ScreenState.GAME_OVER);
+        timeProgressionPaused = true;
+        autoSaveEnabled = false;
+        gameOverOverlay.show();
+        gridInputHandler.setExclusiveUiElement(gameOverOverlay.getBackToMenuButton());
+        gameStateStore.delete();
+    }
+
+
+    /**
+     * Schedules game over to trigger after a delay in seconds
+     * Used to let the raid outcome floating text finish before the game over overlay appears
+     */
+    private void scheduleGameOver(float delaySeconds) {
+        gameOverCountdown = delaySeconds;
+    }
+
+
     private void triggerAutoSave() {
+        if (!autoSaveEnabled) {
+            return;
+        }
+
         final GameState snapshot = gameStateHandler.getSnapshot();
         pendingSaveTasks.incrementAndGet();
         savingInProgress = true;
 
         saveExecutor.submit(() -> {
             try {
-                gameStateStore.save(snapshot);
+                if (autoSaveEnabled) {
+                    gameStateStore.save(snapshot);
+                }
             } finally {
                 if (pendingSaveTasks.decrementAndGet() <= 0) {
                     pendingSaveTasks.set(0);

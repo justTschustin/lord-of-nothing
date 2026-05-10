@@ -22,6 +22,8 @@ public class GameStateHandler implements ResourceStateMutator {
     private final ResourceManager resourceManager;
     private final Grid grid;
     private int currentIngameDay;
+    private Integer nextRaidScheduledDay;
+    private Integer nextRaidDeterminationDay;
 
     public GameStateHandler() {
         this(new ResourceManager(), new Grid(), 1);
@@ -31,6 +33,7 @@ public class GameStateHandler implements ResourceStateMutator {
         this.resourceManager = currentResources == null ? new ResourceManager() : currentResources;
         this.grid = currentGrid == null ? new Grid() : currentGrid;
         this.currentIngameDay = Math.max(1, currentIngameDay);
+        resetRaidTimeline();
     }
 
     public GameState getState() {
@@ -116,9 +119,40 @@ public class GameStateHandler implements ResourceStateMutator {
         return true;
     }
 
+    public Integer getNextRaidScheduledDay() {
+        return nextRaidScheduledDay;
+    }
+
+    public void setNextRaidScheduledDay(Integer nextRaidScheduledDay) {
+        if (nextRaidScheduledDay == null) {
+            this.nextRaidScheduledDay = null;
+            return;
+        }
+        this.nextRaidScheduledDay = Math.max(1, nextRaidScheduledDay);
+    }
+
+    public Integer getNextRaidDeterminationDay() {
+        return nextRaidDeterminationDay;
+    }
+
+    public void setNextRaidDeterminationDay(Integer nextRaidDeterminationDay) {
+        if (nextRaidDeterminationDay == null) {
+            this.nextRaidDeterminationDay = null;
+            return;
+        }
+        this.nextRaidDeterminationDay = Math.max(1, nextRaidDeterminationDay);
+        System.out.println("Next raid will be determined on day " + nextRaidDeterminationDay);
+    }
+
+    public void resetRaidTimeline() {
+        RaidMechanic.resetTimeline(this);
+    }
+
     public GameState getSnapshot() {
         GameState snapshot = new GameState();
         snapshot.setCurrentIngameDay(currentIngameDay);
+        snapshot.setNextRaidScheduledDay(nextRaidScheduledDay);
+        snapshot.setNextRaidDeterminationDay(nextRaidDeterminationDay);
         snapshot.setResources(createResourcesSnapshot());
         snapshot.setGrid(createGridSnapshot());
         return snapshot;
@@ -206,6 +240,26 @@ public class GameStateHandler implements ResourceStateMutator {
                 }
             }
         }
+    }
+
+    /**
+     * <summary>Calculates the total hourly production for a specific resource type based on currently assigned workers.</summary>
+     * @param type The resource type to calculate income for. @return Sum of production from all active buildings.
+     */
+    public int getHourlyIncome(ResourceType type) {
+        int income = 0;
+        for (int x = 0; x < grid.getWidth(); x++) {
+            for (int y = 0; y < grid.getHeight(); y++) {
+                io.github.lord_of_nothing.grid.Tile tile = grid.getTile(x, y);
+                if (tile != null && tile.hasBuilding() && tile.getBuilding().isAnchorPoint(x, y)) {
+                    io.github.lord_of_nothing.buildings.Building b = tile.getBuilding();
+                    if (b.getProductionType() == type) {
+                        income += b.getCurrentWorkers() * b.getProductionPerWorker();
+                    }
+                }
+            }
+        }
+        return income;
     }
 
     private void applyTileStates(List<GameState.TileState> tiles) {
