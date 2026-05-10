@@ -67,13 +67,8 @@ public final class RaidMechanic {
         int currentDay,
         Consumer<String> popupConsumer
     ) {
-        int warningMin = randomIntInclusive(RAID_WARNING_MIN_DAYS, RAID_WARNING_MAX_DAYS);
-        int warningMax = randomIntInclusive(RAID_WARNING_MIN_DAYS, RAID_WARNING_MAX_DAYS);
-        if (warningMin > warningMax) {
-            int temp = warningMin;
-            warningMin = warningMax;
-            warningMax = temp;
-        }
+        int warningMin = randomIntInclusive(RAID_WARNING_MIN_DAYS, RAID_WARNING_MAX_DAYS - 3);
+        int warningMax = randomIntInclusive(warningMin + 3, RAID_WARNING_MAX_DAYS);
 
         int daysUntilRaid = randomIntInclusive(warningMin, warningMax);
         state.setNextRaidScheduledDay(currentDay + daysUntilRaid);
