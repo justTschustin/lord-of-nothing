@@ -112,6 +112,8 @@ public class GameStateHandler implements ResourceStateMutator {
         }
 
         setCurrentIngameDay(state.getCurrentIngameDay());
+        setNextRaidScheduledDay(state.getNextRaidScheduledDay());
+        setNextRaidDeterminationDay(state.getNextRaidDeterminationDay());
         clearLastRaidSummary();
 
         GameState.GridState gridState = state.getGrid();
