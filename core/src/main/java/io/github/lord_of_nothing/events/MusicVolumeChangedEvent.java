@@ -1,7 +1,7 @@
 package io.github.lord_of_nothing.events;
 
 /**
- * Event published when the music volume is changed via slider.
+ * Event published when the music volume is changed via slider
  */
 public class MusicVolumeChangedEvent implements Event {
     private final float volume;

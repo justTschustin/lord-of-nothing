@@ -10,7 +10,7 @@ import io.github.lord_of_nothing.settings.GameSettings;
 import io.github.lord_of_nothing.ui.UiElement;
 
 /**
- * A volume slider control for audio settings.
+ * A volume slider control for audio settings
  */
 public class VolumeSlider implements UiElement {
     private float x, y, width, height;
@@ -40,7 +40,7 @@ public class VolumeSlider implements UiElement {
 
     @Override
     public void render(SpriteBatch batch) {
-        // Batch muss kurz enden damit ShapeRenderer zeichnen kann
+        // Batch has to end shortly for ShapeRenderer to be able to draw
         batch.end();
 
         ShapeRenderer shapeRenderer = new ShapeRenderer();
@@ -57,7 +57,7 @@ public class VolumeSlider implements UiElement {
 
         shapeRenderer.end();
 
-        // Batch wieder starten
+        // Start Batch again
         batch.begin();
 
         // Draw text label

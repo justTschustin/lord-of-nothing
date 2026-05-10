@@ -181,7 +181,7 @@ public class SettingsMenu {
             }
         }
 
-        // Render VolumeSlider nach den geschlossenen Dropdowns
+        // Render VolumeSlider after closed Dropdowns
         for (UiElement control : settingsControls) {
             if (control instanceof VolumeSlider) {
                 control.render(batch);

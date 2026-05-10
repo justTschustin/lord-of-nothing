@@ -18,7 +18,7 @@ public class AudioManager {
     }
 
     /**
-     * Initialisiert die Playlist mit allen 8 Soundtracks.
+     * Initializes Playlist with all 8 soundtracks [CHANGE FOR-LOOP, IF MORE SONGS ARE ADDED!!!]
      */
     private void initializePlaylist() {
         for (int i = 1; i <= 8; i++) {
@@ -27,11 +27,11 @@ public class AudioManager {
     }
 
     /**
-     * Startet die Playlist vom ersten Track an.
+     * Starts Playlist with first track
      */
     public void startPlaylist() {
         if (isPlaying) {
-            return; // Verhindert doppeltes Starten
+            return; // Prevents starting twice
         }
         currentTrackIndex = 0;
         isPlaying = true;
@@ -39,7 +39,7 @@ public class AudioManager {
     }
 
     /**
-     * Spielt den aktuellen Track ab.
+     * Plays current track
      */
     private void playCurrentTrack() {
         if (currentMusic != null) {
@@ -51,7 +51,7 @@ public class AudioManager {
         currentMusic = Gdx.audio.newMusic(Gdx.files.internal(trackPath));
         currentMusic.setVolume(masterVolume);
 
-        // Listener: Wenn Track zu Ende → nächster Track
+        // Listener: If Track ended -> next Track
         currentMusic.setOnCompletionListener(music -> {
             currentTrackIndex = (currentTrackIndex + 1) % playlist.size();
             playCurrentTrack();
@@ -61,7 +61,7 @@ public class AudioManager {
     }
 
     /**
-     * Setzt die Master-Lautstärke (0.0 bis 1.0).
+     * Sets master volume (0.0 ... 1.0)
      */
     public void setMasterVolume(float volume) {
         this.masterVolume = Math.max(0, Math.min(1, volume));
@@ -75,7 +75,7 @@ public class AudioManager {
     }
 
     /**
-     * Stoppt die Musik.
+     * Stops music
      */
     public void stopPlaylist() {
         isPlaying = false;
@@ -85,7 +85,7 @@ public class AudioManager {
     }
 
     /**
-     * Gibt alle Musik-Ressourcen frei.
+     * Frees all music resources
      */
     public void dispose() {
         stopPlaylist();
