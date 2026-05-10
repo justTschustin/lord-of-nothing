@@ -1,5 +1,6 @@
 package io.github.lord_of_nothing.game;
 
+import io.github.lord_of_nothing.buildings.Barrack;
 import io.github.lord_of_nothing.buildings.Building;
 import io.github.lord_of_nothing.buildings.BuildingFactory;
 import io.github.lord_of_nothing.grid.Grid;
@@ -24,6 +25,8 @@ public class GameStateHandler implements ResourceStateMutator {
     private int currentIngameDay;
     private Integer nextRaidScheduledDay;
     private Integer nextRaidDeterminationDay;
+    private Integer lastRaidBanditCount;
+    private Integer lastRaidDefenderCount;
 
     public GameStateHandler() {
         this(new ResourceManager(), new Grid(), 1);
@@ -84,6 +87,7 @@ public class GameStateHandler implements ResourceStateMutator {
         clearGrid();
         setCurrentIngameDay(1);
         addResource(ResourceType.WOOD, DEFAULT_STARTING_WOOD);
+        clearLastRaidSummary();
     }
 
     /**
@@ -108,6 +112,7 @@ public class GameStateHandler implements ResourceStateMutator {
         }
 
         setCurrentIngameDay(state.getCurrentIngameDay());
+        clearLastRaidSummary();
 
         GameState.GridState gridState = state.getGrid();
         if (gridState == null) {
@@ -146,6 +151,82 @@ public class GameStateHandler implements ResourceStateMutator {
 
     public void resetRaidTimeline() {
         RaidMechanic.resetTimeline(this);
+    }
+
+    public Integer getLastRaidBanditCount() {
+        return lastRaidBanditCount;
+    }
+
+    public Integer getLastRaidDefenderCount() {
+        return lastRaidDefenderCount;
+    }
+
+    public void setLastRaidSummary(Integer banditCount, Integer defenderCount) {
+        this.lastRaidBanditCount = banditCount == null ? null : Math.max(0, banditCount);
+        this.lastRaidDefenderCount = defenderCount == null ? null : Math.max(0, defenderCount);
+    }
+
+    public void clearLastRaidSummary() {
+        this.lastRaidBanditCount = null;
+        this.lastRaidDefenderCount = null;
+    }
+
+    /**
+     * Applies raid casualties to soldiers and removes the same number of assigned soldiers from barracks.
+     *
+     * @param amount requested soldier deaths
+     * @return actual soldier deaths applied
+     */
+    public int applySoldierCasualties(int amount) {
+        int requestedDeaths = Math.max(0, amount);
+        if (requestedDeaths == 0) {
+            return 0;
+        }
+
+        int actualDeaths = Math.min(requestedDeaths, resourceManager.getAmount(ResourceType.SOLDIERS));
+        actualDeaths = Math.min(actualDeaths, resourceManager.getAmount(ResourceType.CITIZENS_TOTAL));
+        actualDeaths = Math.min(actualDeaths, countAssignedWorkers(true));
+        if (actualDeaths <= 0) {
+            return 0;
+        }
+
+        removeAssignedWorkers(actualDeaths, true);
+        resourceManager.add(ResourceType.SOLDIERS, -actualDeaths);
+        resourceManager.add(ResourceType.CITIZENS_TOTAL, -actualDeaths);
+        return actualDeaths;
+    }
+
+    /**
+     * Applies raid casualties to civilian villagers and removes workers from non-barrack buildings first.
+     *
+     * @param amount requested civilian deaths
+     * @return actual civilian deaths applied
+     */
+    public int applyVillagerCasualties(int amount) {
+        int requestedDeaths = Math.max(0, amount);
+        if (requestedDeaths == 0) {
+            return 0;
+        }
+
+        int availableVillagers = resourceManager.getAmount(ResourceType.CITIZENS_AVAILABLE);
+        int workerVillagers = countAssignedWorkers(false);
+        int actualDeaths = Math.min(requestedDeaths, availableVillagers + workerVillagers);
+        actualDeaths = Math.min(actualDeaths, resourceManager.getAmount(ResourceType.CITIZENS_TOTAL));
+        if (actualDeaths <= 0) {
+            return 0;
+        }
+
+        int lostAvailable = Math.min(actualDeaths, availableVillagers);
+        if (lostAvailable > 0) {
+            resourceManager.add(ResourceType.CITIZENS_AVAILABLE, -lostAvailable);
+        }
+
+        int remainingDeaths = actualDeaths - lostAvailable;
+        int lostWorkers = removeAssignedWorkers(remainingDeaths, false);
+        int totalLost = lostAvailable + lostWorkers;
+
+        resourceManager.add(ResourceType.CITIZENS_TOTAL, -totalLost);
+        return totalLost;
     }
 
     public GameState getSnapshot() {
@@ -332,5 +413,66 @@ public class GameStateHandler implements ResourceStateMutator {
             }
         }
         grid.setHovered(-1, -1);
+    }
+
+    private int countAssignedWorkers(boolean barracksOnly) {
+        int assignedWorkers = 0;
+        for (int x = 0; x < grid.getWidth(); x++) {
+            for (int y = 0; y < grid.getHeight(); y++) {
+                Tile tile = grid.getTile(x, y);
+                if (tile == null || !tile.hasBuilding()) {
+                    continue;
+                }
+
+                Building building = tile.getBuilding();
+                if (!building.isAnchorPoint(x, y)) {
+                    continue;
+                }
+
+                boolean isBarrack = building instanceof Barrack;
+                if (barracksOnly != isBarrack) {
+                    continue;
+                }
+
+                assignedWorkers += building.getCurrentWorkers();
+            }
+        }
+        return assignedWorkers;
+    }
+
+    private int removeAssignedWorkers(int requestedAmount, boolean barracksOnly) {
+        int remaining = Math.max(0, requestedAmount);
+        int removed = 0;
+
+        if (remaining == 0) {
+            return 0;
+        }
+
+        for (int x = 0; x < grid.getWidth() && remaining > 0; x++) {
+            for (int y = 0; y < grid.getHeight() && remaining > 0; y++) {
+                Tile tile = grid.getTile(x, y);
+                if (tile == null || !tile.hasBuilding()) {
+                    continue;
+                }
+
+                Building building = tile.getBuilding();
+                if (!building.isAnchorPoint(x, y)) {
+                    continue;
+                }
+
+                boolean isBarrack = building instanceof Barrack;
+                if (barracksOnly != isBarrack) {
+                    continue;
+                }
+
+                while (remaining > 0 && building.getCurrentWorkers() > 0) {
+                    building.removeWorker();
+                    remaining--;
+                    removed++;
+                }
+            }
+        }
+
+        return removed;
     }
 }

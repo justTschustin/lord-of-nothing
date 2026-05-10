@@ -523,7 +523,13 @@ public class Main extends ApplicationAdapter {
         flowState.setScreenState(ScreenState.GAME_OVER);
         timeProgressionPaused = true;
         autoSaveEnabled = false;
-        gameOverOverlay.show();
+        Integer bandits = gameStateHandler.getLastRaidBanditCount();
+        Integer defenders = gameStateHandler.getLastRaidDefenderCount();
+        if (bandits != null && defenders != null) {
+            gameOverOverlay.show(bandits, defenders);
+        } else {
+            gameOverOverlay.show();
+        }
         gridInputHandler.setExclusiveUiElement(gameOverOverlay.getBackToMenuButton());
         gameStateStore.delete();
     }
