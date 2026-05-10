@@ -191,7 +191,7 @@ public class Main extends ApplicationAdapter {
             () -> menuFlowCoordinator.registerUiElements()
         );
 
-        // Ensure persistent fullscreen/windowed state
+        // Ensure a persistent fullscreen/windowed state
         settingsFlowCoordinator.initializeDisplaySettings(() -> {});
 
         Gdx.input.setInputProcessor(gridInputHandler);
@@ -305,7 +305,7 @@ public class Main extends ApplicationAdapter {
             }
 
             // Show messages as banners in sequence.
-            // If two messages arrived (attack + outcome), chain them:
+            // If two messages arrive (attack and outcome), chain them:
             // the outcome banner shows automatically when the attack banner finishes.
             if (!raidMessages.isEmpty() && !raidBanner.isActive()) {
                 String firstMsg = raidMessages.get(0);
@@ -384,7 +384,7 @@ public class Main extends ApplicationAdapter {
             flowState.getScreenState() == ScreenState.PAUSED
         );
         gameOverOverlay.render(shapeRenderer, batch);
-        
+
         // Render and overlay raid banner
         raidBanner.update(Gdx.graphics.getDeltaTime());
         if (raidBanner.isActive() || raidBanner.isFloatingTextActive()) {
@@ -393,10 +393,10 @@ public class Main extends ApplicationAdapter {
     }
     /**
      * Centralizes UI asset loading and distributes shared textures to the HUD renderers.
-     * Reuses texture instances for background, borders, and icons to optimize memory and simplify resource disposal.
+     * Reuses texture instances for the background, borders, and icons to optimize memory and simplify resource disposal.
      */
     private void initializeHudRenderers(Texture uiBg, Texture uiCorner, Texture uiEdge) {
-        // Shared Icon Map to avoid loading same files multiple times
+        // Shared Icon Map to avoid loading the same files multiple times
         Map<ResourceType, Texture> icons = new HashMap<>();
         icons.put(ResourceType.WOOD, new Texture("icons/Wood.png"));
         icons.put(ResourceType.STONE, new Texture("icons/Stone.png"));
@@ -427,7 +427,6 @@ public class Main extends ApplicationAdapter {
         tileInspectorRenderer = new TileInspectorRenderer();
         tileInspectorRenderer.loadAssets(uiBg, uiCorner, uiEdge);
     }
-    }
 
     /**
      * Resumes gameplay when the application regains focus while paused.
@@ -440,7 +439,7 @@ public class Main extends ApplicationAdapter {
     }
 
     /**
-     * Saves settings and disposes rendering resources.
+     * Save settings and disposes of rendering resources.
      */
     @Override
     public void dispose() {
