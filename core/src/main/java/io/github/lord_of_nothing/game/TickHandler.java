@@ -1,5 +1,6 @@
 package io.github.lord_of_nothing.game;
 
+import io.github.lord_of_nothing.hud.EventLog;
 import io.github.lord_of_nothing.resources.ResourceType;
 
 import java.util.ArrayDeque;
@@ -123,7 +124,7 @@ public class TickHandler {
      * @param resourceState mutable resource state used to add arriving citizens
      * @return number of fully completed in-game days in this update
      */
-    public int update(float delta, int currentIngameDay, ResourceStateMutator resourceState) {
+    public int update(float delta, int currentIngameDay, ResourceStateMutator resourceState, EventLog log) {
         if (delta <= 0f) {return 0;}
 
         accumulatorSeconds += delta;
@@ -154,14 +155,16 @@ public class TickHandler {
                         // Add to both the total count and the available worker pool
                         resourceState.addResource(ResourceType.CITIZENS_TOTAL, arrivedCitizens);
                         resourceState.addResource(ResourceType.CITIZENS_AVAILABLE, arrivedCitizens);
-                    }
+                        log.addMessage(arrivedCitizens + " settlers arrived.", true);                    }
+                    else {
+                        log.addMessage("Housing full! Potential settlers left.", true);                    }
                 }
             }
 
             if (tickProgressInDay >= getTicksPerDay()) {
                 tickProgressInDay = 0;
                 completedDays++;
-
+                log.addMessage("Day " + (currentIngameDay + completedDays - 1) + " finished.", false);
                 if (resourceState instanceof GameStateHandler) {
                     int newlyStartedDay = currentIngameDay + completedDays;
                     boolean defeated = RaidMechanic.processDay(

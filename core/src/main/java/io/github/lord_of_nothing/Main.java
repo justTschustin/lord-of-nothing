@@ -43,9 +43,12 @@ import io.github.lord_of_nothing.hud.GameOverOverlay;
 import io.github.lord_of_nothing.hud.RaidBanner;
 import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.hud.TileInspectorRenderer;
+import io.github.lord_of_nothing.hud.EventLog;
+import io.github.lord_of_nothing.hud.EventLogRenderer;
 import io.github.lord_of_nothing.menu.MainMenu;
 import io.github.lord_of_nothing.menu.SettingsMenu;
 import io.github.lord_of_nothing.persistence.UserConfigPaths;
+import io.github.lord_of_nothing.resources.ResourceType;
 import io.github.lord_of_nothing.settings.GameSettings;
 import io.github.lord_of_nothing.settings.ResolutionSettings;
 import io.github.lord_of_nothing.settings.SettingsStore;
@@ -86,6 +89,8 @@ public class Main extends ApplicationAdapter {
     private volatile boolean savingInProgress;
     private volatile boolean autoSaveEnabled = true;
     private boolean timeProgressionPaused;
+    private EventLog eventLog;
+    private EventLogRenderer eventLogRenderer;
 
     private float gameOverCountdown = -1f; // -1 = not scheduled
     private static final float NO_COUNTDOWN = -1f;
@@ -121,12 +126,21 @@ public class Main extends ApplicationAdapter {
         tileInspectorBar = new TileInspectorBar();
         tileInspectorRenderer = new TileInspectorRenderer();
         raidBanner = new RaidBanner();
-
+        tickHandler = new TickHandler();
+        eventLog = new EventLog(
+            gameStateHandler::getCurrentIngameDay,
+            tickHandler::getCurrentIngameHour
+        );
+        eventLogRenderer = new EventLogRenderer();
+        popupOverlay = new PopupOverlay(this::dismissActivePopup);
         topBarRenderer = new TopBarRenderer();
+        Texture uiBg = new Texture("hud/HUD_Wood.png");
+        Texture uiCorner = new Texture("hud/HUD_Corner_Overlay.png");
+        Texture uiEdge = new Texture("hud/HUD_Border_Overlay.png");
+        initializeHudRenderers(uiBg, uiCorner, uiEdge);
         eventBus = new EventBus();
         gameOverOverlay = new GameOverOverlay(eventBus);
         flowState = new FlowState();
-        tickHandler = new TickHandler();
 
         gridInputHandler = new GridInputHandler(
             camera,
@@ -135,7 +149,8 @@ public class Main extends ApplicationAdapter {
             sidebar,
             gameStateHandler,
             eventBus,
-            tileInspectorBar
+            tileInspectorBar,
+            eventLog
         );
         gridInputHandler.setRaidBanner(raidBanner);
         gridInputHandler.setGameplayEnabled(false);
@@ -262,7 +277,8 @@ public class Main extends ApplicationAdapter {
             int completedDays = tickHandler.update(
                 Gdx.graphics.getDeltaTime(),
                 gameStateHandler.getCurrentIngameDay(),
-                gameStateHandler
+                gameStateHandler,
+                eventLog
             );
             boolean raidDefeatDetected = tickHandler.consumePendingRaidDefeat();
             for (int i = 0; i < completedDays; i++) {
@@ -358,18 +374,57 @@ public class Main extends ApplicationAdapter {
             savingInProgress,
             flowState.getScreenState() == ScreenState.GAME_OVER
         );
+        eventLogRenderer.render(
+            shapeRenderer, batch, gameWindow, eventLog,
+            flowState.getScreenState() == ScreenState.PAUSED
+        );
         tileInspectorRenderer.render(
             shapeRenderer, batch, gameWindow, tileInspectorBar, buildingTextures, eventBus,
             gameStateHandler,
-            () -> gridInputHandler.deleteSelectedBuilding()
+            () -> gridInputHandler.deleteSelectedBuilding(),
+            flowState.getScreenState() == ScreenState.PAUSED
         );
+        popupOverlay.render(shapeRenderer, batch);
+        gameOverOverlay.render(shapeRenderer, batch);
+    }
+    /**
+     * Centralizes UI asset loading and distributes shared textures to the HUD renderers.
+     * Reuses texture instances for background, borders, and icons to optimize memory and simplify resource disposal.
+     */
+    private void initializeHudRenderers(Texture uiBg, Texture uiCorner, Texture uiEdge) {
+        // Shared Icon Map to avoid loading same files multiple times
+        Map<ResourceType, Texture> icons = new HashMap<>();
+        icons.put(ResourceType.WOOD, new Texture("icons/Wood.png"));
+        icons.put(ResourceType.STONE, new Texture("icons/Stone.png"));
+        icons.put(ResourceType.FOOD, new Texture("icons/Food.png"));
+        icons.put(ResourceType.CITIZENS_TOTAL, new Texture("icons/Citizen.png"));
+        icons.put(ResourceType.SOLDIERS, new Texture("icons/Soldier.png"));
+        icons.put(ResourceType.CITIZENS_CAPACITY, new Texture("icons/Capacity.png"));
 
+        Texture dayIcon = new Texture("icons/Day.png");
+        Texture timeIcon = new Texture("icons/Time.png");
 
-        if (flowState.getScreenState() == ScreenState.GAME_OVER) {
-            gameOverOverlay.render(shapeRenderer, batch);
-        }
+        // Initialize and configure TopBar
+        topBarRenderer = new TopBarRenderer();
+        topBarRenderer.loadAssets(uiBg, uiCorner, uiEdge,
+            icons.get(ResourceType.WOOD), icons.get(ResourceType.STONE), icons.get(ResourceType.FOOD),
+            icons.get(ResourceType.CITIZENS_TOTAL), icons.get(ResourceType.SOLDIERS),
+            icons.get(ResourceType.CITIZENS_CAPACITY), dayIcon, timeIcon);
 
-        // Raid banner renders on top of everything, every frame
+        // Map icons for tooltip/resource groups inside TopBar
+        icons.forEach(topBarRenderer::setResourceIcon);
+        topBarRenderer.setTimeIcons(dayIcon, timeIcon);
+
+        // Initialize remaining HUD components with shared frames
+        sidebarRenderer = new SidebarRenderer();
+        sidebarRenderer.loadAssets(uiBg, uiCorner, uiEdge);
+        eventLogRenderer.loadAssets(uiBg, uiCorner, uiEdge);
+
+        tileInspectorRenderer = new TileInspectorRenderer();
+        tileInspectorRenderer.loadAssets(uiBg, uiCorner, uiEdge);
+    }
+
+        // Render and overlay raid banner
         raidBanner.update(Gdx.graphics.getDeltaTime());
         if (raidBanner.isActive() || raidBanner.isFloatingTextActive()) {
             raidBanner.render(batch);
@@ -401,9 +456,12 @@ public class Main extends ApplicationAdapter {
         gameOverOverlay.dispose();
         settingsFlowCoordinator.dispose();
         menuFlowCoordinator.dispose();
+        tileInspectorRenderer.dispose();
     }
 
     private void startNewGame() {
+        eventLog.clear();
+        eventLog.addMessage("Welcome, Lord of Nothing!", false);
         gameStateHandler.resetNewGame();
         tickHandler.resetTimeline();
         gameOverCountdown = NO_COUNTDOWN;

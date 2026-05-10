@@ -157,4 +157,10 @@ public class GameWindow {
     public float getInfoPanelY() {
         return Gdx.graphics.getHeight() / 2.0f;
     }
+
+    /**
+     * <summary>Calculates the vertical position and height for the event log in the bottom half of the right margin.</summary>
+     */
+    public float getEventLogY() { return offsetY; }
+    public float getEventLogHeight() { return getInfoPanelY() - offsetY - 10; }
 }
