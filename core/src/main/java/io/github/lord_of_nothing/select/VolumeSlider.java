@@ -4,8 +4,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import io.github.lord_of_nothing.events.EventBus;
-import io.github.lord_of_nothing.events.MusicVolumeChangedEvent;
 import io.github.lord_of_nothing.settings.GameSettings;
 import io.github.lord_of_nothing.ui.UiElement;
 

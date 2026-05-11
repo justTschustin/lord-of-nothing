@@ -113,13 +113,47 @@ public class AudioManager {
         }
     }
 
-    public void playAssign() { if (assignSound != null) assignSound.play(soundVolume); }
-    public void playMenuClick() { if (menuSound != null) menuSound.play(soundVolume); }
-    public void playPlace() { if (placeSound != null) placeSound.play(soundVolume); }
-    public void playSelect() { if (selectSound != null) selectSound.play(soundVolume); }
-    public void playUnable() { if (unableSound != null) unableSound.play(soundVolume); }
-    public void playRaidAnnounce() { if (raidAnnounceSound != null) raidAnnounceSound.play(soundVolume); }
-    public void playKampf() { if (kampfSound != null) kampfSound.play(soundVolume); }
+    public void playAssign() {
+        if (assignSound != null) {
+            assignSound.play(soundVolume);
+        }
+    }
+
+    public void playMenuClick() {
+        if (menuSound != null) {
+            menuSound.play(soundVolume);
+        }
+    }
+
+    public void playPlace() {
+        if (placeSound != null) {
+            placeSound.play(soundVolume);
+        }
+    }
+
+    public void playSelect() {
+        if (selectSound != null) {
+            selectSound.play(soundVolume);
+        }
+    }
+
+    public void playUnable() {
+        if (unableSound != null) {
+            unableSound.play(soundVolume);
+        }
+    }
+
+    public void playRaidAnnounce() {
+        if (raidAnnounceSound != null) {
+            raidAnnounceSound.play(soundVolume);
+        }
+    }
+
+    public void playKampf() {
+        if (kampfSound != null) {
+            kampfSound.play(soundVolume);
+        }
+    }
 
     /**
      * Frees all music resources
@@ -130,6 +164,10 @@ public class AudioManager {
             currentMusic.dispose();
         }
         Sound[] sounds = {assignSound, menuSound, placeSound, selectSound, unableSound, raidAnnounceSound, kampfSound};
-        for (Sound s : sounds) if (s != null) s.dispose();
+        for (Sound s : sounds) {
+            if (s != null) {
+                s.dispose();
+            }
+        }
     }
 }
