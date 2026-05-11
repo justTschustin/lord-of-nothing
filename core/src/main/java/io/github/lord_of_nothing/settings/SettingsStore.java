@@ -82,11 +82,18 @@ public class SettingsStore {
         normalized.windowedWidth = loaded.windowedWidth > 0 ? loaded.windowedWidth : defaults.windowedWidth;
         normalized.windowedHeight = loaded.windowedHeight > 0 ? loaded.windowedHeight : defaults.windowedHeight;
         normalized.gameSpeed = normalizeGameSpeed(loaded.gameSpeed, defaults.gameSpeed);
+        normalized.masterVolume = normalizeVolume(loaded.masterVolume, defaults.masterVolume);
         return normalized;
     }
 
     private int normalizeGameSpeed(int requested, int fallback) {
         if (requested >= 1) {
+            return requested;
+        }
+        return fallback;
+    }
+    private float normalizeVolume(float requested, float fallback) {
+        if (requested >= 0 && requested <= 1.0f) {
             return requested;
         }
         return fallback;
