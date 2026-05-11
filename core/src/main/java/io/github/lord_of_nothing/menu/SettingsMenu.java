@@ -139,7 +139,7 @@ public class SettingsMenu {
         int screenH = Gdx.graphics.getHeight();
 
         batch.begin();
-        backgroundManager.update(Gdx.graphics.getDeltaTime());
+        backgroundManager.update(Gdx.graphics.getDeltaTime(), Gdx.graphics.getWidth());
         backgroundManager.render(batch, screenW, screenH, true);
         batch.end();
 

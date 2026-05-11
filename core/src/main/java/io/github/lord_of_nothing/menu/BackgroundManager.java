@@ -36,10 +36,13 @@ public class BackgroundManager {
     /**
      * Updates cloud scroll offset based on delta time.
      */
-    public void update(float deltaTime) {
+    public void update(float deltaTime, float screenWidth) {
         cloudScrollOffset += CLOUD_SCROLL_SPEED * deltaTime;
-        if (cloudScrollOffset > cloudsTexture.getWidth()) {
-            cloudScrollOffset -= cloudsTexture.getWidth();
+
+        // Wenn der Offset größer als die Bildschirmbreite ist,
+        // setzen wir ihn zurück, damit der Loop von vorne beginnt.
+        if (cloudScrollOffset >= screenWidth) {
+            cloudScrollOffset = 0;
         }
     }
 
@@ -47,19 +50,23 @@ public class BackgroundManager {
      * Renders background and clouds. Use blurred version if specified.
      */
     public void render(SpriteBatch batch, float screenWidth, float screenHeight, boolean useBlurred) {
-        // Draw background
         Texture bgToUse = (useBlurred && blurredBackground != null) ? blurredBackground : background;
         batch.draw(bgToUse, 0, 0, screenWidth, screenHeight);
 
-        // Draw clouds with scrolling offset
         Texture cloudsToUse = (useBlurred && blurredCloudsTexture != null) ? blurredCloudsTexture : cloudsTexture;
+
+        // Draw first instance
         batch.draw(
             cloudsToUse,
             -cloudScrollOffset, 0,
-            screenWidth, screenHeight,
-            0, 0,
-            cloudsToUse.getWidth(), cloudsToUse.getHeight(),
-            false, false
+            screenWidth, screenHeight
+        );
+
+        // Draw second instance immediately following the first
+        batch.draw(
+            cloudsToUse,
+            -cloudScrollOffset + screenWidth, 0,
+            screenWidth, screenHeight
         );
     }
 

@@ -107,7 +107,7 @@ public class MainMenu {
 
         batch.begin();
 
-        backgroundManager.update(Gdx.graphics.getDeltaTime());
+        backgroundManager.update(Gdx.graphics.getDeltaTime(), Gdx.graphics.getWidth());
         backgroundManager.render(batch, screenW, screenH, false);
 
         // Title
