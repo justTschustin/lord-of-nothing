@@ -17,6 +17,11 @@ public class GameSettings {
     public int gameSpeed = 1;
 
     /** Master volume (0.0 to 1.0). */
+    /**
+     * <summary>Data structure for persisting user preferences, now including separate volume levels for audio channels.</summary>
+     * <remarks>These fields are automatically serialized to JSON for persistent storage between sessions.</remarks>
+     */
     public float masterVolume = 0.7f;
-}
+    public float musicVolume = 0.7f;
+    public float soundVolume = 0.7f;}
 

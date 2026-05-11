@@ -13,13 +13,18 @@ public class AudioManager {
     private Music currentMusic;
     private boolean isPlaying = false;
     private float masterVolume = 0.7f;
-    private Sound clickSound;
+    private float musicVolume = 0.7f;
+    private float soundVolume = 0.7f;
+    private Sound assignSound, menuSound, placeSound, selectSound, unableSound;
 
     public AudioManager() {
         this.playlist = new ArrayList<>();
         initializePlaylist();
-        clickSound = Gdx.audio.newSound(Gdx.files.internal("sounds/click.mp3"));
-    }
+        assignSound = Gdx.audio.newSound(Gdx.files.internal("sounds/assign.mp3"));
+        menuSound = Gdx.audio.newSound(Gdx.files.internal("sounds/menuClick.mp3"));
+        placeSound = Gdx.audio.newSound(Gdx.files.internal("sounds/place.mp3"));
+        selectSound = Gdx.audio.newSound(Gdx.files.internal("sounds/select.mp3"));
+        unableSound = Gdx.audio.newSound(Gdx.files.internal("sounds/unable.mp3"));    }
 
     /**
      * Initializes Playlist with all 8 soundtracks [CHANGE FOR-LOOP, IF MORE SONGS ARE ADDED!!!]
@@ -53,7 +58,7 @@ public class AudioManager {
 
         String trackPath = playlist.get(currentTrackIndex);
         currentMusic = Gdx.audio.newMusic(Gdx.files.internal(trackPath));
-        currentMusic.setVolume(masterVolume);
+        currentMusic.setVolume(musicVolume);
 
         // Listener: If Track ended -> next Track
         currentMusic.setOnCompletionListener(music -> {
@@ -73,6 +78,23 @@ public class AudioManager {
             currentMusic.setVolume(this.masterVolume);
         }
     }
+    /**
+     * <summary>Updates the music channel volume and applies it to the currently playing track.</summary>
+     * @param volume Normalized volume level (0.0 to 1.0).
+     */
+    public void setMusicVolume(float volume) {
+        this.musicVolume = Math.max(0, Math.min(1, volume));
+        if (currentMusic != null) {
+            currentMusic.setVolume(this.musicVolume);
+        }
+    }
+    /**
+     * <summary>Updates the sound effects channel volume for all future SFX playbacks.</summary>
+     * @param volume Normalized volume level (0.0 to 1.0).
+     */
+    public void setSoundVolume(float volume) {
+        this.soundVolume = Math.max(0, Math.min(1, volume));
+    }
 
     public float getMasterVolume() {
         return masterVolume;
@@ -88,14 +110,11 @@ public class AudioManager {
         }
     }
 
-    /**
-     * <summary>Plays the pre-loaded click sound effect once using the current master volume.</summary>
-     */
-    public void playClickSound() {
-        if (clickSound != null) {
-            clickSound.play(masterVolume);
-        }
-    }
+    public void playAssign() { if (assignSound != null) assignSound.play(soundVolume); }
+    public void playMenuClick() { if (menuSound != null) menuSound.play(soundVolume); }
+    public void playPlace() { if (placeSound != null) placeSound.play(soundVolume); }
+    public void playSelect() { if (selectSound != null) selectSound.play(soundVolume); }
+    public void playUnable() { if (unableSound != null) unableSound.play(soundVolume); }
 
     /**
      * Frees all music resources
@@ -105,6 +124,7 @@ public class AudioManager {
         if (currentMusic != null) {
             currentMusic.dispose();
         }
-        if (clickSound != null) clickSound.dispose();
+        Sound[] sounds = {assignSound, menuSound, placeSound, selectSound, unableSound};
+        for (Sound s : sounds) if (s != null) s.dispose();
     }
 }

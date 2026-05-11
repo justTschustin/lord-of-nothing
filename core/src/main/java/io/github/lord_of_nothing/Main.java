@@ -157,7 +157,8 @@ public class Main extends ApplicationAdapter {
             gameStateHandler,
             eventBus,
             tileInspectorBar,
-            eventLog
+            eventLog,
+            audioManager
         );
         gridInputHandler.setRaidBanner(raidBanner);
         gridInputHandler.setGameplayEnabled(false);
@@ -173,6 +174,8 @@ public class Main extends ApplicationAdapter {
         gameSettings = settingsStore.load();
         tickHandler.setGameSpeed(gameSettings.gameSpeed);
         audioManager.setMasterVolume(gameSettings.masterVolume);
+        audioManager.setMusicVolume(gameSettings.musicVolume);
+        audioManager.setSoundVolume(gameSettings.soundVolume);
 
         menuFlowCoordinator = new MenuFlowCoordinator(
             eventBus,
@@ -223,10 +226,16 @@ public class Main extends ApplicationAdapter {
                     settingsStore.save(gameSettings);
                 }
             }
-            if (event instanceof MusicVolumeChangedEvent) {
-                float volume = ((MusicVolumeChangedEvent) event).getVolume();
-                audioManager.setMasterVolume(volume);
-                gameSettings.masterVolume = volume;
+            if (event instanceof io.github.lord_of_nothing.events.MusicVolumeChangedEvent) {
+                float vol = ((io.github.lord_of_nothing.events.MusicVolumeChangedEvent) event).getVolume();
+                audioManager.setMusicVolume(vol);
+                gameSettings.musicVolume = vol;
+                settingsStore.save(gameSettings);
+            }
+            if (event instanceof io.github.lord_of_nothing.events.SoundVolumeChangedEvent) {
+                float vol = ((io.github.lord_of_nothing.events.SoundVolumeChangedEvent) event).getVolume();
+                audioManager.setSoundVolume(vol);
+                gameSettings.soundVolume = vol;
                 settingsStore.save(gameSettings);
             }
             if (event instanceof BackToMainMenuEvent) {

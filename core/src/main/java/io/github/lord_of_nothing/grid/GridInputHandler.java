@@ -5,6 +5,7 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import io.github.lord_of_nothing.GameWindow;
+import io.github.lord_of_nothing.audio.AudioManager;
 import io.github.lord_of_nothing.buildings.Building;
 import io.github.lord_of_nothing.buildings.Barrack;
 import io.github.lord_of_nothing.buildings.Field;
@@ -53,6 +54,7 @@ public class GridInputHandler extends InputAdapter {
     private final TileInspectorBar tileInspectorBar;
     private RaidBanner raidBanner;
     private final EventLog eventLog;
+    private final AudioManager audioManager;
 
     /**
      * Creates the input handler and subscribes to relevant flow/UI events.
@@ -72,7 +74,8 @@ public class GridInputHandler extends InputAdapter {
         ResourceStateMutator resources,
         EventBus eventBus,
         TileInspectorBar tileInspectorBar,
-        EventLog eventLog
+        EventLog eventLog,
+        AudioManager audioManager
     ) {
         this.camera = camera;
         this.grid = grid;
@@ -81,6 +84,7 @@ public class GridInputHandler extends InputAdapter {
         this.window = window;
         this.tileInspectorBar = tileInspectorBar;
         this.eventLog = eventLog;
+        this.audioManager = audioManager;
 
         eventBus.subscribe(event -> {
             if (event instanceof UiElementCreatedEvent) {
@@ -173,13 +177,19 @@ public class GridInputHandler extends InputAdapter {
         touchPos.set(screenX, screenY, 0);
         camera.unproject(touchPos);
 
-        // Check if dragging on VolumeSlider
         for (UiElement element : uiElements) {
             if (element instanceof io.github.lord_of_nothing.select.VolumeSlider) {
-                if (element.contains(touchPos.x, touchPos.y)) {
-                    ((io.github.lord_of_nothing.select.VolumeSlider) element).handleDrag(touchPos.x, touchPos.y, true);
-                    return true;
-                }
+                ((io.github.lord_of_nothing.select.VolumeSlider) element).handleDrag(touchPos.x, touchPos.y, true);
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        for (UiElement element : uiElements) {
+            if (element instanceof io.github.lord_of_nothing.select.VolumeSlider) {
+                ((io.github.lord_of_nothing.select.VolumeSlider) element).handleDrag(0, 0, false);
             }
         }
         return false;
@@ -220,6 +230,7 @@ public class GridInputHandler extends InputAdapter {
 
         if (exclusiveUiElement != null) {
             if (exclusiveUiElement.contains(touchPos.x, touchPos.y)) {
+                audioManager.playMenuClick();
                 exclusiveUiElement.onClick();
             }
             return true;
@@ -234,6 +245,7 @@ public class GridInputHandler extends InputAdapter {
         }
 
         if (handleUiClicks(touchPos.x, touchPos.y)) {
+            audioManager.playMenuClick();
             return true;
         }
 
@@ -320,6 +332,7 @@ public class GridInputHandler extends InputAdapter {
     private boolean handleSidebarInteraction(float x, float y) {
         Building clicked = sidebar.getBuildingAt(x, y);
         if (clicked != null) {
+            audioManager.playSelect();
             // Toggle the building selection
             if (pendingBuilding != null && pendingBuilding.getBuildingTypeKey().equals(clicked.getBuildingTypeKey())) {
                 pendingBuilding = null;
@@ -351,17 +364,25 @@ public class GridInputHandler extends InputAdapter {
             if (x < window.getRightMarginX() + 100) {
                 int available = resources.getResourceAmount(ResourceType.CITIZENS_AVAILABLE);
                 if (available > 0 && b.getCurrentWorkers() < b.getMaxWorkers()) {
+                    audioManager.playAssign();
                     b.addWorker();
                     resources.addResource(ResourceType.CITIZENS_AVAILABLE, -1);
                     if (isBarrack) {resources.addResource(ResourceType.SOLDIERS, 1);}
+                }
+                else {
+                    audioManager.playUnable();
                 }
             }
             // Remove Worker
             else {
                 if (b.getCurrentWorkers() > 0) {
+                    audioManager.playAssign();
                     b.removeWorker();
                     resources.addResource(ResourceType.CITIZENS_AVAILABLE, 1);
                     if (isBarrack) {resources.addResource(ResourceType.SOLDIERS, -1);}
+                }
+                else {
+                    audioManager.playUnable();
                 }
             }
             return true;
@@ -385,11 +406,15 @@ public class GridInputHandler extends InputAdapter {
                 consumeCosts(pendingBuilding);
                 handleBuildingEffects(pendingBuilding);
                 grid.placeBuilding(tileX, tileY, pendingBuilding);
+                audioManager.playPlace();
                 pendingBuilding = null;
                 return true;
             } else {
                 eventLog.addMessage("Construction failed: Insufficient resources!", true);
+                audioManager.playUnable();
             }
+        } else if (pendingBuilding != null && grid.isInside(tileX, tileY)) {
+            audioManager.playUnable();
         }
         return false;
     }
