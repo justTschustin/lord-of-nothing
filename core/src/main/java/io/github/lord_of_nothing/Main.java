@@ -334,6 +334,11 @@ public class Main extends ApplicationAdapter {
             if (!raidMessages.isEmpty() && !raidBanner.isActive()) {
                 String firstMsg = raidMessages.get(0);
                 boolean isAttack = firstMsg.contains("Bandits are upon us");
+                if (isAttack) {
+                    audioManager.playKampf();
+                } else {
+                    audioManager.playRaidAnnounce();
+                }
                 RaidBanner.BannerType firstType = isAttack
                     ? RaidBanner.BannerType.ATTACK
                     : RaidBanner.BannerType.WARNING;

@@ -237,15 +237,11 @@ public class GridInputHandler extends InputAdapter {
         }
 
         if (handleUiClicks(touchPos.x, touchPos.y)) {
+            audioManager.playMenuClick();
             return true;
         }
 
         if (paused || !gameplayEnabled) {
-            return true;
-        }
-
-        if (handleUiClicks(touchPos.x, touchPos.y)) {
-            audioManager.playMenuClick();
             return true;
         }
 

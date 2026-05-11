@@ -15,7 +15,7 @@ public class AudioManager {
     private float masterVolume = 0.7f;
     private float musicVolume = 0.7f;
     private float soundVolume = 0.7f;
-    private Sound assignSound, menuSound, placeSound, selectSound, unableSound;
+    private Sound assignSound, menuSound, placeSound, selectSound, unableSound, raidAnnounceSound, kampfSound;
 
     public AudioManager() {
         this.playlist = new ArrayList<>();
@@ -24,7 +24,10 @@ public class AudioManager {
         menuSound = Gdx.audio.newSound(Gdx.files.internal("sounds/menuClick.mp3"));
         placeSound = Gdx.audio.newSound(Gdx.files.internal("sounds/place.mp3"));
         selectSound = Gdx.audio.newSound(Gdx.files.internal("sounds/select.mp3"));
-        unableSound = Gdx.audio.newSound(Gdx.files.internal("sounds/unable.mp3"));    }
+        unableSound = Gdx.audio.newSound(Gdx.files.internal("sounds/unable.mp3"));
+        raidAnnounceSound = Gdx.audio.newSound(Gdx.files.internal("sounds/raidAnnounce.mp3"));
+        kampfSound = Gdx.audio.newSound(Gdx.files.internal("sounds/kampf.mp3"));
+    }
 
     /**
      * Initializes Playlist with all 8 soundtracks [CHANGE FOR-LOOP, IF MORE SONGS ARE ADDED!!!]
@@ -115,6 +118,8 @@ public class AudioManager {
     public void playPlace() { if (placeSound != null) placeSound.play(soundVolume); }
     public void playSelect() { if (selectSound != null) selectSound.play(soundVolume); }
     public void playUnable() { if (unableSound != null) unableSound.play(soundVolume); }
+    public void playRaidAnnounce() { if (raidAnnounceSound != null) raidAnnounceSound.play(soundVolume); }
+    public void playKampf() { if (kampfSound != null) kampfSound.play(soundVolume); }
 
     /**
      * Frees all music resources
@@ -124,7 +129,7 @@ public class AudioManager {
         if (currentMusic != null) {
             currentMusic.dispose();
         }
-        Sound[] sounds = {assignSound, menuSound, placeSound, selectSound, unableSound};
+        Sound[] sounds = {assignSound, menuSound, placeSound, selectSound, unableSound, raidAnnounceSound, kampfSound};
         for (Sound s : sounds) if (s != null) s.dispose();
     }
 }
