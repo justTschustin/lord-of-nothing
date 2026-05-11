@@ -12,7 +12,7 @@ public class BackgroundManager {
     private final Texture blurredBackground;
     private final Texture blurredCloudsTexture;
     private float cloudScrollOffset = 0f;
-    private static final float CLOUD_SCROLL_SPEED = 30f;
+    private static final float CLOUD_SCROLL_SPEED = 15f;
 
     public BackgroundManager(String backgroundPath, String cloudsPath, String blurredBackgroundPath, String blurredCloudsPath) {
         this.background = new Texture(backgroundPath);
