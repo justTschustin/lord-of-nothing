@@ -150,15 +150,6 @@ public class TopBarRenderer {
         if (speedButtons[0] != null) {controlsLeftX = speedButtons[0].getX();}
         if (timeProgressionToggleButton != null) {controlsLeftX = timeProgressionToggleButton.getX();}
 
-        // 2. Handle "Saving..." text and shift anchor further left if active
-        if (savingInProgress) {
-            String savingText = "saving...";
-            glyphLayout.setText(font, savingText);
-            float savingX = controlsLeftX - glyphLayout.width - 20f;
-            font.draw(batch, savingText, Math.max(10f, savingX), y + 12);
-            controlsLeftX = savingX; // New anchor for time icons
-        }
-
         // 3. Position Clock and Day relative to the controls anchor
         float spacing = 110f; // Gap between Day and Clock groups
         float clockX = controlsLeftX - spacing;
