@@ -21,7 +21,7 @@ public class GameSettings {
      * <summary>Data structure for persisting user preferences, now including separate volume levels for audio channels.</summary>
      * <remarks>These fields are automatically serialized to JSON for persistent storage between sessions.</remarks>
      */
-    public float masterVolume = 0.7f;
-    public float musicVolume = 0.3f;
-    public float soundVolume = 0.7f;}
+    public float masterVolume = 0.85f;
+    public float musicVolume = 0.4f;
+    public float soundVolume = 0.85f;}
 
