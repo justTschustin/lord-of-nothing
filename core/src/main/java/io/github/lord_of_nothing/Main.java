@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import io.github.lord_of_nothing.audio.AudioManager;
 import io.github.lord_of_nothing.events.BackToMainMenuEvent;
 import io.github.lord_of_nothing.events.CloseSettingsMenuEvent;
 import io.github.lord_of_nothing.events.EventBus;
@@ -25,6 +26,7 @@ import io.github.lord_of_nothing.events.OpenSettingsMenuEvent;
 import io.github.lord_of_nothing.events.PauseGameEvent;
 import io.github.lord_of_nothing.events.ResumeGameEvent;
 import io.github.lord_of_nothing.events.StartGameEvent;
+import io.github.lord_of_nothing.events.MusicVolumeChangedEvent;
 import io.github.lord_of_nothing.flow.FlowState;
 import io.github.lord_of_nothing.flow.GameplayFlowCoordinator;
 import io.github.lord_of_nothing.flow.MenuFlowCoordinator;
@@ -89,6 +91,7 @@ public class Main extends ApplicationAdapter {
     private volatile boolean savingInProgress;
     private volatile boolean autoSaveEnabled = true;
     private boolean timeProgressionPaused;
+    private AudioManager audioManager;
     private EventLog eventLog;
     private EventLogRenderer eventLogRenderer;
 
@@ -107,6 +110,7 @@ public class Main extends ApplicationAdapter {
         shapeRenderer = new ShapeRenderer();
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
+        audioManager = new AudioManager();
         grassTexture = new Texture("tiles/Floor_Grass.png");
 
         gameStateHandler = new GameStateHandler();
@@ -125,6 +129,9 @@ public class Main extends ApplicationAdapter {
         sidebarRenderer = new SidebarRenderer();
         tileInspectorBar = new TileInspectorBar();
         tileInspectorRenderer = new TileInspectorRenderer();
+
+        audioManager.startPlaylist();
+
         raidBanner = new RaidBanner();
         tickHandler = new TickHandler();
         eventLog = new EventLog(
@@ -140,6 +147,7 @@ public class Main extends ApplicationAdapter {
         eventBus = new EventBus();
         gameOverOverlay = new GameOverOverlay(eventBus);
         flowState = new FlowState();
+
 
         gridInputHandler = new GridInputHandler(
             camera,
@@ -164,6 +172,7 @@ public class Main extends ApplicationAdapter {
         settingsStore = new SettingsStore(settingsFilePath);
         gameSettings = settingsStore.load();
         tickHandler.setGameSpeed(gameSettings.gameSpeed);
+        audioManager.setMasterVolume(gameSettings.masterVolume);
 
         menuFlowCoordinator = new MenuFlowCoordinator(
             eventBus,
@@ -213,6 +222,12 @@ public class Main extends ApplicationAdapter {
                     gameSettings.gameSpeed = tickHandler.getGameSpeed();
                     settingsStore.save(gameSettings);
                 }
+            }
+            if (event instanceof MusicVolumeChangedEvent) {
+                float volume = ((MusicVolumeChangedEvent) event).getVolume();
+                audioManager.setMasterVolume(volume);
+                gameSettings.masterVolume = volume;
+                settingsStore.save(gameSettings);
             }
             if (event instanceof BackToMainMenuEvent) {
                 gameOverOverlay.hide();
@@ -444,6 +459,7 @@ public class Main extends ApplicationAdapter {
     @Override
     public void dispose() {
         saveExecutor.shutdownNow();
+        audioManager.stopPlaylist();
         shapeRenderer.dispose();
         batch.dispose();
         grassTexture.dispose();
@@ -452,6 +468,7 @@ public class Main extends ApplicationAdapter {
         gameOverOverlay.dispose();
         settingsFlowCoordinator.dispose();
         menuFlowCoordinator.dispose();
+        audioManager.dispose();
         tileInspectorRenderer.dispose();
     }
 

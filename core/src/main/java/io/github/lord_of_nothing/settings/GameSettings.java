@@ -15,5 +15,8 @@ public class GameSettings {
 
     /** Simulation speed multiplier (1x, 2x, 4x). */
     public int gameSpeed = 1;
+
+    /** Master volume (0.0 to 1.0). */
+    public float masterVolume = 0.7f;
 }
 

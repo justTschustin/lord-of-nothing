@@ -168,6 +168,23 @@ public class GridInputHandler extends InputAdapter {
         return true;
     }
 
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        touchPos.set(screenX, screenY, 0);
+        camera.unproject(touchPos);
+
+        // Check if dragging on VolumeSlider
+        for (UiElement element : uiElements) {
+            if (element instanceof io.github.lord_of_nothing.select.VolumeSlider) {
+                if (element.contains(touchPos.x, touchPos.y)) {
+                    ((io.github.lord_of_nothing.select.VolumeSlider) element).handleDrag(touchPos.x, touchPos.y, true);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * Handles clicks for UI, sidebar, and grid placement.
      *
@@ -191,6 +208,16 @@ public class GridInputHandler extends InputAdapter {
         // Convert Screen Coordinates to World Coordinates
         camera.unproject(touchPos);
 
+        // 0. Check VolumeSlider
+        for (UiElement element : uiElements) {
+            if (element instanceof io.github.lord_of_nothing.select.VolumeSlider) {
+                if (element.contains(touchPos.x, touchPos.y)) {
+                    ((io.github.lord_of_nothing.select.VolumeSlider) element).handleDrag(touchPos.x, touchPos.y, true);
+                    return true;
+                }
+            }
+        }
+
         if (exclusiveUiElement != null) {
             if (exclusiveUiElement.contains(touchPos.x, touchPos.y)) {
                 exclusiveUiElement.onClick();
@@ -206,6 +233,13 @@ public class GridInputHandler extends InputAdapter {
             return true;
         }
 
+        if (handleUiClicks(touchPos.x, touchPos.y)) {
+            return true;
+        }
+
+        if (paused || !gameplayEnabled) {
+            return true;
+        }
         // 1. Check TileInspector Interaction
         if (tileInspectorBar.isOpen()) {
             // Click INSIDE the sidebar: Handle Add/Remove buttons
