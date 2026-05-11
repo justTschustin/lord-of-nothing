@@ -24,17 +24,13 @@ public class MainMenu {
     private static final float BUTTON_WIDTH = 275f;
     private static final float BUTTON_HEIGHT = 75f;
     private static final float BUTTON_GAP = 14f;
-    private static final float CLOUD_SPEED = 5f;
 
     private final BitmapFont font = new BitmapFont();
     private final List<Button> actionButtons = new ArrayList<>();
     private final SettingsButton settingsButton;
     private final ExitButton exitButton;
-    private final Texture background;
-    private final Texture clouds;
     private final Texture titleText;
-
-    private float cloudOffsetX = 0f; // horizontal offset of clouds in pixel
+    private final BackgroundManager backgroundManager;
 
     /**
      * Creates the main menu and its default buttons.
@@ -43,12 +39,13 @@ public class MainMenu {
      * @param hasSaveFile whether a loadable save file exists
      */
     public MainMenu(EventBus eventBus, boolean hasSaveFile) {
-        background = new Texture("menu/main-menu-background.png");
-        clouds = new Texture("menu/main-menu-clouds.png");
+        backgroundManager = new BackgroundManager(
+            "menu/main-menu-background.png",
+            "menu/main-menu-clouds.png",
+            "menu/main-menu-background-blurred.png",
+            "menu/main-menu-clouds-blurred.png"
+        );
         titleText = new Texture("menu/title-text.png");
-
-        // Enable texture wrapping for cloud scroll effect
-        clouds.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.ClampToEdge);
 
         float x = getPositionX();
         float baseY = getBaseY();
@@ -105,33 +102,18 @@ public class MainMenu {
     public void render(ShapeRenderer shapeRenderer, SpriteBatch batch) {
         setButtonLayout();
 
-        // Advance cloud scroll frame-by-frame, wrapping back to 0 when offset exceeds image width
-        float cloudW = Gdx.graphics.getWidth();
-        float cloudH = Gdx.graphics.getHeight();
-
-        cloudOffsetX += CLOUD_SPEED * Gdx.graphics.getDeltaTime();
-
-        if (cloudOffsetX > cloudW) {
-            cloudOffsetX -= cloudW;
-        }
-
         int screenW = Gdx.graphics.getWidth();
         int screenH = Gdx.graphics.getHeight();
 
         batch.begin();
-        // Background
-        batch.draw(background, 0, 0, cloudW, cloudH);
 
-        // Clouds
-        float cloudY = 0;
-
-        batch.draw(clouds, -cloudOffsetX, cloudY, cloudW, cloudH);
-        batch.draw(clouds, cloudW - cloudOffsetX, cloudY, cloudW, cloudH);
+        backgroundManager.update(Gdx.graphics.getDeltaTime());
+        backgroundManager.render(batch, screenW, screenH, false);
 
         // Title
-        float aspect = 470f / 90f; // text-title image aspect ratio
-        float titleW = BUTTON_WIDTH + 250; // a bit bigger than buttons size
-        float titleH = titleW / aspect; // maintain aspect ratio
+        float aspect = 470f / 90f;
+        float titleW = BUTTON_WIDTH + 250;
+        float titleH = titleW / aspect;
         float titleX = getPositionX() + (BUTTON_WIDTH - titleW) / 2f;
         float titleY = getBaseY() + actionButtons.size() * (BUTTON_HEIGHT + BUTTON_GAP) + 20f;
 
@@ -140,7 +122,7 @@ public class MainMenu {
         batch.setColor(0f, 0f, 0f, 0.5f);
         batch.draw(titleText, titleX + shadowOffset, titleY - shadowOffset, titleW, titleH);
 
-        batch.setColor(1f, 1f, 1f, 1f); // reset title to full color
+        batch.setColor(1f, 1f, 1f, 1f);
         batch.draw(titleText, titleX, titleY, titleW, titleH);
 
         // Buttons
@@ -158,9 +140,8 @@ public class MainMenu {
      */
     public void dispose() {
         font.dispose();
-        background.dispose();
-        clouds.dispose();
         titleText.dispose();
+        backgroundManager.dispose();
     }
 
     /**
@@ -193,5 +174,9 @@ public class MainMenu {
      */
     private float getBaseY() {
         return Gdx.graphics.getHeight() / 2f - 40f;
+    }
+
+    public BackgroundManager getBackgroundManager() {
+        return backgroundManager;
     }
 }
