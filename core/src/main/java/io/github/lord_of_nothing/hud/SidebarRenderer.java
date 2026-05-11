@@ -44,7 +44,7 @@ public class SidebarRenderer {
             float slotY = startY - (i + 1) * (Sidebar.SLOT_SIZE + Sidebar.PADDING);
 
             if (pending != null && pending.getBuildingTypeKey().equals(b.getBuildingTypeKey())) {
-                sr.setColor(Color.GOLD);
+                sr.setColor(Color.valueOf("d4a148"));
                 float iconH = 40f;
                 float iconW = iconH * ((float) b.getWidth() / b.getHeight());
                 float iconX = (io.github.lord_of_nothing.GameWindow.SIDEBAR_WIDTH - iconW) / 2f;
