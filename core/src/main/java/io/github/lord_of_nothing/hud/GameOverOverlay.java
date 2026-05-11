@@ -25,6 +25,8 @@ public class GameOverOverlay {
     private final GlyphLayout glyphLayout = new GlyphLayout();
     private final TextButton backToMenuButton;
     private boolean visible;
+    private Integer banditCount;
+    private Integer defenderCount;
 
     /**
      * Creates the overlay and wires the back button to the main-menu event.
@@ -54,11 +56,25 @@ public class GameOverOverlay {
     }
 
     /**
+     * Shows the game-over modal with raid summary details.
+     *
+     * @param bandits number of bandits that attacked
+     * @param defenders number of defenders the player had
+     */
+    public void show(int bandits, int defenders) {
+        this.banditCount = Math.max(0, bandits);
+        this.defenderCount = Math.max(0, defenders);
+        show();
+    }
+
+    /**
      * Hides the game-over modal.
      */
     public void hide() {
         visible = false;
         backToMenuButton.setEnabled(false);
+        banditCount = null;
+        defenderCount = null;
     }
 
     /**
@@ -106,7 +122,11 @@ public class GameOverOverlay {
         titleFont.draw(batch, glyphLayout, titleX, titleY);
 
         bodyFont.setColor(Color.WHITE);
-        glyphLayout.setText(bodyFont, "The bandits defeated your defenders.");
+        String raidSummary = banditCount != null && defenderCount != null
+            ? "The raid brought " + banditCount + " bandits, and you tried to fend them off with "
+                + defenderCount + " people."
+            : "The bandits defeated your defenders.";
+        glyphLayout.setText(bodyFont, raidSummary);
         float bodyX = panelX + (PANEL_WIDTH - glyphLayout.width) / 2f;
         float bodyY = panelY + PANEL_HEIGHT - 98f;
         bodyFont.draw(batch, glyphLayout, bodyX, bodyY);
