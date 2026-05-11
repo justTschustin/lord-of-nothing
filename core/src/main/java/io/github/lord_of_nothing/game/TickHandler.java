@@ -136,28 +136,44 @@ public class TickHandler {
             tickProgressInDay++;
             //Hourly ressource generation
             if (resourceState instanceof GameStateHandler) {
-                ((GameStateHandler) resourceState).applyTickProduction();
+                GameStateHandler handler = (GameStateHandler) resourceState;
+                handler.applyTickProduction();
+                handler.applyHungerTick(log);
+                if (handler.consumePendingHungerGameOver()) {
+                    pendingRaidDefeat = true;
+                    break;
+                }
             }
             if (resourceState != null && tickProgressInDay == getCitizenArrivalTickProgress()) {
                 // Determine current housing situation
                 int currentTotal = resourceState.getResourceAmount(ResourceType.CITIZENS_TOTAL);
                 int capacity = resourceState.getResourceAmount(ResourceType.CITIZENS_CAPACITY);
                 int spaceLeft = Math.max(0, capacity - currentTotal);
-                if (spaceLeft > 0) {
+
+                // Hunger blocks new arrivals at STARVING tier
+                float arrivalMult = (resourceState instanceof GameStateHandler)
+                    ? ((GameStateHandler) resourceState).getHungerMechanic().getCurrentTier().getArrivalMultiplier()
+                    : 1.0f;
+
+                if (spaceLeft > 0 && arrivalMult > 0f) {
                     int potentialArrivals = java.util.concurrent.ThreadLocalRandom.current().nextInt(
                         getCitizenArrivalMin(currentIngameDay + completedDays),
                         getCitizenArrivalMax(currentIngameDay + completedDays) + 1
                     );
 
-                    int arrivedCitizens = Math.min(potentialArrivals, spaceLeft);
+                    int scaledArrivals = Math.round(potentialArrivals * arrivalMult);
+                    int arrivedCitizens = Math.min(scaledArrivals, spaceLeft);
 
                     if (arrivedCitizens > 0) {
                         // Add to both the total count and the available worker pool
                         resourceState.addResource(ResourceType.CITIZENS_TOTAL, arrivedCitizens);
                         resourceState.addResource(ResourceType.CITIZENS_AVAILABLE, arrivedCitizens);
-                        log.addMessage(arrivedCitizens + " settlers arrived.", true);                    }
-                    else {
-                        log.addMessage("Housing full! Potential settlers left.", true);                    }
+                        log.addMessage(arrivedCitizens + " settlers arrived.", true);
+                    } else {
+                        log.addMessage("Housing full! Potential settlers left.", true);
+                    }
+                } else if (spaceLeft > 0 && arrivalMult <= 0f) {
+                    log.addMessage("Hunger verhindert neue Siedlerankunft.", false);
                 }
             }
 

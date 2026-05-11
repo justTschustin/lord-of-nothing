@@ -6,6 +6,7 @@ import io.github.lord_of_nothing.buildings.BuildingFactory;
 import io.github.lord_of_nothing.grid.Grid;
 import io.github.lord_of_nothing.grid.Tile;
 import io.github.lord_of_nothing.grid.TileType;
+import io.github.lord_of_nothing.hud.EventLog;
 import io.github.lord_of_nothing.resources.ResourceManager;
 import io.github.lord_of_nothing.resources.ResourceType;
 
@@ -22,6 +23,7 @@ public class GameStateHandler implements ResourceStateMutator {
 
     private final ResourceManager resourceManager;
     private final Grid grid;
+    private final HungerMechanic hungerMechanic = new HungerMechanic();
     private int currentIngameDay;
     private Integer nextRaidScheduledDay;
     private Integer nextRaidDeterminationDay;
@@ -79,6 +81,26 @@ public class GameStateHandler implements ResourceStateMutator {
         this.currentIngameDay++;
     }
 
+    /** Returns the hunger mechanic instance for read/write access and rendering. */
+    public HungerMechanic getHungerMechanic() { return hungerMechanic; }
+
+    /**
+     * Applies the hunger tick: consumes food, adjusts the hunger bar, and flags
+     * a game-over condition when the bar reaches zero.
+     *
+     * @param log event log used for starvation messages
+     */
+    public void applyHungerTick(EventLog log) {
+        hungerMechanic.update(this, log);
+    }
+
+    /**
+     * Returns {@code true} once after a hunger-caused game over is detected, then resets the flag.
+     */
+    public boolean consumePendingHungerGameOver() {
+        return hungerMechanic.consumePendingGameOver();
+    }
+
     /**
      * Resets the current runtime state to a fresh new-game setup.
      */
@@ -88,6 +110,7 @@ public class GameStateHandler implements ResourceStateMutator {
         setCurrentIngameDay(1);
         addResource(ResourceType.WOOD, DEFAULT_STARTING_WOOD);
         clearLastRaidSummary();
+        hungerMechanic.reset();
     }
 
     /**
@@ -115,6 +138,7 @@ public class GameStateHandler implements ResourceStateMutator {
         setNextRaidScheduledDay(state.getNextRaidScheduledDay());
         setNextRaidDeterminationDay(state.getNextRaidDeterminationDay());
         clearLastRaidSummary();
+        hungerMechanic.reset();
 
         GameState.GridState gridState = state.getGrid();
         if (gridState == null) {
@@ -311,13 +335,15 @@ public class GameStateHandler implements ResourceStateMutator {
      * <remarks>Only processes the root tile of multi-tile buildings to ensure production is only counted once.</remarks>
      */
     public void applyTickProduction() {
+        float productionMult = hungerMechanic.getCurrentTier().getProductionMultiplier();
         for (int x = 0; x < grid.getWidth(); x++) {
             for (int y = 0; y < grid.getHeight(); y++) {
                 Tile tile = grid.getTile(x, y);
                 if (tile != null && tile.hasBuilding() && tile.getBuilding().isAnchorPoint(x, y)) {
                     Building b = tile.getBuilding();
                     if (b.getProductionType() != null && b.getCurrentWorkers() > 0) {
-                        int amount = b.getCurrentWorkers() * b.getProductionPerWorker();
+                        int raw = b.getCurrentWorkers() * b.getProductionPerWorker();
+                        int amount = Math.round(raw * productionMult);
                         this.addResource(b.getProductionType(), amount);
                     }
                 }

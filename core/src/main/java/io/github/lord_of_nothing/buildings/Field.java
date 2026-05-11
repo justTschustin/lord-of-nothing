@@ -11,7 +11,7 @@ public class Field extends Building {
         super(1, 1);
         costs.put(ResourceType.WOOD, 5);
         this.setMaxWorkers(2);
-        this.setProduction(ResourceType.FOOD, 5);
+        this.setProduction(ResourceType.FOOD, 2);
 
     }
 
