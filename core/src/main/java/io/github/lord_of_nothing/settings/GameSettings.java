@@ -22,6 +22,6 @@ public class GameSettings {
      * <remarks>These fields are automatically serialized to JSON for persistent storage between sessions.</remarks>
      */
     public float masterVolume = 0.7f;
-    public float musicVolume = 0.7f;
+    public float musicVolume = 0.3f;
     public float soundVolume = 0.7f;}
 
