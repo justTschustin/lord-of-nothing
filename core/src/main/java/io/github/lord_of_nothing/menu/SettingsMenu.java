@@ -143,8 +143,6 @@ public class SettingsMenu {
         backgroundManager.render(batch, screenW, screenH, true);
         batch.end();
 
-
-
         batch.begin();
         font.setColor(Color.WHITE);
         font.draw(batch, "Settings", Gdx.graphics.getWidth() / 2f - 55f, Gdx.graphics.getHeight() / 2f + 130f);

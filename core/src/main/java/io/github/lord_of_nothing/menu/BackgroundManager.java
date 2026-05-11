@@ -14,15 +14,6 @@ public class BackgroundManager {
     private float cloudScrollOffset = 0f;
     private static final float CLOUD_SCROLL_SPEED = 30f;
 
-    public BackgroundManager(String backgroundPath, String cloudsPath) {
-        this.background = new Texture(backgroundPath);
-        this.cloudsTexture = new Texture(cloudsPath);
-        this.blurredBackground = null;
-        this.blurredCloudsTexture = null;
-
-        cloudsTexture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.ClampToEdge);
-    }
-
     public BackgroundManager(String backgroundPath, String cloudsPath, String blurredBackgroundPath, String blurredCloudsPath) {
         this.background = new Texture(backgroundPath);
         this.cloudsTexture = new Texture(cloudsPath);
@@ -39,8 +30,7 @@ public class BackgroundManager {
     public void update(float deltaTime, float screenWidth) {
         cloudScrollOffset += CLOUD_SCROLL_SPEED * deltaTime;
 
-        // Wenn der Offset größer als die Bildschirmbreite ist,
-        // setzen wir ihn zurück, damit der Loop von vorne beginnt.
+        // If Offset>ScreenWidth: reset, so that loop starts again
         if (cloudScrollOffset >= screenWidth) {
             cloudScrollOffset = 0;
         }
@@ -79,13 +69,5 @@ public class BackgroundManager {
         if (blurredCloudsTexture != null) {
             blurredCloudsTexture.dispose();
         }
-    }
-
-    public float getCloudScrollOffset() {
-        return cloudScrollOffset;
-    }
-
-    public void setCloudScrollOffset(float offset) {
-        this.cloudScrollOffset = offset;
     }
 }
