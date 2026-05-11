@@ -6,16 +6,14 @@ package io.github.lord_of_nothing.game;
  */
 public enum HungerLevel {
 
-    /** 0–25 % – population starving, severe penalties */
     STARVING(0.00f, 0.25f, "STARVING",
         new String[]{
             "Production: -50%",
-            "No new settlers",
+            "Settler arrival: -90%",
             "Morale at rock bottom"
         },
-        0.50f, 0.00f),
+        0.50f, 0.1f),
 
-    /** 25–60 % – basic needs barely covered */
     HUNGRY(0.25f, 0.60f, "HUNGRY",
         new String[]{
             "Production: -20%",
@@ -23,14 +21,12 @@ public enum HungerLevel {
         },
         0.80f, 0.70f),
 
-    /** 60–80 % – adequate nutrition, no modifiers */
     SATISFIED(0.60f, 0.80f, "SATISFIED",
         new String[]{
             "No modifiers"
         },
         1.00f, 1.00f),
 
-    /** 80–100 % – well-fed, bonus to productivity */
     WELL_FED(0.80f, 1.01f, "WELL-FED",
         new String[]{
             "Production: +20%",

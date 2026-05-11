@@ -17,10 +17,12 @@ public class TickHandler {
     public static final int DEFAULT_TICKS_PER_DAY = 24;
     /// Default simulation speed multiplier
     public static final int DEFAULT_GAME_SPEED = 1;
+    /// In-game hours at which food is deducted and hunger is updated (twice per day)
+    public static final int[] HUNGER_DEDUCTION_HOURS = {6, 18};
     /// Base minimum citizen arrival count at the start of the game
     public static final int DEFAULT_CITIZEN_ARRIVAL_MIN = 1;
     /// Base maximum citizen arrival count at the start of the game
-    public static final int DEFAULT_CITIZEN_ARRIVAL_MAX = 5;
+    public static final int DEFAULT_CITIZEN_ARRIVAL_MAX = 10;
     /// Number of in-game days between citizen arrival border increases
     public static final int DEFAULT_CITIZEN_ARRIVAL_BORDER_INCREASE_INTERVAL_DAYS = 5;
     /// How much the citizen arrival borders increase after each interval
@@ -138,11 +140,6 @@ public class TickHandler {
             if (resourceState instanceof GameStateHandler) {
                 GameStateHandler handler = (GameStateHandler) resourceState;
                 handler.applyTickProduction();
-                handler.applyHungerTick(log);
-                if (handler.consumePendingHungerGameOver()) {
-                    pendingRaidDefeat = true;
-                    break;
-                }
             }
             if (resourceState != null && tickProgressInDay == getCitizenArrivalTickProgress()) {
                 // Determine current housing situation
@@ -174,6 +171,22 @@ public class TickHandler {
                     }
                 } else if (spaceLeft > 0 && arrivalMult <= 0f) {
                     log.addMessage("Hunger verhindert neue Siedlerankunft.", false);
+                }
+            }
+
+            if (resourceState instanceof GameStateHandler) {
+                int currentHour = getCurrentIngameHour();
+                boolean isHungerHour = false;
+                for (int h : HUNGER_DEDUCTION_HOURS) {
+                    if (currentHour == h) { isHungerHour = true; break; }
+                }
+                if (isHungerHour) {
+                    GameStateHandler handler = (GameStateHandler) resourceState;
+                    handler.applyHungerTick(log);
+                    if (handler.consumePendingHungerGameOver()) {
+                        pendingRaidDefeat = true;
+                        break;
+                    }
                 }
             }
 

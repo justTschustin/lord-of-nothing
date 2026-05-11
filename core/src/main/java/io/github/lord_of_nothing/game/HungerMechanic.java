@@ -4,28 +4,28 @@ import io.github.lord_of_nothing.hud.EventLog;
 import io.github.lord_of_nothing.resources.ResourceType;
 
 /**
- * Manages the population hunger level that changes every simulation tick (= 1 in-game hour).
+ * Manages the population hunger level that changes twice per in-game day (at 6:00 and 18:00).
  *
- * <p>Each tick every citizen consumes {@value #FOOD_PER_CITIZEN_PER_TICK} food unit(s).
+ * <p>At each settlement hour every citizen consumes {@value #FOOD_PER_CITIZEN_PER_HALF_DAY} food unit(s).
  * If the food supply is sufficient the hunger bar rises slowly; if food runs out it falls.
  * At {@code 0 %} the game ends.</p>
  */
 public class HungerMechanic {
 
-    /** Food units consumed per citizen per tick (1 tick = 1 in-game hour). */
-    public static final int FOOD_PER_CITIZEN_PER_TICK = 3;
+    /** Food units consumed per citizen per settlement (twice per in-game day: 6:00 and 18:00). */
+    public static final int FOOD_PER_CITIZEN_PER_HALF_DAY = 24;
 
     /**
-     * Base hunger rise per tick when citizens are fully fed.
+     * Base hunger rise per settlement when citizens are fully fed.
      * Bonus food above consumption increases this rate (up to 2×).
      */
-    public static final float BASE_HUNGER_RISE_RATE = 0.004f;
+    public static final float BASE_HUNGER_RISE_RATE = 0.07f;
 
     /**
-     * Hunger drop per tick when no food is available at all.
+     * Hunger drop per settlement when no food is available at all.
      * Partial feeding produces a proportionally smaller drop.
      */
-    public static final float BASE_HUNGER_FALL_RATE = 0.007f;
+    public static final float BASE_HUNGER_FALL_RATE = 0.06f;
 
     private float hungerLevel = 0.5f;
     private boolean pendingGameOver = false;
@@ -66,7 +66,7 @@ public class HungerMechanic {
         if (citizens <= 0) { return; }
 
         int food = resources.getResourceAmount(ResourceType.FOOD);
-        int consumption = citizens * FOOD_PER_CITIZEN_PER_TICK;
+        int consumption = citizens * FOOD_PER_CITIZEN_PER_HALF_DAY;
 
         if (food >= consumption) {
             // Consume required food

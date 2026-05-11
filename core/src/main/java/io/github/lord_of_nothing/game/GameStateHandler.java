@@ -19,7 +19,8 @@ import java.util.Map;
  * Owns and exposes game-state lifecycle responsibilities.
  */
 public class GameStateHandler implements ResourceStateMutator {
-    public static final int DEFAULT_STARTING_WOOD = 1000;
+    public static final int DEFAULT_STARTING_WOOD = 80;
+    public static final int DEFAULT_STARTING_FOOD = 150;
 
     private final ResourceManager resourceManager;
     private final Grid grid;
@@ -109,6 +110,7 @@ public class GameStateHandler implements ResourceStateMutator {
         clearGrid();
         setCurrentIngameDay(1);
         addResource(ResourceType.WOOD, DEFAULT_STARTING_WOOD);
+        addResource(ResourceType.FOOD, DEFAULT_STARTING_FOOD);
         clearLastRaidSummary();
         hungerMechanic.reset();
     }
