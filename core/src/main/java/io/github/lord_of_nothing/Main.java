@@ -441,7 +441,6 @@ public class Main extends ApplicationAdapter {
         sidebarRenderer = new SidebarRenderer();
         sidebarRenderer.loadAssets(uiBg, uiCorner, uiEdge);
         eventLogRenderer.loadAssets(uiBg, uiCorner, uiEdge);
-        popupOverlay.loadAssets(uiBg, uiCorner, uiEdge);
 
         tileInspectorRenderer = new TileInspectorRenderer();
         tileInspectorRenderer.loadAssets(uiBg, uiCorner, uiEdge);
