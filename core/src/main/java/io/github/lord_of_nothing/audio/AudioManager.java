@@ -2,6 +2,8 @@ package io.github.lord_of_nothing.audio;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,10 +13,12 @@ public class AudioManager {
     private Music currentMusic;
     private boolean isPlaying = false;
     private float masterVolume = 0.7f;
+    private Sound clickSound;
 
     public AudioManager() {
         this.playlist = new ArrayList<>();
         initializePlaylist();
+        clickSound = Gdx.audio.newSound(Gdx.files.internal("sounds/click.mp3"));
     }
 
     /**
@@ -85,6 +89,15 @@ public class AudioManager {
     }
 
     /**
+     * <summary>Plays the pre-loaded click sound effect once using the current master volume.</summary>
+     */
+    public void playClickSound() {
+        if (clickSound != null) {
+            clickSound.play(masterVolume);
+        }
+    }
+
+    /**
      * Frees all music resources
      */
     public void dispose() {
@@ -92,5 +105,6 @@ public class AudioManager {
         if (currentMusic != null) {
             currentMusic.dispose();
         }
+        if (clickSound != null) clickSound.dispose();
     }
 }
