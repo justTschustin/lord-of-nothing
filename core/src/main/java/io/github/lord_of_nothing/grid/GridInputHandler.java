@@ -450,7 +450,7 @@ public class GridInputHandler extends InputAdapter {
         Building b = tileInspectorBar.getSelected();
         int x      = tileInspectorBar.getSelectedGridX();
         int y      = tileInspectorBar.getSelectedGridY();
-
+        audioManager.playUnable();
         grid.removeBuilding(x, y);
 
         if (b.getCurrentWorkers() > 0) {
