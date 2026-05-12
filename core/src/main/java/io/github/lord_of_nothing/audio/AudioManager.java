@@ -2,6 +2,8 @@ package io.github.lord_of_nothing.audio;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,10 +13,20 @@ public class AudioManager {
     private Music currentMusic;
     private boolean isPlaying = false;
     private float masterVolume = 0.7f;
+    private float musicVolume = 0.7f;
+    private float soundVolume = 0.7f;
+    private Sound assignSound, menuSound, placeSound, selectSound, unableSound, raidAnnounceSound, kampfSound;
 
     public AudioManager() {
         this.playlist = new ArrayList<>();
         initializePlaylist();
+        assignSound = Gdx.audio.newSound(Gdx.files.internal("sounds/assign.mp3"));
+        menuSound = Gdx.audio.newSound(Gdx.files.internal("sounds/menuClick.mp3"));
+        placeSound = Gdx.audio.newSound(Gdx.files.internal("sounds/place.mp3"));
+        selectSound = Gdx.audio.newSound(Gdx.files.internal("sounds/select.mp3"));
+        unableSound = Gdx.audio.newSound(Gdx.files.internal("sounds/unable.mp3"));
+        raidAnnounceSound = Gdx.audio.newSound(Gdx.files.internal("sounds/raidAnnounce.mp3"));
+        kampfSound = Gdx.audio.newSound(Gdx.files.internal("sounds/kampf.mp3"));
     }
 
     /**
@@ -49,7 +61,7 @@ public class AudioManager {
 
         String trackPath = playlist.get(currentTrackIndex);
         currentMusic = Gdx.audio.newMusic(Gdx.files.internal(trackPath));
-        currentMusic.setVolume(masterVolume);
+        currentMusic.setVolume(musicVolume);
 
         // Listener: If Track ended -> next Track
         currentMusic.setOnCompletionListener(music -> {
@@ -69,6 +81,23 @@ public class AudioManager {
             currentMusic.setVolume(this.masterVolume);
         }
     }
+    /**
+     * <summary>Updates the music channel volume and applies it to the currently playing track.</summary>
+     * @param volume Normalized volume level (0.0 to 1.0).
+     */
+    public void setMusicVolume(float volume) {
+        this.musicVolume = Math.max(0, Math.min(1, volume));
+        if (currentMusic != null) {
+            currentMusic.setVolume(this.musicVolume);
+        }
+    }
+    /**
+     * <summary>Updates the sound effects channel volume for all future SFX playbacks.</summary>
+     * @param volume Normalized volume level (0.0 to 1.0).
+     */
+    public void setSoundVolume(float volume) {
+        this.soundVolume = Math.max(0, Math.min(1, volume));
+    }
 
     public float getMasterVolume() {
         return masterVolume;
@@ -84,6 +113,48 @@ public class AudioManager {
         }
     }
 
+    public void playAssign() {
+        if (assignSound != null) {
+            assignSound.play(soundVolume);
+        }
+    }
+
+    public void playMenuClick() {
+        if (menuSound != null) {
+            menuSound.play(soundVolume);
+        }
+    }
+
+    public void playPlace() {
+        if (placeSound != null) {
+            placeSound.play(soundVolume);
+        }
+    }
+
+    public void playSelect() {
+        if (selectSound != null) {
+            selectSound.play(soundVolume);
+        }
+    }
+
+    public void playUnable() {
+        if (unableSound != null) {
+            unableSound.play(soundVolume);
+        }
+    }
+
+    public void playRaidAnnounce() {
+        if (raidAnnounceSound != null) {
+            raidAnnounceSound.play(soundVolume);
+        }
+    }
+
+    public void playKampf() {
+        if (kampfSound != null) {
+            kampfSound.play(soundVolume);
+        }
+    }
+
     /**
      * Frees all music resources
      */
@@ -91,6 +162,12 @@ public class AudioManager {
         stopPlaylist();
         if (currentMusic != null) {
             currentMusic.dispose();
+        }
+        Sound[] sounds = {assignSound, menuSound, placeSound, selectSound, unableSound, raidAnnounceSound, kampfSound};
+        for (Sound s : sounds) {
+            if (s != null) {
+                s.dispose();
+            }
         }
     }
 }

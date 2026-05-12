@@ -33,9 +33,9 @@ public class SettingsMenu {
     private final List<UiElement> settingsControls = new ArrayList<>();
     private final ResolutionSelector resolutionSelector;
     private final GameSpeedSelector gameSpeedSelector;
-    private final VolumeSlider volumeSlider;
+    private final VolumeSlider musicVolumeSlider;
+    private final VolumeSlider soundVolumeSlider;
     private final BackgroundManager backgroundManager;
-
     /**
      * Creates the settings menu and its buttons.
      *
@@ -81,14 +81,15 @@ public class SettingsMenu {
         );
         settingsControls.add(gameSpeedSelector);
 
-        volumeSlider = new VolumeSlider(
-            x,
-            toggleY,
-            BUTTON_WIDTH,
-            BUTTON_HEIGHT,
-            eventBus
+        musicVolumeSlider = new VolumeSlider(x, toggleY, BUTTON_WIDTH, BUTTON_HEIGHT, "Music Volume",
+            v -> eventBus.publish(new io.github.lord_of_nothing.events.MusicVolumeChangedEvent(v))
         );
-        settingsControls.add(volumeSlider);
+        settingsControls.add(musicVolumeSlider);
+
+        soundVolumeSlider = new VolumeSlider(x, toggleY, BUTTON_WIDTH, BUTTON_HEIGHT, "Sound Volume",
+            v -> eventBus.publish(new io.github.lord_of_nothing.events.SoundVolumeChangedEvent(v))
+        );
+        settingsControls.add(soundVolumeSlider);
 
         settingsControls.add(new TextButton(
             x,
@@ -123,8 +124,8 @@ public class SettingsMenu {
     public void syncDisplaySettings(GameSettings gameSettings) {
         resolutionSelector.syncFromSettings(gameSettings);
         gameSpeedSelector.syncFromSettings(gameSettings);
-        volumeSlider.syncFromSettings(gameSettings);
-    }
+        musicVolumeSlider.setVolume(gameSettings.musicVolume);
+        soundVolumeSlider.setVolume(gameSettings.soundVolume);    }
 
     /**
      * Renders the settings screen and buttons.
@@ -156,8 +157,8 @@ public class SettingsMenu {
      */
     public void dispose() {
         font.dispose();
-        volumeSlider.dispose();
-    }
+        musicVolumeSlider.dispose();
+        soundVolumeSlider.dispose();    }
 
     /**
      * Recalculates button layout based on the current window size.
