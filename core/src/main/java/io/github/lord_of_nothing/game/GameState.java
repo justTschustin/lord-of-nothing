@@ -16,6 +16,7 @@ public class GameState {
 	private int currentIngameDay = 1;
 	private Integer nextRaidScheduledDay;
 	private Integer nextRaidDeterminationDay;
+	private List<String> eventLogMessages = new ArrayList<>();
 
 	public Map<ResourceType, Integer> getResources() {
 		return resources;
@@ -105,6 +106,14 @@ public class GameState {
 			return;
 		}
 		this.nextRaidDeterminationDay = Math.max(1, nextRaidDeterminationDay);
+	}
+
+	public List<String> getEventLogMessages() {
+		return eventLogMessages;
+	}
+
+	public void setEventLogMessages(List<String> eventLogMessages) {
+		this.eventLogMessages = eventLogMessages == null ? new ArrayList<>() : new ArrayList<>(eventLogMessages);
 	}
 
 	public static class GridState {
