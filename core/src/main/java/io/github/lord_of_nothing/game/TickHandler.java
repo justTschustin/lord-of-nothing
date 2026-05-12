@@ -145,7 +145,7 @@ public class TickHandler {
             if (resourceState != null) {
                 int citizensTotal = resourceState.getResourceAmount(ResourceType.CITIZENS_TOTAL);
                 if (citizensTotal > 0) {
-                    int foodDemand = Math.max(1, citizensTotal / 10);
+                    int foodDemand = Math.max(1, citizensTotal / 5);
                     if (resourceState.tryConsumeResource(ResourceType.FOOD, foodDemand)) {
                         starvationTicks = 0;
                     } else {

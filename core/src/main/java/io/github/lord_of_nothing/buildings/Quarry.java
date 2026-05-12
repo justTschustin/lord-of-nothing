@@ -8,9 +8,9 @@ import io.github.lord_of_nothing.resources.ResourceType;
 public class Quarry extends Building {
     public Quarry() {
         super(2, 2);
-        costs.put(ResourceType.WOOD, 30);
+        costs.put(ResourceType.WOOD, 50);
         this.setMaxWorkers(4);
-        this.setProduction(ResourceType.STONE, 5);
+        this.setProduction(ResourceType.STONE, 1);
 
     }
 
