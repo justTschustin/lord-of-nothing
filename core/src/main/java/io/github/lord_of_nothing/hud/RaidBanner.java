@@ -2,10 +2,12 @@ package io.github.lord_of_nothing.hud;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 /**
  * Animated banner that overlays grid during raid warnings and attacks, and outcome text
@@ -15,8 +17,6 @@ public class RaidBanner {
     // Tunable constants for animation effects
     /** Seconds for the expand-from-line animation */
     private static final float EXPAND_DURATION = 0.25f;
-    /** Seconds the banner stays fully open */
-    private static final float HOLD_DURATION = 8.0f;
     /** Seconds for the collapse-to-line animation */
     private static final float COLLAPSE_DURATION = 0.25f;
     /** Minimum drawn height in pixels during expand/collapse */
@@ -39,7 +39,7 @@ public class RaidBanner {
     private String floatingText = null;
     private float floatingTimer = 0f;
 
-    public static final float FLOATING_DURATION = 3.5f;
+    public static final float FLOATING_DURATION = 6.0f;
 
 
     /**
@@ -142,10 +142,7 @@ public class RaidBanner {
                 }
                 break;
             case VISIBLE:
-                if (timer >= HOLD_DURATION) {
-                    timer = 0f;
-                    phase = Phase.COLLAPSING;
-                }
+                // Stays open until explicitly dismissed via dismiss()
                 break;
             case COLLAPSING:
                 if (timer >= COLLAPSE_DURATION) {
@@ -264,6 +261,24 @@ public class RaidBanner {
         }
 
         batch.end();
+    }
+
+    /**
+     * Draws a semi-transparent black overlay over the full screen.
+     * Call this after all world/HUD rendering but before {@link #render(SpriteBatch)}.
+     *
+     * @param shapeRenderer shape renderer used for the overlay fill
+     */
+    public void renderDimOverlay(ShapeRenderer shapeRenderer) {
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0f, 0f, 0f, 0.5f);
+        shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        shapeRenderer.end();
+
+        Gdx.gl.glDisable(GL20.GL_BLEND);
     }
 
     /** Frees texture and font resources. */
