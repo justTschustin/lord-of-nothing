@@ -15,8 +15,6 @@ public class EventLog {
     public EventLog(Supplier<Integer> daySupplier, Supplier<Integer> hourSupplier) {
         this.daySupplier = daySupplier;
         this.hourSupplier = hourSupplier;
-        addMessage("Welcome, Lord of Nothing!", false);
-        addMessage("Tutorial: Build houses to attract citizens.", false);
     }
 
     /**
