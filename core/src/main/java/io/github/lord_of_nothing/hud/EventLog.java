@@ -1,12 +1,16 @@
 package io.github.lord_of_nothing.hud;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.function.Supplier;
+
 /**
  * Manages game events and retrieves timestamps dynamically via functional providers.
  * Using Suppliers decouples the log from the time-tracking logic, ensuring it always fetches the most recent game state.
  */
 public class EventLog {
-    private final java.util.LinkedList<String> messages = new java.util.LinkedList<>();
-    private final int maxMessages = 8;
+    private final LinkedList<String> messages = new LinkedList<>();
     private final Supplier<Integer> daySupplier;
     private final Supplier<Integer> hourSupplier;
     private int scrollOffset = 0;
@@ -27,7 +31,9 @@ public class EventLog {
             String.format("[D%d %02d:00] ", daySupplier.get(), hourSupplier.get()) : "";
 
         messages.add(prefix + message);
-        if (messages.size() > 100) {messages.remove(0);}
+        if (messages.size() > MAX_MESSAGES) {
+            messages.remove(0);
+        }
 
         scrollOffset = 0;
         System.out.println(message);
@@ -39,7 +45,7 @@ public class EventLog {
      */
     public void scroll(float amountY) {
         int maxScroll = Math.max(0, messages.size() - 8);
-        scrollOffset = Math.max(0, Math.min(maxScroll, scrollOffset - (int)amountY));
+        scrollOffset = Math.max(0, Math.min(maxScroll, scrollOffset - (int) amountY));
     }
 
     /**
@@ -49,6 +55,41 @@ public class EventLog {
         messages.clear();
         scrollOffset = 0;
     }
-    public int getScrollOffset() { return scrollOffset; }
-    public java.util.List<String> getMessages() { return messages; }
+
+    /**
+     * Replaces the current log content with persisted messages.
+     *
+     * @param savedMessages messages loaded from a save file
+     */
+    public void setMessages(List<String> savedMessages) {
+        messages.clear();
+        if (savedMessages != null) {
+            for (String message : savedMessages) {
+                if (message != null && !message.isEmpty()) {
+                    messages.add(message);
+                    if (messages.size() > MAX_MESSAGES) {
+                        messages.remove(0);
+                    }
+                }
+            }
+        }
+        scrollOffset = 0;
+    }
+
+    /**
+     * Returns a snapshot copy of the current log messages for saving.
+     *
+     * @return copy of all stored log messages
+     */
+    public List<String> getMessagesSnapshot() {
+        return new ArrayList<>(messages);
+    }
+
+    public int getScrollOffset() {
+        return scrollOffset;
+    }
+
+    public List<String> getMessages() {
+        return messages;
+    }
 }

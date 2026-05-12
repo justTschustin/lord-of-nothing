@@ -462,6 +462,8 @@ public class Main extends ApplicationAdapter {
      */
     @Override
     public void dispose() {
+        saveCurrentGameStateIfAllowed();
+
         saveExecutor.shutdownNow();
         audioManager.stopPlaylist();
         shapeRenderer.dispose();
@@ -508,6 +510,7 @@ public class Main extends ApplicationAdapter {
             return;
         }
 
+        eventLog.setMessages(loadedState.getEventLogMessages());
         tickHandler.resetTimeline();
         timeProgressionPaused = false;
         autoSaveEnabled = true;
@@ -553,7 +556,7 @@ public class Main extends ApplicationAdapter {
             return;
         }
 
-        final GameState snapshot = gameStateHandler.getSnapshot();
+        final GameState snapshot = createSaveSnapshot();
         pendingSaveTasks.incrementAndGet();
         savingInProgress = true;
 
@@ -569,5 +572,19 @@ public class Main extends ApplicationAdapter {
                 }
             }
         });
+    }
+
+    private GameState createSaveSnapshot() {
+        GameState snapshot = gameStateHandler.getSnapshot();
+        snapshot.setEventLogMessages(eventLog.getMessagesSnapshot());
+        return snapshot;
+    }
+
+    private void saveCurrentGameStateIfAllowed() {
+        if (!autoSaveEnabled || gameStateStore == null || gameStateHandler == null || eventLog == null) {
+            return;
+        }
+
+        gameStateStore.save(createSaveSnapshot());
     }
 }
