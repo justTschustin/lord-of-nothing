@@ -320,6 +320,7 @@ public class Main extends ApplicationAdapter {
             String raidMsg;
             while ((raidMsg = tickHandler.pollNextRaidPopupMessage()) != null) {
                 raidMessages.add(raidMsg);
+                eventLog.addMessage(raidMsg, true);
             }
 
             // Show messages as banners in sequence.
@@ -481,6 +482,10 @@ public class Main extends ApplicationAdapter {
     private void startNewGame() {
         eventLog.clear();
         eventLog.addMessage("Welcome, Lord of Nothing!", false);
+        eventLog.addMessage("Your settlement starts small, but with wise planning it can survive.", false);
+        eventLog.addMessage("Select buildings from the left sidebar and place them on free tiles.", false);
+        eventLog.addMessage("Gather wood, stone, and food to keep expanding your village.", false);
+        eventLog.addMessage("Build houses for more citizens and barracks to prepare for raids.", false);
         gameStateHandler.resetNewGame();
         tickHandler.resetTimeline();
         gameOverCountdown = NO_COUNTDOWN;
