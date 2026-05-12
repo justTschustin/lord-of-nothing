@@ -298,7 +298,7 @@ public class Main extends ApplicationAdapter {
             return;
         }
 
-        if (flowState.getScreenState() == ScreenState.GAMEPLAY && !timeProgressionPaused) {
+        if (flowState.getScreenState() == ScreenState.GAMEPLAY && !timeProgressionPaused && !raidBanner.isActive()) {
             int completedDays = tickHandler.update(
                 Gdx.graphics.getDeltaTime(),
                 gameStateHandler.getCurrentIngameDay(),
@@ -419,6 +419,9 @@ public class Main extends ApplicationAdapter {
 
         // Render and overlay raid banner
         raidBanner.update(Gdx.graphics.getDeltaTime());
+        if (raidBanner.isActive()) {
+            raidBanner.renderDimOverlay(shapeRenderer);
+        }
         if (raidBanner.isActive() || raidBanner.isFloatingTextActive()) {
             raidBanner.render(batch);
         }
