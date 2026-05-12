@@ -19,8 +19,8 @@ import java.util.Map;
  * Owns and exposes game-state lifecycle responsibilities.
  */
 public class GameStateHandler implements ResourceStateMutator {
-    public static final int DEFAULT_STARTING_WOOD = 80;
-    public static final int DEFAULT_STARTING_FOOD = 150;
+    public static final int DEFAULT_STARTING_WOOD = 200;
+    public static final int DEFAULT_STARTING_FOOD = 250;
 
     private final ResourceManager resourceManager;
     private final Grid grid;

@@ -10,6 +10,7 @@ public class Barrack extends Building {
     public Barrack() {
         super(2, 2);
         costs.put(ResourceType.WOOD, 50);
+        costs.put(ResourceType.STONE, 40);
         this.setMaxWorkers(10);
     }
 

@@ -9,7 +9,7 @@ import io.github.lord_of_nothing.resources.ResourceType;
 public class Field extends Building {
     public Field() {
         super(1, 1);
-        costs.put(ResourceType.WOOD, 5);
+        costs.put(ResourceType.WOOD, 10);
         this.setMaxWorkers(2);
         this.setProduction(ResourceType.FOOD, 4);
 
