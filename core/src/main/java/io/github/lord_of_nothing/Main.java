@@ -69,6 +69,9 @@ public class Main extends ApplicationAdapter {
     private GameWindow gameWindow;
     private TopBarRenderer topBarRenderer;
     private Texture grassTexture;
+    private Texture hudBackgroundTexture;
+    private Texture hudCornerTexture;
+    private Texture hudEdgeTexture;
     private Sidebar sidebar;
     private SidebarRenderer sidebarRenderer;
     private TileInspectorBar tileInspectorBar;
@@ -139,10 +142,10 @@ public class Main extends ApplicationAdapter {
         );
         eventLogRenderer = new EventLogRenderer();
         topBarRenderer = new TopBarRenderer();
-        Texture uiBg = new Texture("hud/HUD_Wood.png");
-        Texture uiCorner = new Texture("hud/HUD_Corner_Overlay.png");
-        Texture uiEdge = new Texture("hud/HUD_Border_Overlay.png");
-        initializeHudRenderers(uiBg, uiCorner, uiEdge);
+        hudBackgroundTexture = new Texture("hud/HUD_Wood.png");
+        hudCornerTexture = new Texture("hud/HUD_Corner_Overlay.png");
+        hudEdgeTexture = new Texture("hud/HUD_Border_Overlay.png");
+        initializeHudRenderers(hudBackgroundTexture, hudCornerTexture, hudEdgeTexture);
         eventBus = new EventBus();
         gameOverOverlay = new GameOverOverlay(eventBus);
         flowState = new FlowState();
@@ -168,7 +171,7 @@ public class Main extends ApplicationAdapter {
         ResolutionSettings.initialize(displayModes);
 
         MainMenu mainMenu = new MainMenu(eventBus, gameStateStore.exists());
-        SettingsMenu settingsMenu = new SettingsMenu(eventBus);
+        SettingsMenu settingsMenu = new SettingsMenu(eventBus, mainMenu.getBackgroundManager());
         settingsStore = new SettingsStore(settingsFilePath);
         gameSettings = settingsStore.load();
         tickHandler.setGameSpeed(gameSettings.gameSpeed);
@@ -325,6 +328,7 @@ public class Main extends ApplicationAdapter {
             String raidMsg;
             while ((raidMsg = tickHandler.pollNextRaidPopupMessage()) != null) {
                 raidMessages.add(raidMsg);
+                eventLog.addMessage(raidMsg, true);
             }
 
             // Show messages as banners in sequence.
@@ -471,11 +475,16 @@ public class Main extends ApplicationAdapter {
      */
     @Override
     public void dispose() {
+        saveCurrentGameStateIfAllowed();
+
         saveExecutor.shutdownNow();
         audioManager.stopPlaylist();
         shapeRenderer.dispose();
         batch.dispose();
         grassTexture.dispose();
+        hudBackgroundTexture.dispose();
+        hudCornerTexture.dispose();
+        hudEdgeTexture.dispose();
         topBarRenderer.dispose();
         raidBanner.dispose();
         gameOverOverlay.dispose();
@@ -488,6 +497,10 @@ public class Main extends ApplicationAdapter {
     private void startNewGame() {
         eventLog.clear();
         eventLog.addMessage("Welcome, Lord of Nothing!", false);
+        eventLog.addMessage("Your settlement starts small, but with wise planning it can survive.", false);
+        eventLog.addMessage("Select buildings from the left sidebar and place them on free tiles.", false);
+        eventLog.addMessage("Gather wood, stone, and food to keep expanding your village.", false);
+        eventLog.addMessage("Build houses for more citizens and barracks to prepare for raids.", false);
         gameStateHandler.resetNewGame();
         tickHandler.resetTimeline();
         gameOverCountdown = NO_COUNTDOWN;
@@ -510,6 +523,7 @@ public class Main extends ApplicationAdapter {
             return;
         }
 
+        eventLog.setMessages(loadedState.getEventLogMessages());
         tickHandler.resetTimeline();
         timeProgressionPaused = false;
         autoSaveEnabled = true;
@@ -529,7 +543,13 @@ public class Main extends ApplicationAdapter {
         flowState.setScreenState(ScreenState.GAME_OVER);
         timeProgressionPaused = true;
         autoSaveEnabled = false;
-        gameOverOverlay.show();
+        Integer bandits = gameStateHandler.getLastRaidBanditCount();
+        Integer defenders = gameStateHandler.getLastRaidDefenderCount();
+        if (bandits != null && defenders != null) {
+            gameOverOverlay.show(bandits, defenders);
+        } else {
+            gameOverOverlay.show();
+        }
         gridInputHandler.setExclusiveUiElement(gameOverOverlay.getBackToMenuButton());
         gameStateStore.delete();
     }
@@ -549,7 +569,7 @@ public class Main extends ApplicationAdapter {
             return;
         }
 
-        final GameState snapshot = gameStateHandler.getSnapshot();
+        final GameState snapshot = createSaveSnapshot();
         pendingSaveTasks.incrementAndGet();
         savingInProgress = true;
 
@@ -565,5 +585,19 @@ public class Main extends ApplicationAdapter {
                 }
             }
         });
+    }
+
+    private GameState createSaveSnapshot() {
+        GameState snapshot = gameStateHandler.getSnapshot();
+        snapshot.setEventLogMessages(eventLog.getMessagesSnapshot());
+        return snapshot;
+    }
+
+    private void saveCurrentGameStateIfAllowed() {
+        if (!autoSaveEnabled || gameStateStore == null || gameStateHandler == null || eventLog == null) {
+            return;
+        }
+
+        gameStateStore.save(createSaveSnapshot());
     }
 }

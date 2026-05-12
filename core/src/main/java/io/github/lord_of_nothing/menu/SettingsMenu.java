@@ -35,12 +35,16 @@ public class SettingsMenu {
     private final GameSpeedSelector gameSpeedSelector;
     private final VolumeSlider musicVolumeSlider;
     private final VolumeSlider soundVolumeSlider;
+    private final BackgroundManager backgroundManager;
     /**
      * Creates the settings menu and its buttons.
      *
      * @param eventBus event bus used to publish UI actions
+     * @param sharedBackgroundManager background manager from MainMenu
      */
-    public SettingsMenu(EventBus eventBus) {
+    public SettingsMenu(EventBus eventBus, BackgroundManager sharedBackgroundManager) {
+        this.backgroundManager = sharedBackgroundManager;
+
         float centerX = Gdx.graphics.getWidth() / 2f;
         float centerY = Gdx.graphics.getHeight() / 2f;
         float x = centerX - BUTTON_WIDTH / 2f;
@@ -131,10 +135,14 @@ public class SettingsMenu {
      */
     public void render(ShapeRenderer shapeRenderer, SpriteBatch batch) {
         setButtonLayout();
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(0.08f, 0.08f, 0.08f, 1f);
-        shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        shapeRenderer.end();
+
+        int screenW = Gdx.graphics.getWidth();
+        int screenH = Gdx.graphics.getHeight();
+
+        batch.begin();
+        backgroundManager.update(Gdx.graphics.getDeltaTime(), Gdx.graphics.getWidth());
+        backgroundManager.render(batch, screenW, screenH, true);
+        batch.end();
 
         batch.begin();
         font.setColor(Color.WHITE);
@@ -182,14 +190,12 @@ public class SettingsMenu {
             }
         }
 
-        // Render VolumeSlider after closed Dropdowns
         for (UiElement control : settingsControls) {
             if (control instanceof VolumeSlider) {
                 control.render(batch);
             }
         }
 
-        // Render expanded dropdowns last so option lists are always top-most.
         for (UiElement control : settingsControls) {
             if (control instanceof DropDownSelect && ((DropDownSelect) control).isOpen()) {
                 control.render(batch);
@@ -200,7 +206,7 @@ public class SettingsMenu {
     private void updateDisplayModeLabel() {
         TextButton displayModeButton = (TextButton) settingsControls.get(0);
         displayModeButton.setText(
-                Gdx.graphics.isFullscreen() ? "Display Mode: Fullscreen" : "Display Mode: Windowed"
+            Gdx.graphics.isFullscreen() ? "Display Mode: Fullscreen" : "Display Mode: Windowed"
         );
     }
 
