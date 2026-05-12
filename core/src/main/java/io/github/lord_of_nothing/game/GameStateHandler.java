@@ -231,6 +231,37 @@ public class GameStateHandler implements ResourceStateMutator {
         return totalLost;
     }
 
+    /**
+     * Removes one citizen from the settlement due to starvation.
+     * Free citizens are removed first; if none are available, an assigned worker is removed.
+     *
+     * @return 1 if a citizen was removed, 0 if the settlement is already empty
+     */
+    public int applyStarvationDeath() {
+        if (resourceManager.getAmount(ResourceType.CITIZENS_TOTAL) <= 0) {
+            return 0;
+        }
+
+        int available = resourceManager.getAmount(ResourceType.CITIZENS_AVAILABLE);
+        if (available > 0) {
+            resourceManager.add(ResourceType.CITIZENS_AVAILABLE, -1);
+            resourceManager.add(ResourceType.CITIZENS_TOTAL, -1);
+            return 1;
+        }
+
+        int removed = removeAssignedWorkers(1, false);
+        if (removed <= 0) {
+            removed = removeAssignedWorkers(1, true);
+            if (removed > 0) {
+                resourceManager.add(ResourceType.SOLDIERS, -removed);
+            }
+        }
+        if (removed > 0) {
+            resourceManager.add(ResourceType.CITIZENS_TOTAL, -removed);
+        }
+        return removed;
+    }
+
     public GameState getSnapshot() {
         GameState snapshot = new GameState();
         snapshot.setCurrentIngameDay(currentIngameDay);

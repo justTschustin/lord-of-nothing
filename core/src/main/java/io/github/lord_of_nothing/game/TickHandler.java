@@ -27,11 +27,14 @@ public class TickHandler {
     public static final int DEFAULT_CITIZEN_ARRIVAL_BORDER_INCREASE = 1;
     /// Citizens arrive at 6am each day
     public static final int DEFAULT_CITIZEN_ARRIVAL_HOUR = 6;
+    /// Number of consecutive starving ticks before a citizen dies
+    public static final int DEFAULT_STARVATION_THRESHOLD = 6;
 
     private final float tickDurationSeconds = DEFAULT_TICK_DURATION_SECONDS;
     private int gameSpeed = DEFAULT_GAME_SPEED;
     private float accumulatorSeconds;
     private int tickProgressInDay;
+    private int starvationTicks = 0;
     private final Queue<String> pendingRaidPopupMessages = new ArrayDeque<>();
     private boolean pendingRaidDefeat;
 
@@ -138,6 +141,32 @@ public class TickHandler {
             if (resourceState instanceof GameStateHandler) {
                 ((GameStateHandler) resourceState).applyTickProduction();
             }
+            // Hourly food consumption and starvation
+            if (resourceState != null) {
+                int citizensTotal = resourceState.getResourceAmount(ResourceType.CITIZENS_TOTAL);
+                if (citizensTotal > 0) {
+                    int foodDemand = Math.max(1, citizensTotal / 10);
+                    if (resourceState.tryConsumeResource(ResourceType.FOOD, foodDemand)) {
+                        starvationTicks = 0;
+                    } else {
+                        starvationTicks++;
+                        if (starvationTicks == 1) {
+                            log.addMessage("Warning: Food supplies exhausted!", true);
+                        } else if (starvationTicks == DEFAULT_STARVATION_THRESHOLD / 2) {
+                            log.addMessage("Starvation is spreading through the village!", true);
+                        }
+                        if (starvationTicks >= DEFAULT_STARVATION_THRESHOLD) {
+                            if (resourceState instanceof GameStateHandler) {
+                                int died = ((GameStateHandler) resourceState).applyStarvationDeath();
+                                if (died > 0) {
+                                    log.addMessage("A citizen has died of starvation.", true);
+                                }
+                            }
+                            starvationTicks = 0;
+                        }
+                    }
+                }
+            }
             if (resourceState != null && tickProgressInDay == getCitizenArrivalTickProgress()) {
                 // Determine current housing situation
                 int currentTotal = resourceState.getResourceAmount(ResourceType.CITIZENS_TOTAL);
@@ -216,6 +245,7 @@ public class TickHandler {
     public void resetTimeline() {
         accumulatorSeconds = 0f;
         tickProgressInDay = 0;
+        starvationTicks = 0;
         pendingRaidDefeat = false;
     }
 }
