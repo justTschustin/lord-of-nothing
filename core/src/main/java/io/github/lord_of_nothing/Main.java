@@ -171,7 +171,7 @@ public class Main extends ApplicationAdapter {
         ResolutionSettings.initialize(displayModes);
 
         MainMenu mainMenu = new MainMenu(eventBus, gameStateStore.exists());
-        SettingsMenu settingsMenu = new SettingsMenu(eventBus);
+        SettingsMenu settingsMenu = new SettingsMenu(eventBus, mainMenu.getBackgroundManager());
         settingsStore = new SettingsStore(settingsFilePath);
         gameSettings = settingsStore.load();
         tickHandler.setGameSpeed(gameSettings.gameSpeed);
