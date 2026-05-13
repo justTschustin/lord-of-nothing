@@ -146,7 +146,7 @@ public class SettingsMenu {
 
         batch.begin();
         font.setColor(Color.WHITE);
-        font.draw(batch, "Settings", Gdx.graphics.getWidth() / 2f - 55f, Gdx.graphics.getHeight() / 2f + 130f);
+        font.draw(batch, "Settings", Gdx.graphics.getWidth() / 2f - 35f, Gdx.graphics.getHeight() / 2f + 200f);
         updateDisplayModeLabel();
         renderControls(batch);
         batch.end();
