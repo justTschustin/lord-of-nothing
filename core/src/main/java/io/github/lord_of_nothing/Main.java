@@ -10,11 +10,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.PixmapIO;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import java.util.zip.Deflater;
 import io.github.lord_of_nothing.audio.AudioManager;
 import io.github.lord_of_nothing.events.BackToMainMenuEvent;
 import io.github.lord_of_nothing.events.CloseSettingsMenuEvent;
@@ -425,6 +429,20 @@ public class Main extends ApplicationAdapter {
         if (raidBanner.isActive() || raidBanner.isFloatingTextActive()) {
             raidBanner.render(batch);
         }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F12)) {
+            takeScreenshot();
+        }
+    }
+
+    private void takeScreenshot() {
+        int w = Gdx.graphics.getBackBufferWidth();
+        int h = Gdx.graphics.getBackBufferHeight();
+        Pixmap pixmap = Pixmap.createFromFrameBuffer(0, 0, w, h);
+        String filename = "Screenshots/screenshot_" + System.currentTimeMillis() + ".png";
+        PixmapIO.writePNG(Gdx.files.local(filename), pixmap, Deflater.DEFAULT_COMPRESSION, true);
+        pixmap.dispose();
+        Gdx.app.log("Screenshot", "Screenshot saved: " + Gdx.files.local(filename).file().getAbsolutePath());
     }
     /**
      * Centralizes UI asset loading and distributes shared textures to the HUD renderers.
@@ -495,6 +513,7 @@ public class Main extends ApplicationAdapter {
         menuFlowCoordinator.dispose();
         audioManager.dispose();
         tileInspectorRenderer.dispose();
+        gridRenderer.dispose();
     }
 
     private void startNewGame() {

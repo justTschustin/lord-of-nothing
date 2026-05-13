@@ -1,8 +1,11 @@
 package io.github.lord_of_nothing.grid;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.buildings.Building;
@@ -12,6 +15,8 @@ import java.util.Map;
  * Renders the game grid, terrain, buildings, and the interactive sidebar UI.
  */
 public class GridRenderer {
+
+    private final BitmapFont overlayFont = createOverlayFont();
 
     /**
      * Main render loop coordinating terrain, grid shapes, buildings, and sidebar UI.
@@ -36,6 +41,7 @@ public class GridRenderer {
         renderBackground(batch, grid, window, grassTex);
         renderGridShapes(shapeRenderer, grid, window);
         renderBuildings(batch, grid, window, buildingTextures);
+        renderWorkerOverlays(batch, grid, window);
         renderPreview(batch, grid, window, buildingTextures, pendingBuilding);
     }
 
@@ -134,6 +140,44 @@ public class GridRenderer {
             }
         }
         batch.end();
+    }
+
+    /**
+     * Draws a small worker-count badge (currentWorkers/maxWorkers) in the bottom-right
+     * corner of every building that has assigned workers.
+     */
+    private void renderWorkerOverlays(SpriteBatch batch, Grid grid, GameWindow window) {
+        batch.begin();
+        for (int x = 0; x < grid.getWidth(); x++) {
+            for (int y = 0; y < grid.getHeight(); y++) {
+                Tile tile = grid.getTile(x, y);
+                if (!tile.hasBuilding()) continue;
+                Building b = tile.getBuilding();
+                if (!b.isAnchorPoint(x, y) || b.getMaxWorkers() <= 0) continue;
+                float bx = window.getOffsetX() + x * window.getTileSize();
+                float by = window.getOffsetY() + y * window.getTileSize();
+                float bw = window.getTileSize() * b.getWidth();
+                overlayFont.draw(batch, String.valueOf(b.getCurrentWorkers()), bx + bw - 14f, by + 14f);
+            }
+        }
+        batch.end();
+    }
+
+    private static BitmapFont createOverlayFont() {
+        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(
+            Gdx.files.internal("fonts/Fredoka-variable-font.ttf")
+        );
+        FreeTypeFontGenerator.FreeTypeFontParameter p = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        p.size = 16;
+        p.color = Color.WHITE;
+        p.borderWidth = 0.5f;
+        BitmapFont f = gen.generateFont(p);
+        gen.dispose();
+        return f;
+    }
+
+    public void dispose() {
+        overlayFont.dispose();
     }
 
     /**
