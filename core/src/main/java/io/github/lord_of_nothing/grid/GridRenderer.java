@@ -151,9 +151,9 @@ public class GridRenderer {
         for (int x = 0; x < grid.getWidth(); x++) {
             for (int y = 0; y < grid.getHeight(); y++) {
                 Tile tile = grid.getTile(x, y);
-                if (!tile.hasBuilding()) continue;
+                if (!tile.hasBuilding()) {continue;}
                 Building b = tile.getBuilding();
-                if (!b.isAnchorPoint(x, y) || b.getMaxWorkers() <= 0) continue;
+                if (!b.isAnchorPoint(x, y) || b.getMaxWorkers() <= 0) {continue;}
                 float bx = window.getOffsetX() + x * window.getTileSize();
                 float by = window.getOffsetY() + y * window.getTileSize();
                 float bw = window.getTileSize() * b.getWidth();
