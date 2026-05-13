@@ -346,6 +346,10 @@ public class Main extends ApplicationAdapter {
                     ? RaidBanner.BannerType.ATTACK
                     : RaidBanner.BannerType.WARNING;
 
+                // Freeze time while banner is showing
+                final boolean wasTimePaused = timeProgressionPaused;
+                timeProgressionPaused = true;
+
                 if (raidMessages.size() > 1) {
                     final String outcomeMsg = raidMessages.get(1);
 
@@ -359,6 +363,9 @@ public class Main extends ApplicationAdapter {
                         // Victory: just show the outcome floating text
                         raidBanner.show(firstType, firstMsg, () ->
                             raidBanner.showFloatingText(outcomeMsg));
+
+                        // Run time again after banner closes
+                        timeProgressionPaused = wasTimePaused;
                     }
 
                 } else {
@@ -367,6 +374,9 @@ public class Main extends ApplicationAdapter {
                             scheduleGameOver(1f));
                     } else {
                         raidBanner.show(firstType, firstMsg, () -> {});
+
+                        // Restore time progression after banner closes
+                        timeProgressionPaused = wasTimePaused;
                     }
                 }
             } else if (raidDefeatDetected && !raidBanner.isActive()) {
