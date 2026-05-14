@@ -1,6 +1,7 @@
 package io.github.lord_of_nothing.grid;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
@@ -248,6 +249,11 @@ public class GridInputHandler extends InputAdapter {
         if (paused || !gameplayEnabled) {
             return true;
         }
+
+        if (button == Input.Buttons.RIGHT) {
+            return handleRightClick();
+        }
+
         // 1. Check TileInspector Interaction
         if (tileInspectorBar.isOpen()) {
             // Click INSIDE the sidebar: Handle Add/Remove buttons
@@ -343,6 +349,29 @@ public class GridInputHandler extends InputAdapter {
             return true;
         }
         return x < GameWindow.SIDEBAR_WIDTH;
+    }
+
+    /**
+     * Assigns one citizen to the building under the cursor on right-click.
+     */
+    private boolean handleRightClick() {
+        int tileX = (int) ((touchPos.x - offsetX) / tileSize);
+        int tileY = (int) ((touchPos.y - offsetY) / tileSize);
+        if (!grid.isInside(tileX, tileY)) { return false; }
+        Tile tile = grid.getTile(tileX, tileY);
+        if (!tile.hasBuilding()) { return false; }
+        Building b = tile.getBuilding();
+        if (b.getMaxWorkers() <= 0) { return false; }
+        int available = resources.getResourceAmount(ResourceType.CITIZENS_AVAILABLE);
+        if (available > 0 && b.getCurrentWorkers() < b.getMaxWorkers()) {
+            audioManager.playAssign();
+            b.addWorker();
+            resources.addResource(ResourceType.CITIZENS_AVAILABLE, -1);
+            if (b instanceof Barrack) { resources.addResource(ResourceType.SOLDIERS, 1); }
+        } else {
+            audioManager.playUnable();
+        }
+        return true;
     }
 
     /**
