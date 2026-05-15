@@ -6,3 +6,4 @@ Die folgende Abbildung gibt einen groben Überblick über die Anwendungsfälle d
   image("../graphics/03_Dia1.png", width: 80%),
   caption: [Anwendungsfalldiagramm „Lord of Nothing"]
 )
+

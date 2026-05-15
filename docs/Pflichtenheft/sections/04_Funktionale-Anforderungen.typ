@@ -23,3 +23,4 @@ Die folgende Tabelle beschreibt alle funktionalen Anforderungen. Jede Anforderun
   [FA-140], [Bewohner generieren], [Das System generiert automatisch neue Bewohner basierend auf vorhandenen Wohnhäusern.],
   [FA-150], [Spielstand autosaven], [Das System speichert den Spielstand automatisch in regelmäßigen Abständen.],
 )
+

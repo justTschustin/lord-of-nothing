@@ -53,3 +53,4 @@ Die Abgrenzungskriterien beinhalten alle Funktionen der Prioritätsstufe „Out 
   [24], [Multiplayer], [Übersteigt den Umfang des Projekts],
   [25], [Mobile Version], [Übersteigt den Umfang des Projekts],
 )
+

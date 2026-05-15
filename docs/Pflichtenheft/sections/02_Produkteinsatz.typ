@@ -11,3 +11,4 @@ Das Spiel richtet sich an Gelegenheitsspieler ab 12 Jahren mit grundlegenden Ken
 == Betriebsbedingungen
 
 Das Spiel ist für den Offline-Betrieb ausgelegt und erfordert keine Internetverbindung. Es ist nicht für den Dauerbetrieb vorgesehen. Es gibt keine weiteren besonderen Betriebsbedingungen.
+
