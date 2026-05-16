@@ -1,8 +1,5 @@
 = Funktionale Anforderungen
-
 Die folgende Tabelle beschreibt alle funktionalen Anforderungen. Jede Anforderung besitzt einen eindeutigen Bezeichner der Form FA-XXX.
-
-= Funktionale Anforderungen
 
 #table(
   columns: (auto, auto, 1fr),

@@ -40,5 +40,7 @@
 #include "sections/07_Laufzeitumgebung.typ"
 #pagebreak()
 #include "sections/08_Entwicklungsumgebung.typ"
+#pagebreak()
+#include "sections/09_Entwicklungshistorie.typ"
 
 

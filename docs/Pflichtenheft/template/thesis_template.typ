@@ -20,6 +20,8 @@
     lang: "de",
   )
 
+  show table.cell: set par(leading: 0.5em)
+
   show math.equation: set text(weight: 400)
 
   // --- Headings ---
