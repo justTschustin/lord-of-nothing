@@ -4,7 +4,7 @@ Für die Festlegung von Zielen im Projekt wurde für das Brainstorming eine Tabe
 
 == Musskriterien
 
-Die Musskriterien beinhalten alle Funktionen der Prioritätsstufen „Prototyp" sowie „MVP".
+Die Musskriterien beinhalten alle Funktionen der Prioritätsstufen "Prototyp" sowie "MVP".
 
 #table(
   columns: (auto, auto, auto, auto, auto),
@@ -22,7 +22,7 @@ Die Musskriterien beinhalten alle Funktionen der Prioritätsstufen „Prototyp" 
 
 == Wunschkriterien
 
-Die Wunschkriterien beinhalten alle Funktionen der Prioritätsstufen „MLP-Stufe 1", „MLP-Stufe 2" und „MLP-Stufe 3". Dabei besitzt Stufe 1 die höchste, Stufe 3 die niedrigste Priorität.
+Die Wunschkriterien beinhalten alle Funktionen der Prioritätsstufen "MLP-Stufe 1", "MLP-Stufe 2" und "MLP-Stufe 3". Dabei besitzt Stufe 1 die höchste, Stufe 3 die niedrigste Priorität.
 
 #table(
   columns: (auto, auto, auto, auto, auto),
@@ -43,10 +43,10 @@ Die Wunschkriterien beinhalten alle Funktionen der Prioritätsstufen „MLP-Stuf
 
 == (Abgrenzungskriterien)
 
-Die Abgrenzungskriterien beinhalten alle Funktionen der Prioritätsstufe „Out of Scope" sowie weitere.
+Die Abgrenzungskriterien beinhalten alle Funktionen der Prioritätsstufe "Out of Scope" sowie weitere.
 
 #table(
-  columns: (auto, auto, auto, auto, auto),
+  columns: (auto, auto, 1fr),
   [Nr.], [Feature], [Begründung],
   [22], [Stimmungsbarometer], [Durch Änderungen am Spielkonzept obsolet],
   [23], [Individuelle Bewohner mit Skills], [Übersteigt den Umfang des Projekts],

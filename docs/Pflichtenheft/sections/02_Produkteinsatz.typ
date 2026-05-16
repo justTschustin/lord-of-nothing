@@ -2,7 +2,7 @@
 
 == Anwendungsbereiche
 
-„Lord of Nothing" ist ein roguelike Aufbau-Strategiespiel für den Desktop-PC (Windows/MacOS). Es wird im Bereich der digitalen Freizeitunterhaltung eingesetzt und ist für den Einzelspielerbetrieb ausgelegt. Der Spieler agiert als Herrscher eines mittelalterlichen Dorfes, welches er  aufbaut, verwaltet Ressourcen und Bewohner und verteidigt das Dorf gegen Angriffe (Raids) von Banditen.
+"Lord of Nothing" ist ein roguelike Aufbau-Strategiespiel für den Desktop-PC (Windows/MacOS). Es wird im Bereich der digitalen Freizeitunterhaltung eingesetzt und ist für den Einzelspielerbetrieb ausgelegt. Der Spieler agiert als Herrscher eines mittelalterlichen Dorfes, welches er  aufbaut, verwaltet Ressourcen und Bewohner und verteidigt das Dorf gegen Angriffe (Raids) von Banditen.
 
 == Zielgruppen
 
