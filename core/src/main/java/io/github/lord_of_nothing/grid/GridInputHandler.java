@@ -15,6 +15,7 @@ import io.github.lord_of_nothing.buildings.Quarry;
 import io.github.lord_of_nothing.buildings.Sawmill;
 import io.github.lord_of_nothing.events.BackToMainMenuEvent;
 import io.github.lord_of_nothing.events.EventBus;
+import io.github.lord_of_nothing.events.GameSpeedChangedEvent;
 import io.github.lord_of_nothing.events.PauseGameEvent;
 import io.github.lord_of_nothing.events.ResumeGameEvent;
 import io.github.lord_of_nothing.events.StartGameEvent;
@@ -51,6 +52,7 @@ public class GridInputHandler extends InputAdapter {
     private final Sidebar sidebar;
     private boolean paused;
     private boolean gameplayEnabled;
+    private final EventBus eventBus;
     private UiElement exclusiveUiElement;
     private final GameWindow window;
     private final TileInspectorBar tileInspectorBar;
@@ -83,6 +85,7 @@ public class GridInputHandler extends InputAdapter {
         this.grid = grid;
         this.resources = resources;
         this.sidebar = sidebar;
+        this.eventBus = eventBus;
         this.window = window;
         this.tileInspectorBar = tileInspectorBar;
         this.eventLog = eventLog;
@@ -197,6 +200,37 @@ public class GridInputHandler extends InputAdapter {
         return false;
     }
 
+    @Override
+    public boolean keyDown(int keycode) {
+        if (!gameplayEnabled) {
+            return false;
+        }
+
+        if (keycode == Input.Keys.ESCAPE) {
+            if (!paused) {
+                audioManager.playMenuClick();
+                eventBus.publish(new PauseGameEvent());
+                return true;
+            }
+            audioManager.playMenuClick();
+            eventBus.publish(new ResumeGameEvent());
+            return true;
+        }
+
+        if (paused) {
+            return false;
+        }
+
+        Integer speed = mapGameSpeedShortcut(keycode);
+        if (speed == null) {
+            return false;
+        }
+
+        audioManager.playMenuClick();
+        eventBus.publish(new GameSpeedChangedEvent(speed));
+        return true;
+    }
+
     /**
      * Handles clicks for UI, sidebar, and grid placement.
      *
@@ -255,14 +289,6 @@ public class GridInputHandler extends InputAdapter {
             return true;
         }
 
-        if (paused || !gameplayEnabled) {
-            return true;
-        }
-
-        if (paused || !gameplayEnabled) {
-            return true;
-        }
-
         if (button == Input.Buttons.RIGHT) {
             return handleRightClick();
         }
@@ -296,6 +322,22 @@ public class GridInputHandler extends InputAdapter {
         }
 
         return handleGridPlacement(touchPos.x, touchPos.y);
+    }
+
+    private Integer mapGameSpeedShortcut(int keycode) {
+        if (keycode == Input.Keys.NUM_0) {
+            return 0;
+        }
+        if (keycode == Input.Keys.NUM_1) {
+            return 1;
+        }
+        if (keycode == Input.Keys.NUM_2) {
+            return 2;
+        }
+        if (keycode == Input.Keys.NUM_4) {
+            return 4;
+        }
+        return null;
     }
 
     /**
