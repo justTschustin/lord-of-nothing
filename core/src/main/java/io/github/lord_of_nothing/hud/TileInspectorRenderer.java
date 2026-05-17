@@ -9,6 +9,8 @@ import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.buildings.Building;
 import io.github.lord_of_nothing.button.DeleteBuildingButton;
 import io.github.lord_of_nothing.events.EventBus;
+import io.github.lord_of_nothing.game.HungerLevel;
+import io.github.lord_of_nothing.game.HungerMechanic;
 import io.github.lord_of_nothing.game.ResourceStateView;
 import io.github.lord_of_nothing.resources.ResourceType;
 import java.util.Map;
@@ -35,7 +37,8 @@ public class TileInspectorRenderer {
         EventBus eventBus,
         ResourceStateView resources,
         Runnable onDelete,
-        boolean paused
+        boolean paused,
+        HungerMechanic hunger
     ) {
         float panelX = window.getRightMarginX();
         float panelY = window.getInfoPanelY();
@@ -68,7 +71,12 @@ public class TileInspectorRenderer {
         batch.setColor(Color.WHITE);
         batch.end();
 
-        if (!state.isOpen()) { return; }
+        if (!state.isOpen()) {
+            if (hunger != null) {
+                renderHungerBar(sr, batch, panelX, panelY, panelW, panelH, hunger, dimAlpha);
+            }
+            return;
+        }
 
         Building b = state.getSelected();
 
@@ -171,6 +179,83 @@ public class TileInspectorRenderer {
             font.draw(batch, yieldText, panelX + 10, statsY);
         }
     }
+    /**
+     * Draws the hunger bar with a red-to-white gradient and tier info when no building is selected.
+     */
+    private void renderHungerBar(ShapeRenderer sr, SpriteBatch batch,
+                                  float panelX, float panelY, float panelW, float panelH,
+                                  HungerMechanic hunger, float dimAlpha) {
+        float level = hunger.getHungerLevel();
+        HungerLevel tier = hunger.getCurrentTier();
+
+        float padding = 14f;
+        float barW = panelW - 2 * padding;
+        float barH = 20f;
+        // Place the bar near the top of the panel
+        float barX = panelX + padding;
+        float barY = panelY + panelH - 70f;
+        float fillW = barW * level;
+
+        // --- Background bar (dark) ---
+        sr.begin(ShapeRenderer.ShapeType.Filled);
+        sr.setColor(0.15f, 0.05f, 0.05f, 0.9f * dimAlpha);
+        sr.rect(barX, barY, barW, barH);
+
+        if (fillW > 0f) {
+            // Gradient fill: left = pure red, right = lerp(red → white) at fill endpoint
+            // c1=BL, c2=BR, c3=TR, c4=TL
+            Color left = new Color(0.9f, 0.05f, 0.05f, dimAlpha);
+            Color right = new Color(1f, level, level, dimAlpha); // lerp red→white
+            sr.rect(barX, barY, fillW, barH, left, right, right, left);
+        }
+
+        // Thin border around full bar area
+        sr.setColor(0.5f, 0.3f, 0.3f, dimAlpha);
+        sr.rect(barX, barY, barW, 1f);           // bottom
+        sr.rect(barX, barY + barH - 1f, barW, 1f); // top
+        sr.rect(barX, barY, 1f, barH);           // left
+        sr.rect(barX + barW - 1f, barY, 1f, barH); // right
+        sr.end();
+
+        // --- Labels ---
+        batch.begin();
+        font.setColor(1f, 1f, 1f, dimAlpha);
+
+        // Title
+        font.draw(batch, "HUNGER",
+            panelX, barY + barH + 22f,
+            panelW, com.badlogic.gdx.utils.Align.center, false);
+
+        // Percentage
+        String pctText = Math.round(level * 100) + " %";
+        font.draw(batch, pctText,
+            panelX, barY - 4f,
+            panelW, com.badlogic.gdx.utils.Align.center, false);
+
+        // Tier name (colour-coded)
+        switch (tier) {
+            case STARVING:  font.setColor(1f, 0.15f, 0.15f, dimAlpha); break;
+            case HUNGRY:    font.setColor(1f, 0.6f,  0.1f,  dimAlpha); break;
+            case SATISFIED: font.setColor(0.8f, 1f,  0.4f,  dimAlpha); break;
+            case WELL_FED:  font.setColor(0.4f, 1f,  0.4f,  dimAlpha); break;
+        }
+        font.draw(batch, tier.getDisplayName(),
+            panelX, barY - 22f,
+            panelW, com.badlogic.gdx.utils.Align.center, false);
+
+        // Effect list
+        font.setColor(0.85f, 0.85f, 0.85f, dimAlpha);
+        float effectY = barY - 44f;
+        for (String effect : tier.getEffects()) {
+            font.draw(batch, effect,
+                panelX, effectY,
+                panelW, com.badlogic.gdx.utils.Align.center, false);
+            effectY -= 16f;
+        }
+
+        batch.end();
+    }
+
     public void dispose() {
         font.dispose();
         if (deleteButton != null) { deleteButton.dispose(); }

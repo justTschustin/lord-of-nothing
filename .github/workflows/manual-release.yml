@@ -64,10 +64,7 @@ jobs:
             artifact: windows-x64
           - os: macos-latest
             task: :lwjgl3:stageReleaseMacX64
-            artifact: macos-x64
-          - os: macos-14
-            task: :lwjgl3:stageReleaseMacM1
-            artifact: macos-arm64
+            artifact: macos
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4

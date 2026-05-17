@@ -134,6 +134,11 @@ public final class RaidMechanic {
         );
 
         int actualSoldierDeaths = state.applySoldierCasualties(requestedSoldierDeaths);
+
+        if (actualSoldierDeaths > 0) {
+            requestedVillagerDeaths = Math.min(requestedVillagerDeaths, actualSoldierDeaths - 1);
+        }
+
         int actualVillagerDeaths = state.applyVillagerCasualties(requestedVillagerDeaths);
         boolean defeated = state.getResourceAmount(ResourceType.CITIZENS_TOTAL) <= 0;
 
@@ -165,8 +170,13 @@ public final class RaidMechanic {
      * defenses are punished harder in gameplay.
      */
     private static double computeSoldierDeathMean(int bandits, int soldiers) {
-        int banditAdvantage = Math.max(0, bandits - soldiers);
-        return (bandits * 0.70d) + (banditAdvantage * 0.30d);
+        if (bandits <= 0 || soldiers <= 0) {
+            return 0d;
+        }
+
+        double forceRatio = bandits / (double) soldiers;
+        double pressure = forceRatio * forceRatio;
+        return bandits * (0.04d + (0.55d * pressure));
     }
 
     /**
@@ -175,7 +185,7 @@ public final class RaidMechanic {
      * but not perfectly predictable raid damage.
      */
     private static double computeSoldierDeathDeviation(int bandits, int soldiers) {
-        return Math.max(1.0d, computeSoldierDeathMean(bandits, soldiers) * 0.25d);
+        return Math.max(1.0d, computeSoldierDeathMean(bandits, soldiers) * 0.35d);
     }
 
     /**
@@ -184,8 +194,17 @@ public final class RaidMechanic {
      * making an under-defended village much more likely to collapse.
      */
     private static double computeVillagerDeathMean(int bandits, int soldiers) {
+        if (bandits <= 0) {
+            return 0d;
+        }
+
+        if (soldiers <= 0) {
+            return bandits * 0.85d;
+        }
+
+        double soldierLossMean = computeSoldierDeathMean(bandits, soldiers);
         int banditAdvantage = Math.max(0, bandits - soldiers);
-        return (bandits * 0.35d) + (banditAdvantage * 0.90d);
+        return (soldierLossMean * 0.80d) + (banditAdvantage * 0.06d);
     }
 
     /**
@@ -194,7 +213,7 @@ public final class RaidMechanic {
      * become catastrophic when the bandits have the upper hand.
      */
     private static double computeVillagerDeathDeviation(int bandits, int soldiers) {
-        return Math.max(1.0d, computeVillagerDeathMean(bandits, soldiers) * 0.30d);
+        return Math.max(1.0d, computeVillagerDeathMean(bandits, soldiers) * 0.25d);
     }
 
     /**

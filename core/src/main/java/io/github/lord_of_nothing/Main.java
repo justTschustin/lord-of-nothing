@@ -417,7 +417,8 @@ public class Main extends ApplicationAdapter {
             shapeRenderer, batch, gameWindow, tileInspectorBar, buildingTextures, eventBus,
             gameStateHandler,
             () -> gridInputHandler.deleteSelectedBuilding(),
-            flowState.getScreenState() == ScreenState.PAUSED
+            flowState.getScreenState() == ScreenState.PAUSED,
+            gameStateHandler.getHungerMechanic()
         );
         gameOverOverlay.render(shapeRenderer, batch);
 
