@@ -50,6 +50,7 @@ import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.hud.TileInspectorRenderer;
 import io.github.lord_of_nothing.hud.EventLog;
 import io.github.lord_of_nothing.hud.EventLogRenderer;
+import io.github.lord_of_nothing.hud.TutorialOverlay;
 import io.github.lord_of_nothing.menu.MainMenu;
 import io.github.lord_of_nothing.menu.SettingsMenu;
 import io.github.lord_of_nothing.persistence.UserConfigPaths;
@@ -82,6 +83,7 @@ public class Main extends ApplicationAdapter {
     private TileInspectorRenderer tileInspectorRenderer;
     private RaidBanner raidBanner;
     private GameOverOverlay gameOverOverlay;
+    private TutorialOverlay tutorialOverlay;
 
     private EventBus eventBus;
     private FlowState flowState;
@@ -152,6 +154,10 @@ public class Main extends ApplicationAdapter {
         initializeHudRenderers(hudBackgroundTexture, hudCornerTexture, hudEdgeTexture);
         eventBus = new EventBus();
         gameOverOverlay = new GameOverOverlay(eventBus);
+        tutorialOverlay = new TutorialOverlay();
+        // Load HUD frame assets into the tutorial overlay so it matches other panels
+        tutorialOverlay.loadAssets(hudBackgroundTexture, hudCornerTexture, hudEdgeTexture);
+
         flowState = new FlowState();
 
 
@@ -211,6 +217,7 @@ public class Main extends ApplicationAdapter {
 
         // Ensure a persistent fullscreen/windowed state
         settingsFlowCoordinator.initializeDisplaySettings(() -> {});
+        menuFlowCoordinator.registerUiElements();
 
         Gdx.input.setInputProcessor(gridInputHandler);
 
@@ -246,6 +253,7 @@ public class Main extends ApplicationAdapter {
             }
             if (event instanceof BackToMainMenuEvent) {
                 gameOverOverlay.hide();
+                tutorialOverlay.hide();
                 gridInputHandler.setExclusiveUiElement(null);
                 gameStateHandler.resetRaidTimeline();
                 menuFlowCoordinator.returnToMainMenu();
@@ -264,6 +272,14 @@ public class Main extends ApplicationAdapter {
             }
             if (event instanceof CloseSettingsMenuEvent) {
                 settingsFlowCoordinator.closeSettingsMenu();
+            }
+            if (event instanceof io.github.lord_of_nothing.events.OpenTutorialEvent) {
+                tutorialOverlay.show(eventBus);
+                gridInputHandler.setExclusiveUiElement(tutorialOverlay.getCloseButton());
+            }
+            if (event instanceof io.github.lord_of_nothing.events.CloseTutorialEvent) {
+                tutorialOverlay.hide();
+                gridInputHandler.setExclusiveUiElement(null);
             }
         });
     }
@@ -294,11 +310,17 @@ public class Main extends ApplicationAdapter {
 
         if (flowState.getScreenState() == ScreenState.SETTINGS) {
             settingsFlowCoordinator.render(shapeRenderer, batch);
+            if (tutorialOverlay != null && tutorialOverlay.isVisible()) {
+                renderTutorialOverlay();
+            }
             return;
         }
 
         if (!flowState.isGameStarted()) {
-            menuFlowCoordinator.render(shapeRenderer, batch);
+            menuFlowCoordinator.render(batch);
+            if (tutorialOverlay != null && tutorialOverlay.isVisible()) {
+                renderTutorialOverlay();
+            }
             return;
         }
 
@@ -422,6 +444,13 @@ public class Main extends ApplicationAdapter {
         );
         gameOverOverlay.render(shapeRenderer, batch);
 
+        // Tutorial overlay (dim + panel) when active
+        // Draw dim first so the panel appears above everything else
+        // The overlay's own render() will draw the decorative frame and content
+        if (tutorialOverlay != null && tutorialOverlay.isVisible()) {
+            renderTutorialOverlay();
+        }
+
         // Render and overlay raid banner
         raidBanner.update(Gdx.graphics.getDeltaTime());
         if (raidBanner.isActive()) {
@@ -445,6 +474,20 @@ public class Main extends ApplicationAdapter {
         pixmap.dispose();
         Gdx.app.log("Screenshot", "Screenshot saved: " + Gdx.files.local(filename).file().getAbsolutePath());
     }
+
+    private void renderTutorialOverlay() {
+        // ShapeRenderer-based dim overlay
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0f, 0f, 0f, 0.6f);
+        shapeRenderer.rect(0f, 0f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        shapeRenderer.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+
+        tutorialOverlay.render(batch);
+    }
+
     /**
      * Centralizes UI asset loading and distributes shared textures to the HUD renderers.
      * Reuses texture instances for the background, borders, and icons to optimize memory and simplify resource disposal.
@@ -510,6 +553,7 @@ public class Main extends ApplicationAdapter {
         topBarRenderer.dispose();
         raidBanner.dispose();
         gameOverOverlay.dispose();
+        tutorialOverlay.dispose();
         settingsFlowCoordinator.dispose();
         menuFlowCoordinator.dispose();
         audioManager.dispose();
@@ -531,6 +575,7 @@ public class Main extends ApplicationAdapter {
         autoSaveEnabled = true;
         gridInputHandler.resetTransientState();
         gameOverOverlay.hide();
+        tutorialOverlay.hide();
         gridInputHandler.setExclusiveUiElement(null);
         gameStateHandler.resetRaidTimeline();
         gameplayFlowCoordinator.startGame();
@@ -552,6 +597,7 @@ public class Main extends ApplicationAdapter {
         autoSaveEnabled = true;
         gridInputHandler.resetTransientState();
         gameOverOverlay.hide();
+        tutorialOverlay.hide();
         gridInputHandler.setExclusiveUiElement(null);
         gameplayFlowCoordinator.startGame();
         gameOverCountdown = NO_COUNTDOWN;

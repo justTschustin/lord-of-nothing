@@ -285,11 +285,15 @@ public class GridInputHandler extends InputAdapter {
         }
 
         if (exclusiveUiElement != null) {
-            if (exclusiveUiElement.contains(touchPos.x, touchPos.y)) {
-                audioManager.playMenuClick();
-                exclusiveUiElement.onClick();
+            if (!exclusiveUiElement.isEnabled()) {
+                exclusiveUiElement = null;
+            } else {
+                if (exclusiveUiElement.contains(touchPos.x, touchPos.y)) {
+                    audioManager.playMenuClick();
+                    exclusiveUiElement.onClick();
+                }
+                return true;
             }
-            return true;
         }
 
         if (handleUiClicks(touchPos.x, touchPos.y)) {
