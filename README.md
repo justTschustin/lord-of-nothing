@@ -1,18 +1,44 @@
 # Lord of Nothing
 
+## About
+Lord of Nothing is a real-time settlement management game developed as part of a university project on Object-Oriented Development (OOD).
+Built with Java and the libGDX framework, it challenges players to establish a colony, manage resources,
+and defend their citizens against scaling bandit raids.
+
+## Features
+- Grid System: Place buildings ranging from 1x1 to 4x4 footprints on a grid map.
+- Resource Management: Real-time tracking of Wood, Stone, and Food using a ResourceStateMutator.
+- Population & Military: Manage citizen housing and recruit soldiers in barracks to defend the village.
+- Simulation Ticks: Hourly production cycles and daily citizen arrivals at 6:00 AM.
+- Survival Mechanics: Food consumption logic including starvation penalties and population loss.
+- Scaling Raid System: Defend against bandit groups that grow in strength over time.
+- HUD: Features a Tile Inspector, a Sidebar, and a scrollable Event Log with in-game timestamps.
+- Save & Load: Game state can be saved and loaded, allowing players to resume their progress.
+
+## Controls
+The game is designed for a seamless mouse-only experience:
+
+    Left Click: Select buildings from the sidebar or place them on the grid.
+    Left Click (on placed building): Open the Tile Inspector for details and worker assignment.
+    Mouse Wheel: Scroll through the historical entries in the Event Log.
+    F12: Capture a screenshot (saved to /docs/screenshots/).
+
 ## Setup
 - recommended IDE: IntelliJ
-  - to open project, open IntelliJ, click "open project", then choose `build.gradle`, then "open as project"
-  - In the bottom right of your project, IntelliJ should ask you whether to initialize gradle, do so
-  - when opening the gradle menu in the top-right corner (the elephant), you can start the project by running: 
-    `lord-of-nothing > Tasks > application > run`
+ 1. Open IntelliJ and select "Open Project".
+ 2. Navigate to the root directory and select the build.gradle file.
+ 3. Choose "Open as Project" and allow Gradle to initialize.
+ 4. To Run: Open the Gradle sidebar (Elephant icon) -> lord-of-nothing > Tasks > application > run.
 
-## General Principles:
-- main is protected
-  - cannot push directly onto main
-- always work on branches, merge onto main after code review (probably from Justin)
+## Coding Standards & Workflow
+To maintain high academic standards, the following principles are enforced:
+- Protected Main: Direct pushes to the main branch are disabled.
+- Feature Branching: Every new feature is developed on a dedicated branch.
+- Mandatory Code Reviews: Merges into main require a peer review and approval.
+- Javadoc comments with XML-style tags are used for public classes and methods.
 
-## Run Linter/Formatter Tests
+## Quality Assurance
+Before committing, please run the formatting and linting tasks:
 ```bash
 ./gradlew spotlessApply
 ./gradlew spotlessCheck
@@ -27,8 +53,14 @@
 - Savegames are written alongside settings as `savegame.json`.
 - Files are auto-created with defaults and kept complete (missing keys are re-added on load).
 
-
-
+## Technical Architecture
+The project follows a decoupled, modular structure:
+- `core`: Contains the platform-independent game logic, state management, and rendering systems.
+- `lwjgl3`: The desktop-specific launcher module for Windows, macOS, and Linux.
+###  Essential Gradle Tasks:
+- `lwjgl3:run`: Launches the desktop application.
+- `lwjgl3:jar`: Builds a runnable JAR file in lwjgl3/build/libs.
+- `clean`: Clears all temporary build artifacts.
 
 ---
 
@@ -66,4 +98,7 @@ Note that most tasks that are not specific to a single project can be run with `
 For example, `core:clean` removes `build` folder only from the `core` project.
 
 ### Contributers
-- Valentin
+- Justin Hesse @justTschustin
+- Valentin Maricnkek @valusz
+- Luca Kaden @Brauer0
+- Christopher Sabbach @largecaveman
