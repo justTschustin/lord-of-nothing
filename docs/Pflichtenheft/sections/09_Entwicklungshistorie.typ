@@ -63,7 +63,7 @@ der anstehenden Übungsstunden des Moduls "Softwaretechnik" gewählt.
 #table(
   columns: (auto, auto, auto),
   [Feature], [Autor], [Notiz],
-  [Hauptmenü Hintergrund], [Christopher Aaron Sabbach], [],
+  [Hauptmenü Hintergrund Design], [Christopher Aaron Sabbach], [],
   [Gebäudesprites], [Luca Kaden], [Sprites für Kaserne, Quarry, Feld],
   [Spiel speichern und laden], [Justin Hesse], [als JSON gespeichert],
   [Popups], [Justin Hesse], [Popups im Spiel mit Nachrichten an den Spieler, welche das Spiel pausieren und weggeklickt werden],
@@ -78,13 +78,14 @@ der anstehenden Übungsstunden des Moduls "Softwaretechnik" gewählt.
   [Feature], [Autor], [Notiz],
   [Sprites für Ressourcen], [Luca Kaden], [Sprites für Holz, Stein, Nahrung, Bewohner, Zeit, Soldaten],
   [Hintergrundmusik], [Luca Kaden], [verstellbare Lautstärke in Einstellungen],
+  [Implementierung Hauptmenü-Hintergrund], [Luca Kaden], [],
   [Raid-Logik], [Justin Hesse], [Verluste anhand einer Gaußschen Glockenkurve berechnet (je nach Anzahl der Angreifenden und Verteidigenden), GameOver],
   [GameOver-Screen], [Justin Hesse], [durch Raid möglich],
   [Eventlog], [Valentin Marcinek], [Eventlog in unterer rechter Ecke, Log für Popup-Nachrichten, Ankünfte von Bewohnern],
   [Menü-/HUD-Texturen], [Valentin Marcinek], [],
   [Sounds], [Valentin Marcinek], [Menü-Klick-Sound, Gebäude-Platzieren-Sound],
   [Raid Banner Texturen], [Christopher Aaron Sabbach], [Design für Raid Banners (Ankündigungen, Geschehen)],
-  [Interface/Menü Design Overhaul], [Christopher Aaron Sabbach], [Implementierung neuer HUD-Texturen, Hauptmenü Hintergrund],
+  [Interface/Menü Design Overhaul], [Christopher Aaron Sabbach], [Implementierung neuer HUD-Texturen],
   [Raid Design Overhaul], [Christopher Aaron Sabbach], [Implementierung neuer Raid Banner mit Soundeffekten],
 )
 

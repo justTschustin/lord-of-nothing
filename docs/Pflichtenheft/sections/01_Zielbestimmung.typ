@@ -37,7 +37,7 @@ Die Wunschkriterien beinhalten alle Funktionen der Prioritätsstufen "MLP-Stufe 
   [17], [MLP-Stufe 2], [Hindernisse auf dem Spielfeld], [Es gibt Hinternisse wie Bäume oder Felsen, welche vor dem Bebauen des Spielsfeldes entfernt werden müssen], [Nicht umgesetzt],
   [18], [MLP-Stufe 2], [Run-Historie], [Es gibt eine Übersicht über Vergangene und Gespeicherte Runs], [Nicht umgesetzt],
   [19], [MLP-Stufe 2], [Forschung], [Neue Gebäude; Gebäude-Upgrades; neue Truppen; Skilltree], [Nicht umgesetzt],
-  [20], [MLP-Stufe 3], [Zufällige Spielfeldgenerierung], [Das Spielfeld wird zufällig generiert], [],
+  [20], [MLP-Stufe 3], [Zufällige Spielfeldgenerierung], [Das Spielfeld wird zufällig generiert], [Nicht umgesetzt],
   [21], [MLP-Stufe 3], [Schwierigkeitsstufen], [Es gibt Schwierigkeitsstufen (Easy/Hard/Nothingness), wodurch das Spiel anspruchsvoller wird], [Nicht Umgesetzt],
 )
 
