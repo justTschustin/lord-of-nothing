@@ -2,6 +2,7 @@ package io.github.lord_of_nothing.menu;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -145,8 +146,11 @@ public class SettingsMenu {
         batch.end();
 
         batch.begin();
+        font.getData().setScale(2.0f);
         font.setColor(Color.WHITE);
-        font.draw(batch, "Settings", Gdx.graphics.getWidth() / 2f - 55f, Gdx.graphics.getHeight() / 2f + 130f);
+        float titleY = Gdx.graphics.getHeight() / 2f + getControlsHeight() / 2f + 50f;
+        font.draw(batch, "SETTINGS", 0, titleY, Gdx.graphics.getWidth(), Align.center, false);
+        font.getData().setScale(1f);
         updateDisplayModeLabel();
         renderControls(batch);
         batch.end();

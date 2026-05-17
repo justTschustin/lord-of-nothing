@@ -83,6 +83,8 @@ public class SettingsStore {
         normalized.windowedHeight = loaded.windowedHeight > 0 ? loaded.windowedHeight : defaults.windowedHeight;
         normalized.gameSpeed = normalizeGameSpeed(loaded.gameSpeed, defaults.gameSpeed);
         normalized.masterVolume = normalizeVolume(loaded.masterVolume, defaults.masterVolume);
+        normalized.musicVolume = normalizeVolume(loaded.musicVolume, defaults.musicVolume);
+        normalized.soundVolume = normalizeVolume(loaded.soundVolume, defaults.soundVolume);
         return normalized;
     }
 
