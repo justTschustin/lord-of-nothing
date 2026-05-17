@@ -13,7 +13,8 @@ and defend their citizens against scaling bandit raids.
 - Survival Mechanics: Food consumption logic including starvation penalties and population loss.
 - Scaling Raid System: Defend against bandit groups that grow in strength over time.
 - HUD: Features a Tile Inspector, a Sidebar, and a scrollable Event Log with in-game timestamps.
-- 
+- Save & Load: Game state can be saved and loaded, allowing players to resume their progress.
+
 ## Controls
 The game is designed for a seamless mouse-only experience:
 
