@@ -96,4 +96,6 @@ der anstehenden Übungsstunden des Moduls "Softwaretechnik" gewählt.
   [Feature], [Autor], [Notiz],
   [Playtesting & Balancing], [alle], [Intervalle, Generierung, Angreifen usw. anpassen],
   [Dokumentation], [alle], [],
+  [Tastatur Shortcuts], [Justin Hesse], [ESC für Pause und Gebäude abwählen, Nummertasten für Spielgeschwindigkeit],
+  [Tutorial], [Justin Hesse], [Aufrufbar in Haupt- und Pausenmenü],
 )

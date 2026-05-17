@@ -30,7 +30,7 @@ public class ResourceManager implements ResourceStateMutator {
     public int getResourceAmount(ResourceType type) { return getAmount(type); }
 
     /**
-     * <summary>Checks if the current resource amount meets or exceeds the required value.</summary>
+     * Checks if the current resource amount meets or exceeds the required value.
      * @param type The resource type to check. @param amount The required amount.
      * @return True if enough resources are present.
      */

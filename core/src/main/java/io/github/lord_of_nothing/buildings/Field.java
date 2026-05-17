@@ -3,8 +3,8 @@ package io.github.lord_of_nothing.buildings;
 import io.github.lord_of_nothing.resources.ResourceType;
 
 /**
- * <summary>Represents a basic 1x1 agricultural field used for food production.</summary>
- * <remarks>Requires minimal wood resources for initial construction compared to larger structures.</remarks>
+ * Represents a basic 1x1 agricultural field used for food production.
+ * Requires minimal wood resources for initial construction compared to larger structures.
  */
 public class Field extends Building {
     public Field() {

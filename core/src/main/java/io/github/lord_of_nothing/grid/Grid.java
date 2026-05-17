@@ -141,8 +141,8 @@ public class Grid {
 
     /**
      * Removes building from grid
-     * @param anchorX &
-     * @param anchorY = coordinates of the building's root tile
+     * @param anchorX = x coordinate of the building's root tile
+     * @param anchorY = y coordinate of the building's root tile
      */
     public void removeBuilding(int anchorX, int anchorY) {
         Tile anchor = getTile(anchorX, anchorY);

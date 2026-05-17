@@ -50,6 +50,12 @@ configure(subprojects) {
     options.incremental = true
   }
 
+  if (project.name == 'core') {
+    tasks.withType(Javadoc).configureEach {
+      destinationDir = rootProject.file('docs/javadoc')
+    }
+  }
+
   checkstyle {
     toolVersion = '13.4.0'
     configFile = rootProject.file('config/checkstyle/checkstyle.xml')

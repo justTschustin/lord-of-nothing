@@ -20,8 +20,8 @@ public class VolumeSlider implements UiElement {
     private final java.util.function.Consumer<Float> onVolumeChanged;
 
     /**
-     * <summary>Initializes a generic volume slider with a custom label and a callback for value changes.</summary>
-     * <remarks>The callback allows the slider to be reused for different audio channels like music or sound effects.</remarks>
+     * Initializes a generic volume slider with a custom label and a callback for value changes.
+     * The callback allows the slider to be reused for different audio channels like music or sound effects.
      */
     public VolumeSlider(float x, float y, float width, float height, String label, java.util.function.Consumer<Float> onVolumeChanged) {
         this.x = x;
@@ -80,7 +80,7 @@ public class VolumeSlider implements UiElement {
     }
 
     /**
-     * <summary>Processes the dragging logic and triggers the volume change callback.</summary>
+     * Processes the dragging logic and triggers the volume change callback.
      */
     public void handleDrag(float mouseX, float mouseY, boolean isPressed) {
         if (isPressed && contains(mouseX, mouseY)) {

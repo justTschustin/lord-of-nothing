@@ -146,7 +146,7 @@ public class TileInspectorRenderer {
     }
 
     /**
-     * <summary>Renders the building preview stats including costs, housing, workers, and yield.</summary>
+     * Renders the building preview stats including costs, housing, workers, and yield.
      * @param batch The sprite batch used for drawing text. @param b The building template to inspect.
      * @param panelX The horizontal start position of the panel. @param startY The vertical starting position for the text.
      */

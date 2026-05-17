@@ -159,7 +159,7 @@ public class RaidBanner {
     }
 
     /**
-     * Updates animation and renders banner & floating text
+     * Updates animation and renders banner and floating text
      *
      * @param batch sprite batch
      */

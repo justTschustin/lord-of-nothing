@@ -209,7 +209,7 @@ public class TopBarRenderer {
     }
     /**
      * Renders a resource icon and its value with increased dimensions for better visibility.
-     * <remarks>Adjusts the vertical alignment to keep the larger icons centered within the 40px bar height.</remarks>
+     * Adjusts the vertical alignment to keep the larger icons centered within the 40px bar height.
      */
     private void drawResourceGroup(SpriteBatch batch, ResourceType type, int amount, float x, float y) {
         Texture icon = resourceIcons.get(type);
@@ -302,7 +302,7 @@ public class TopBarRenderer {
 
     /**
      * Renders a full frame by tiling background and edge textures between the four static corners.
-     * <remarks>Tiles textures without stretching them across the whole top bar.</remarks>
+     * Tiles textures without stretching them across the whole top bar.
      */
     private void renderDecoratedFrame(SpriteBatch batch, GameWindow window, Texture bg, Texture corner, Texture edge) {
         float width = Gdx.graphics.getWidth();
@@ -331,8 +331,8 @@ public class TopBarRenderer {
         batch.draw(corner, width - cSize, y, cSize, cSize, 0, 0, corner.getWidth(), corner.getHeight(), true, true); // BR
     }
     /**
-     * <summary>Checks if the mouse is hovering over a resource slot and renders a decorative tooltip with income details.</summary>
-     * <remarks>Reuses the ornate frame rendering logic to maintain UI consistency across the HUD.</remarks>
+     * Checks if the mouse is hovering over a resource slot and renders a decorative tooltip with income details.
+     * Reuses the ornate frame rendering logic to maintain UI consistency across the HUD.
      */
     private void renderResourceTooltip(SpriteBatch batch, GameWindow window, ResourceType type, float x, float y, int income) {
         float mx = Gdx.input.getX();
@@ -355,8 +355,8 @@ public class TopBarRenderer {
     }
 
     /**
-        * <summary>Renders an ornate frame with correctly tiled background and edges by mapping screen coordinates to texture wrap units.</summary>
-        * <remarks>Ensures a 1:1 pixel ratio for textures to prevent stretching, utilizing TextureWrap.Repeat for seamless tiling.</remarks>
+        * Renders an ornate frame with correctly tiled background and edges by mapping screen coordinates to texture wrap units.
+        * Ensures a 1:1 pixel ratio for textures to prevent stretching, utilizing TextureWrap.Repeat for seamless tiling.
         */
     private void renderDecoratedFrameAt(SpriteBatch batch, float x, float y, float w, float h, float cSize) {
         float eH = 8f; // Die gewünschte Dicke des Rahmens auf dem Bildschirm

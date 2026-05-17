@@ -22,12 +22,19 @@ public class TileInspectorBar {
         this.selectedGridY = gridY;
     }
     /**
-     * Provides access to the currently selected building (& its position) for rendering and inspection purposes.
+     * Provides access to the currently selected building (and its position) for rendering and inspection purposes.
      * @return The building instance currently being inspected, or null if the panel is closed.
-     * @return the x/y position of said building
      */
     public Building getSelected() { return selectedBuilding; }
+
+    /**
+     * @return the selected building's x-coordinate.
+     */
     public int getSelectedGridX() { return selectedGridX; }
+
+    /**
+     * @return the selected building's y-coordinate.
+     */
     public int getSelectedGridY() { return selectedGridY; }
 
     /**

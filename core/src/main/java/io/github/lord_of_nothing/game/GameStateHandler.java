@@ -333,8 +333,8 @@ public class GameStateHandler implements ResourceStateMutator {
     }
 
     /**
-     * <summary>Calculates and applies resource production for all buildings on the grid for a single simulation tick.</summary>
-     * <remarks>Only processes the root tile of multi-tile buildings to ensure production is only counted once.</remarks>
+     * Calculates and applies resource production for all buildings on the grid for a single simulation tick.
+     * Only processes the root tile of multi-tile buildings to ensure production is only counted once.
      */
     public void applyTickProduction() {
         float productionMult = hungerMechanic.getCurrentTier().getProductionMultiplier();
@@ -354,7 +354,7 @@ public class GameStateHandler implements ResourceStateMutator {
     }
 
     /**
-     * <summary>Calculates the total hourly production for a specific resource type based on currently assigned workers.</summary>
+     * Calculates the total hourly production for a specific resource type based on currently assigned workers.
      * @param type The resource type to calculate income for. @return Sum of production from all active buildings.
      */
     public int getHourlyIncome(ResourceType type) {

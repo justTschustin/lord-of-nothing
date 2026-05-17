@@ -82,7 +82,7 @@ public class AudioManager {
         }
     }
     /**
-     * <summary>Updates the music channel volume and applies it to the currently playing track.</summary>
+     * Updates the music channel volume and applies it to the currently playing track.
      * @param volume Normalized volume level (0.0 to 1.0).
      */
     public void setMusicVolume(float volume) {
@@ -92,7 +92,7 @@ public class AudioManager {
         }
     }
     /**
-     * <summary>Updates the sound effects channel volume for all future SFX playbacks.</summary>
+     * Updates the sound effects channel volume for all future SFX playbacks.
      * @param volume Normalized volume level (0.0 to 1.0).
      */
     public void setSoundVolume(float volume) {

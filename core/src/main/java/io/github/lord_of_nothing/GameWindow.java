@@ -159,7 +159,7 @@ public class GameWindow {
     }
 
     /**
-     * <summary>Calculates the vertical position and height for the event log in the bottom half of the right margin.</summary>
+     * Calculates the vertical position and height for the event log in the bottom half of the right margin.
      */
     public float getEventLogY() { return offsetY; }
     public float getEventLogHeight() { return getInfoPanelY() - offsetY - 10; }

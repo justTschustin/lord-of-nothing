@@ -1,7 +1,7 @@
 package io.github.lord_of_nothing.events;
 
 /**
- * <summary>Event published when the sound effects volume is adjusted via the UI slider.</summary>
+ * Event published when the sound effects volume is adjusted via the UI slider.
  */
 public class SoundVolumeChangedEvent implements Event {
     private final float volume;

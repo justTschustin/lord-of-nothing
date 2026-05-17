@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Renders and manages the main menu UI & background.
+ * Renders and manages the main menu UI and background.
  */
 public class MainMenu {
     private static final float BUTTON_WIDTH = 275f;
@@ -166,7 +166,7 @@ public class MainMenu {
     }
 
     /**
-     * Returns x position for left edge of button column & aligns buttons
+     * Returns x position for left edge of button column and aligns buttons
      */
     private float getPositionX() {
         float positionStart = Gdx.graphics.getWidth() * 0.57f;

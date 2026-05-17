@@ -3,8 +3,8 @@ package io.github.lord_of_nothing.buildings;
 import io.github.lord_of_nothing.resources.ResourceType;
 
 /**
- * <summary>Represents a military structure that converts available citizens into soldiers.</summary>
- * <remarks>Occupies a 2x2 area and can house up to 10 soldiers.</remarks>
+ * Represents a military structure that converts available citizens into soldiers.
+ * Occupies a 2x2 area and can house up to 10 soldiers.
  */
 public class Barrack extends Building {
     public Barrack() {
