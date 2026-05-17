@@ -17,6 +17,8 @@ apply plugin: 'io.github.fourlastor.construo'
 
 
 import io.github.fourlastor.construo.Target
+import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.bundling.Jar
 
 sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
 application.mainClass = 'io.github.lord_of_nothing.lwjgl3.Lwjgl3Launcher'
@@ -126,6 +128,31 @@ tasks.register("jarWin") {
       'META-INF/INDEX.LIST', 'META-INF/maven/**')
   }
 }
+
+tasks.register("stageReleaseJar", Copy) {
+  dependsOn("jar")
+  group = "build"
+  description = "Stages the runnable JAR in build/release/jar for GitHub Releases."
+  from(tasks.named("jar", Jar).flatMap { it.archiveFile })
+  into(layout.buildDirectory.dir("release/jar"))
+}
+
+def registerReleaseZipStage = { String taskName, String packageTaskName, String targetDir, String releaseDir ->
+  tasks.register(taskName, Copy) {
+    dependsOn(packageTaskName)
+    group = "build"
+    description = "Stages the ${releaseDir} native ZIP in build/release/${releaseDir}."
+    from(layout.buildDirectory.dir("construo/${targetDir}")) {
+      include("*.zip")
+    }
+    into(layout.buildDirectory.dir("release/${releaseDir}"))
+  }
+}
+
+registerReleaseZipStage("stageReleaseLinux", "packageLinuxX64", "linuxX64", "linux-x64")
+registerReleaseZipStage("stageReleaseWindows", "packageWinX64", "winX64", "windows-x64")
+registerReleaseZipStage("stageReleaseMacX64", "packageMacX64", "macX64", "macos-x64")
+registerReleaseZipStage("stageReleaseMacM1", "packageMacM1", "macM1", "macos-arm64")
 
 construo {
   // name of the executable
