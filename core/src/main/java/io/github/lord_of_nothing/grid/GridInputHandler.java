@@ -206,6 +206,13 @@ public class GridInputHandler extends InputAdapter {
             return false;
         }
 
+        if (keycode == Input.Keys.ESCAPE && (tileInspectorBar.isOpen() || pendingBuilding != null)) {
+            tileInspectorBar.close();
+            pendingBuilding = null;
+            audioManager.playMenuClick();
+            return true;
+        }
+
         if (keycode == Input.Keys.ESCAPE) {
             if (!paused) {
                 audioManager.playMenuClick();
