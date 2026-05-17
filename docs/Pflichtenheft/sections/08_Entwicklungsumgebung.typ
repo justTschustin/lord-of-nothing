@@ -1,27 +1,26 @@
-= Entwicklungsumgebung [zur Entwicklung der Software]
+= Entwicklungsumgebung
 
 == Software
 
-Zur Entwicklung des Projekts wird folgende Software benötigt:
+Die Entwicklungsumgebung basiert auf einer modernen Java-Toolchain, um Reproduzierbarkeit und Code-Qualität sicherzustellen:
 
-- *JDK 21* (empfohlen: OpenJDK Temurin 21): Zum Kompilieren und Ausführen des Projekts aus der Entwicklungsumgebung heraus. Das Projekt selbst zielt auf Java-8-Kompatibilität ab (`sourceCompatibility = 8`), erfordert aber JDK 21 für den Build-Prozess sowie zur Nutzung des Gradle-Wrappers.
-- *Gradle 9.4.0*: Build-Automatisierung. Wird über den mitgelieferten Gradle-Wrapper (`gradlew`) automatisch bereitgestellt – eine separate Installation ist nicht notwendig.
-- *Git*: Versionskontrolle. Zum Klonen des Repositories und zur Zusammenarbeit im Team.
-- *IntelliJ IDEA* (empfohlen) oder *Eclipse*: Beide IDEs werden durch die Build-Konfiguration unterstützt. IntelliJ IDEA ist aufgrund der nativen Gradle-Integration empfohlen.
-- *Checkstyle 13.4.0* und *Spotless 6.25.0*: Sind in den Gradle-Build integriert und erzwingen einheitlichen Code-Stil. Eine separate Installation entfällt.
+- *JDK 21* (empfohlen: Eclipse Adoptium / Temurin 21): Erforderlich für den Build-Prozess und die Ausführung des Gradle-Wrappers. Das Spiel selbst nutzt Java-8-Sprachfeatures für maximale Kompatibilität.
+- *Gradle 9.4.0 (Wrapper)*: Zentrale Build-Automatisierung für Dependency-Management und Asset-Packaging. Durch den Wrapper (`gradlew`) ist keine manuelle Installation erforderlich.
+- *Git*: Versionsverwaltung und Koordination der Zusammenarbeit über ein entferntes Repository.
+- *IntelliJ IDEA* (empfohlen): Bevorzugte IDE aufgrund der exzellenten Unterstützung für Gradle-Projekte und libGDX-Workflows.
+- *Checkstyle 13.4.0 & Spotless 6.25.0*: In den Build-Prozess integrierte Linter und Formatter, die die Einhaltung der vereinbarten Coding-Guidelines (Google Java Style) automatisiert erzwingen.
 
 == Hardware
 
-Die Entwicklungsumgebung stellt keine außergewöhnlichen Hardwareanforderungen. Es gelten die üblichen Empfehlungen für Java-Entwicklung mit einer modernen IDE:
+Die Entwicklung und das Testen erfolgten primär auf zwei unterschiedlichen Systemarchitekturen, um die Cross-Plattform-Kompatibilität des LWJGL3-Backends zu verifizieren:
 
-- *CPU*: Aktueller Multi-Core-Prozessor (x86-64)
-- *RAM*: Mindestens 8 GB (empfohlen: 16 GB, insbesondere bei Betrieb von IDE, JVM und Gradle-Daemon gleichzeitig)
-- *Speicher*: Mindestens 5 GB freier Festplattenspeicher (IDE, JDK, Gradle-Cache, Projektdateien)
-- *Betriebssystem*: Windows 10/11, macOS oder Linux (64-Bit)
-
-Eine dedizierte Grafikkarte ist für die Entwicklung nicht erforderlich; die integrierte Grafik reicht zum Starten und Testen des Spiels aus.
+- *Testsysteme*: Die aktive Entwicklung fand auf Workstations unter **Windows 11** sowie auf Laptops unter **macOS (Apple Silicon)** statt.
+- *CPU*: Multi-Core-Prozessoren (x86-64 und ARM64-Architektur).
+- *RAM*: Mindestens 8 GB (16 GB empfohlen für den parallelen Betrieb von IDE und Gradle-Daemon).
+- *Grafik*: Integrierte Grafiklösungen (Intel UHD / Apple M-Series GPU) sind für die flüssige Darstellung des Grid-Renderings ausreichend.
 
 == Orgware
 
-- *GitHub*: Das Projekt wird in einem GitHub-Repository verwaltet. GitHub Issues und Pull Requests dienen zur Aufgabenverwaltung und Code-Review.
-- *Gradle Wrapper*: Stellt sicher, dass alle Entwickler dieselbe Gradle-Version verwenden, ohne eine globale Installation vornehmen zu müssen.
+- *GitHub-Workflow*: Nutzung von GitHub zur Aufgabenverwaltung (Issues) und zur Qualitätssicherung. Der Schutz des `main`-Branch erfordert zwingend Peer-Reviews über Pull Requests.
+- *Branching-Strategie*: Feature-basierte Entwicklung in separaten Zweigen zur Vermeidung von Code-Konflikten und zur sauberen Trennung der Meilensteine.
+- *Automatisierung*: Nutzung der integrierten Gradle-Tasks zur lokalen Verifikation des Code-Styles vor jedem Commit.
