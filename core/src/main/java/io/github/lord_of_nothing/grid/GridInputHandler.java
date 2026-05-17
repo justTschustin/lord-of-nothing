@@ -7,26 +7,27 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.audio.AudioManager;
-import io.github.lord_of_nothing.buildings.Building;
 import io.github.lord_of_nothing.buildings.Barrack;
+import io.github.lord_of_nothing.buildings.Building;
 import io.github.lord_of_nothing.buildings.Field;
 import io.github.lord_of_nothing.buildings.House;
 import io.github.lord_of_nothing.buildings.Quarry;
 import io.github.lord_of_nothing.buildings.Sawmill;
 import io.github.lord_of_nothing.events.BackToMainMenuEvent;
 import io.github.lord_of_nothing.events.EventBus;
+import io.github.lord_of_nothing.events.GameSpeedChangedEvent;
 import io.github.lord_of_nothing.events.PauseGameEvent;
 import io.github.lord_of_nothing.events.ResumeGameEvent;
 import io.github.lord_of_nothing.events.StartGameEvent;
 import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 import io.github.lord_of_nothing.game.ResourceStateMutator;
-import io.github.lord_of_nothing.hud.RaidBanner;
 import io.github.lord_of_nothing.hud.EventLog;
+import io.github.lord_of_nothing.hud.RaidBanner;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.resources.ResourceType;
-import io.github.lord_of_nothing.ui.UiElement;
 import io.github.lord_of_nothing.select.DropDownSelect;
+import io.github.lord_of_nothing.ui.UiElement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +52,7 @@ public class GridInputHandler extends InputAdapter {
     private final Sidebar sidebar;
     private boolean paused;
     private boolean gameplayEnabled;
+    private final EventBus eventBus;
     private UiElement exclusiveUiElement;
     private final GameWindow window;
     private final TileInspectorBar tileInspectorBar;
@@ -83,6 +85,7 @@ public class GridInputHandler extends InputAdapter {
         this.grid = grid;
         this.resources = resources;
         this.sidebar = sidebar;
+        this.eventBus = eventBus;
         this.window = window;
         this.tileInspectorBar = tileInspectorBar;
         this.eventLog = eventLog;
@@ -198,6 +201,45 @@ public class GridInputHandler extends InputAdapter {
     }
 
     /**
+     * Keyboard shortcuts
+     */
+    @Override
+    public boolean keyDown(int keycode) {
+        if (!gameplayEnabled) {
+            return false;
+        }
+
+        // Unselect selected building (either already placed buildings or unplaced)
+        if (keycode == Input.Keys.ESCAPE && (tileInspectorBar.isOpen() || pendingBuilding != null)) {
+            tileInspectorBar.close();
+            pendingBuilding = null;
+            audioManager.playMenuClick();
+            return true;
+        }
+
+        // Open pause menu with esc
+        if (keycode == Input.Keys.ESCAPE) {
+            if (!paused) {
+                audioManager.playMenuClick();
+                eventBus.publish(new PauseGameEvent());
+                return true;
+            }
+            audioManager.playMenuClick();
+            eventBus.publish(new ResumeGameEvent());
+            return true;
+        }
+
+        Integer speed = mapGameSpeedShortcut(keycode);
+        if (speed == null) {
+            return false;
+        }
+
+        audioManager.playMenuClick();
+        eventBus.publish(new GameSpeedChangedEvent(speed));
+        return true;
+    }
+
+    /**
      * Handles clicks for UI, sidebar, and grid placement.
      *
      * @param screenX click x coordinate in screen space
@@ -255,14 +297,6 @@ public class GridInputHandler extends InputAdapter {
             return true;
         }
 
-        if (paused || !gameplayEnabled) {
-            return true;
-        }
-
-        if (paused || !gameplayEnabled) {
-            return true;
-        }
-
         if (button == Input.Buttons.RIGHT) {
             return handleRightClick();
         }
@@ -296,6 +330,22 @@ public class GridInputHandler extends InputAdapter {
         }
 
         return handleGridPlacement(touchPos.x, touchPos.y);
+    }
+
+    private Integer mapGameSpeedShortcut(int keycode) {
+        if (keycode == Input.Keys.NUM_0) {
+            return 0;
+        }
+        if (keycode == Input.Keys.NUM_1) {
+            return 1;
+        }
+        if (keycode == Input.Keys.NUM_2) {
+            return 2;
+        }
+        if (keycode == Input.Keys.NUM_4) {
+            return 4;
+        }
+        return null;
     }
 
     /**
