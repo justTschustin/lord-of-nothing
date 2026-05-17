@@ -30,6 +30,10 @@ The game is designed for a seamless mouse-only experience:
  3. Choose "Open as Project" and allow Gradle to initialize.
  4. To Run: Open the Gradle sidebar (Elephant icon) -> lord-of-nothing > Tasks > application > run.
 
+## Javadoc
+Create javadoc by running `./gradlew javadoc`
+The output can be found in docs/javadoc
+
 ## Coding Standards & Workflow
 To maintain high academic standards, the following principles are enforced:
 - Protected Main: Direct pushes to the main branch are disabled.
