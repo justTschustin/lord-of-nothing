@@ -26,6 +26,7 @@ import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.resources.ResourceType;
 import io.github.lord_of_nothing.ui.UiElement;
+import io.github.lord_of_nothing.select.DropDownSelect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -219,7 +220,19 @@ public class GridInputHandler extends InputAdapter {
         // Convert Screen Coordinates to World Coordinates
         camera.unproject(touchPos);
 
-        // 0. Check VolumeSlider
+        // 0. If any dropdown is open, give dropdowns priority so expanded option rows receive clicks
+        for (int i = uiElements.size() - 1; i >= 0; i--) {
+            UiElement el = uiElements.get(i);
+            if (el instanceof DropDownSelect) {
+                DropDownSelect dd = (DropDownSelect) el;
+                if (dd.isOpen() && dd.contains(touchPos.x, touchPos.y)) {
+                    dd.onClick();
+                    return true;
+                }
+            }
+        }
+
+        // 1. Check VolumeSlider (only after dropdowns had a chance to consume the click)
         for (UiElement element : uiElements) {
             if (element instanceof io.github.lord_of_nothing.select.VolumeSlider) {
                 if (element.contains(touchPos.x, touchPos.y)) {
