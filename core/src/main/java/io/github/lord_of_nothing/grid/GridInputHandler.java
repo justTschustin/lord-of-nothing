@@ -7,27 +7,16 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import io.github.lord_of_nothing.GameWindow;
 import io.github.lord_of_nothing.audio.AudioManager;
-import io.github.lord_of_nothing.buildings.Building;
-import io.github.lord_of_nothing.buildings.Barrack;
-import io.github.lord_of_nothing.buildings.Field;
-import io.github.lord_of_nothing.buildings.House;
-import io.github.lord_of_nothing.buildings.Quarry;
-import io.github.lord_of_nothing.buildings.Sawmill;
-import io.github.lord_of_nothing.events.BackToMainMenuEvent;
-import io.github.lord_of_nothing.events.EventBus;
-import io.github.lord_of_nothing.events.GameSpeedChangedEvent;
-import io.github.lord_of_nothing.events.PauseGameEvent;
-import io.github.lord_of_nothing.events.ResumeGameEvent;
-import io.github.lord_of_nothing.events.StartGameEvent;
-import io.github.lord_of_nothing.events.UiElementCreatedEvent;
+import io.github.lord_of_nothing.buildings.*;
+import io.github.lord_of_nothing.events.*;
 import io.github.lord_of_nothing.game.ResourceStateMutator;
-import io.github.lord_of_nothing.hud.RaidBanner;
 import io.github.lord_of_nothing.hud.EventLog;
+import io.github.lord_of_nothing.hud.RaidBanner;
 import io.github.lord_of_nothing.hud.Sidebar;
 import io.github.lord_of_nothing.hud.TileInspectorBar;
 import io.github.lord_of_nothing.resources.ResourceType;
-import io.github.lord_of_nothing.ui.UiElement;
 import io.github.lord_of_nothing.select.DropDownSelect;
+import io.github.lord_of_nothing.ui.UiElement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -200,12 +189,16 @@ public class GridInputHandler extends InputAdapter {
         return false;
     }
 
+    /**
+     * Keyboard shortcuts
+     */
     @Override
     public boolean keyDown(int keycode) {
         if (!gameplayEnabled) {
             return false;
         }
 
+        // Unselect selected building (either already placed buildings or unplaced)
         if (keycode == Input.Keys.ESCAPE && (tileInspectorBar.isOpen() || pendingBuilding != null)) {
             tileInspectorBar.close();
             pendingBuilding = null;
@@ -213,6 +206,7 @@ public class GridInputHandler extends InputAdapter {
             return true;
         }
 
+        // Open pause menu with esc
         if (keycode == Input.Keys.ESCAPE) {
             if (!paused) {
                 audioManager.playMenuClick();
@@ -222,10 +216,6 @@ public class GridInputHandler extends InputAdapter {
             audioManager.playMenuClick();
             eventBus.publish(new ResumeGameEvent());
             return true;
-        }
-
-        if (paused) {
-            return false;
         }
 
         Integer speed = mapGameSpeedShortcut(keycode);
