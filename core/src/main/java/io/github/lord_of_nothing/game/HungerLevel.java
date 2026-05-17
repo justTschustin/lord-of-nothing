@@ -29,11 +29,11 @@ public enum HungerLevel {
 
     WELL_FED(0.80f, 1.01f, "WELL-FED",
         new String[]{
-            "Production: +20%",
-            "Settler arrival: +30%",
+            "Production: +15%",
+            "Settler arrival: +10%",
             "High work morale"
         },
-        1.20f, 1.30f);
+        1.15f, 1.10f);
 
     private final float minLevel;
     private final float maxLevel;
