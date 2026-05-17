@@ -142,8 +142,8 @@ def registerReleaseZipStage = { String taskName, String packageTaskName, String 
     dependsOn(packageTaskName)
     group = "build"
     description = "Stages the ${releaseDir} native ZIP in build/release/${releaseDir}."
-    from(layout.buildDirectory.dir("construo/${targetDir}")) {
-      include("*.zip")
+    from(layout.buildDirectory.dir("construo/dist")) {
+      include("${appName}-${targetDir}.zip")
     }
     into(layout.buildDirectory.dir("release/${releaseDir}"))
   }
