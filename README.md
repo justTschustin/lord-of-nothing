@@ -60,7 +60,38 @@ The project follows a decoupled, modular structure:
 ###  Essential Gradle Tasks:
 - `lwjgl3:run`: Launches the desktop application.
 - `lwjgl3:jar`: Builds a runnable JAR file in lwjgl3/build/libs.
+- `lwjgl3:stageReleaseJar`: Copies the JAR into `lwjgl3/build/release/jar/`.
+- `lwjgl3:stageReleaseLinux`: Stages the Linux native ZIP into `lwjgl3/build/release/linux-x64/`.
+- `lwjgl3:stageReleaseWindows`: Stages the Windows native ZIP into `lwjgl3/build/release/windows-x64/`.
+- `lwjgl3:stageReleaseMacX64`: Stages the Intel macOS native ZIP into `lwjgl3/build/release/macos-x64/`.
+- `lwjgl3:stageReleaseMacM1`: Stages the Apple Silicon macOS native ZIP into `lwjgl3/build/release/macos-arm64/`.
 - `clean`: Clears all temporary build artifacts.
+
+## GitHub Releases
+
+This project includes a manual GitHub Actions release workflow in `.github/workflows/manual-release.yml`.
+
+### How to publish a release
+1. Open the **Actions** tab in GitHub.
+2. Select **Manual Release**.
+3. Click **Run workflow** and optionally set a tag like `v1.0.0`.
+4. The workflow stages:
+   - one runnable JAR, and
+   - OS-specific native ZIP bundles for Windows, macOS Intel, macOS Apple Silicon, and Linux.
+5. When the workflow finishes, GitHub creates or updates the release and attaches the assets.
+
+### Manual local packaging
+If you want to build assets locally before uploading them to a draft release, run the matching staging task on each OS:
+
+```bash
+./gradlew :lwjgl3:stageReleaseJar
+./gradlew :lwjgl3:stageReleaseWindows
+./gradlew :lwjgl3:stageReleaseLinux
+./gradlew :lwjgl3:stageReleaseMacX64
+./gradlew :lwjgl3:stageReleaseMacM1
+```
+
+The staged files end up under `lwjgl3/build/release/` and can be uploaded directly to a GitHub Release page.
 
 ---
 
