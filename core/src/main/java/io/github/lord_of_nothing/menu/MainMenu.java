@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.lord_of_nothing.button.Button;
 import io.github.lord_of_nothing.button.ExitButton;
 import io.github.lord_of_nothing.button.SettingsButton;
@@ -12,6 +11,7 @@ import io.github.lord_of_nothing.button.TextButton;
 import io.github.lord_of_nothing.events.EventBus;
 import io.github.lord_of_nothing.events.LoadGameEvent;
 import io.github.lord_of_nothing.events.NewGameEvent;
+import io.github.lord_of_nothing.events.OpenTutorialEvent;
 import io.github.lord_of_nothing.events.UiElementCreatedEvent;
 
 import java.util.ArrayList;
@@ -28,6 +28,7 @@ public class MainMenu {
     private final BitmapFont font = new BitmapFont();
     private final List<Button> actionButtons = new ArrayList<>();
     private final SettingsButton settingsButton;
+    private final TextButton tutorialButton;
     private final ExitButton exitButton;
     private final Texture titleText;
     private final BackgroundManager backgroundManager;
@@ -75,7 +76,9 @@ public class MainMenu {
         ));
 
         settingsButton = new SettingsButton(x, baseY - BUTTON_HEIGHT - BUTTON_GAP, BUTTON_WIDTH, BUTTON_HEIGHT, eventBus);
-        exitButton = new ExitButton(x, baseY - 2f * (BUTTON_HEIGHT + BUTTON_GAP), BUTTON_WIDTH, BUTTON_HEIGHT, eventBus);
+        tutorialButton = new TextButton(x, baseY - 2f * (BUTTON_HEIGHT + BUTTON_GAP), BUTTON_WIDTH, BUTTON_HEIGHT,
+            eventBus, "Tutorial", () -> eventBus.publish(new OpenTutorialEvent()), true);
+        exitButton = new ExitButton(x, baseY - 3f * (BUTTON_HEIGHT + BUTTON_GAP), BUTTON_WIDTH, BUTTON_HEIGHT, eventBus);
         setButtonLayout();
     }
 
@@ -90,16 +93,16 @@ public class MainMenu {
             eventBus.publish(new UiElementCreatedEvent(actionButton));
         }
         eventBus.publish(new UiElementCreatedEvent(settingsButton));
+        eventBus.publish(new UiElementCreatedEvent(tutorialButton));
         eventBus.publish(new UiElementCreatedEvent(exitButton));
     }
 
     /**
      * Renders the menu background and all buttons.
      *
-     * @param shapeRenderer shape renderer used for background
      * @param batch sprite batch used for text and buttons
      */
-    public void render(ShapeRenderer shapeRenderer, SpriteBatch batch) {
+    public void render(SpriteBatch batch) {
         setButtonLayout();
 
         int screenW = Gdx.graphics.getWidth();
@@ -130,9 +133,10 @@ public class MainMenu {
             actionButton.render(batch);
         }
         settingsButton.render(batch);
+        tutorialButton.render(batch);
         exitButton.render(batch);
 
-        batch.end();
+         batch.end();
     }
 
     /**
@@ -157,7 +161,8 @@ public class MainMenu {
         }
 
         settingsButton.setBounds(x, baseY - BUTTON_HEIGHT - BUTTON_GAP, BUTTON_WIDTH, BUTTON_HEIGHT);
-        exitButton.setBounds(x, baseY - 2f * (BUTTON_HEIGHT + BUTTON_GAP), BUTTON_WIDTH, BUTTON_HEIGHT);
+        tutorialButton.setBounds(x, baseY - 2f * (BUTTON_HEIGHT + BUTTON_GAP), BUTTON_WIDTH, BUTTON_HEIGHT);
+        exitButton.setBounds(x, baseY - 3f * (BUTTON_HEIGHT + BUTTON_GAP), BUTTON_WIDTH, BUTTON_HEIGHT);
     }
 
     /**

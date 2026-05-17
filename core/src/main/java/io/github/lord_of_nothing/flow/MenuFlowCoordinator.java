@@ -1,7 +1,6 @@
 package io.github.lord_of_nothing.flow;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.lord_of_nothing.events.EventBus;
 import io.github.lord_of_nothing.grid.GridInputHandler;
 import io.github.lord_of_nothing.menu.MainMenu;
@@ -54,6 +53,7 @@ public class MenuFlowCoordinator {
 
         mainMenu.dispose();
         mainMenu = new MainMenu(eventBus, hasSaveFile.getAsBoolean());
+        registerUiElements();
     }
 
     /**
@@ -66,11 +66,10 @@ public class MenuFlowCoordinator {
     /**
      * Renders the main menu.
      *
-     * @param shapeRenderer shape renderer used for background
      * @param batch sprite batch used for text and buttons
      */
-    public void render(ShapeRenderer shapeRenderer, SpriteBatch batch) {
-        mainMenu.render(shapeRenderer, batch);
+    public void render(SpriteBatch batch) {
+        mainMenu.render(batch);
     }
 
     /**

@@ -9,7 +9,9 @@ import io.github.lord_of_nothing.button.ExitButton;
 import io.github.lord_of_nothing.button.SettingsButton;
 import io.github.lord_of_nothing.button.ResumeButton;
 import io.github.lord_of_nothing.events.EventBus;
+import io.github.lord_of_nothing.events.OpenTutorialEvent;
 import io.github.lord_of_nothing.events.UiElementCreatedEvent;
+import io.github.lord_of_nothing.button.TextButton;
 
 /**
  * Renders a pause overlay with resume, settings, menu, and exit actions.
@@ -21,6 +23,7 @@ public class PauseOverlay {
 
     private ResumeButton resumeButton;
     private SettingsButton settingsButton;
+    private TextButton tutorialButton;
     private BackToMainMenuButton backToMainMenuButton;
     private ExitButton exitButton;
     private boolean shouldRegisterUiElements = true;
@@ -68,6 +71,7 @@ public class PauseOverlay {
         batch.begin();
         resumeButton.render(batch);
         settingsButton.render(batch);
+        tutorialButton.render(batch);
         backToMainMenuButton.render(batch);
         exitButton.render(batch);
         batch.end();
@@ -82,10 +86,12 @@ public class PauseOverlay {
         float centerX = Gdx.graphics.getWidth() / 2f;
         float centerY = Gdx.graphics.getHeight() / 2f;
         float x = centerX - BUTTON_WIDTH / 2f;
-        float resumeY = centerY + BUTTON_HEIGHT + BUTTON_GAP;
-        float settingsY = centerY;
-        float mainMenuY = centerY - BUTTON_HEIGHT - BUTTON_GAP;
-        float exitY = mainMenuY - BUTTON_HEIGHT - BUTTON_GAP;
+        float step = BUTTON_HEIGHT + BUTTON_GAP;
+        float resumeY = centerY + 1.5f * step;
+        float settingsY = centerY + 0.5f * step;
+        float tutorialY = centerY - 0.5f * step;
+        float mainMenuY = centerY - 1.5f * step;
+        float exitY = centerY - 2.5f * step;
 
         if (resumeButton == null) {
             resumeButton = new ResumeButton(x, resumeY, BUTTON_WIDTH, BUTTON_HEIGHT, eventBus);
@@ -97,6 +103,13 @@ public class PauseOverlay {
             settingsButton = new SettingsButton(x, settingsY, BUTTON_WIDTH, BUTTON_HEIGHT, eventBus);
         } else {
             settingsButton.setBounds(x, settingsY, BUTTON_WIDTH, BUTTON_HEIGHT);
+        }
+
+        if (tutorialButton == null) {
+            tutorialButton = new TextButton(x, tutorialY, BUTTON_WIDTH, BUTTON_HEIGHT, eventBus,
+                "Tutorial", () -> eventBus.publish(new OpenTutorialEvent()), false);
+        } else {
+            tutorialButton.setBounds(x, tutorialY, BUTTON_WIDTH, BUTTON_HEIGHT);
         }
 
         if (backToMainMenuButton == null) {
@@ -127,6 +140,9 @@ public class PauseOverlay {
         }
         if (settingsButton != null) {
             eventBus.publish(new UiElementCreatedEvent(settingsButton));
+        }
+        if (tutorialButton != null) {
+            eventBus.publish(new UiElementCreatedEvent(tutorialButton));
         }
         if (backToMainMenuButton != null) {
             eventBus.publish(new UiElementCreatedEvent(backToMainMenuButton));
