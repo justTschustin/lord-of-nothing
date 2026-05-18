@@ -1,0 +1,1310 @@
+@startuml
+hide empty members
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+title Project UML - classes (auto-generated)
+
+package "(default)" as (default) {
+}
+
+package "io.github.lord_of_nothing" as io_github_lord_of_nothing {
+  class GameWindow {
+    - final int HUD_BOTTOM_HEIGHT {static}
+    - final int HUD_TOP_HEIGHT {static}
+    - final int HUD_SIDE_MARGIN {static}
+    + final int TOP_BAR_HEIGHT {static}
+    + final int SIDEBAR_WIDTH {static}
+    - final OrthographicCamera camera
+    - final Grid grid
+    + final int CLOSE_BUTTON_SIZE {static}
+    + final int CLOSE_BUTTON_MARGIN {static}
+    - float tileSize
+    - float gridPixelWidth
+    - float gridPixelHeight
+    - float offsetX
+    - float offsetY
+    --
+    +  GameWindow(OrthographicCamera camera, Grid grid)
+    + void resize(int width, int height)
+    + float getTileSize()
+    + float getGridPixelWidth()
+    + float getGridPixelHeight()
+    + float getOffsetX()
+    + float getOffsetY()
+    + int getTopBarY()
+    + float getRightSidebarWidth()
+    + float getInfoPanelHeight()
+    + float getRightSidebarX()
+    + float getRightMarginX()
+    + float getRightMarginWidth()
+    + float getInfoPanelY()
+    + float getEventLogY()
+    + float getEventLogHeight()
+  }
+  class Main {
+    - ShapeRenderer shapeRenderer
+    - OrthographicCamera camera
+    - SpriteBatch batch
+    - Map<String, Texture> buildingTextures
+    - GameStateHandler gameStateHandler
+    - GridRenderer gridRenderer
+    - GridInputHandler gridInputHandler
+    - GameWindow gameWindow
+    - TopBarRenderer topBarRenderer
+    - Texture grassTexture
+    - Texture hudBackgroundTexture
+    - Texture hudCornerTexture
+    - Texture hudEdgeTexture
+    - Sidebar sidebar
+    - SidebarRenderer sidebarRenderer
+    - TileInspectorBar tileInspectorBar
+    - TileInspectorRenderer tileInspectorRenderer
+    - RaidBanner raidBanner
+    - GameOverOverlay gameOverOverlay
+    - TutorialOverlay tutorialOverlay
+    - EventBus eventBus
+    - FlowState flowState
+    - TickHandler tickHandler
+    - MenuFlowCoordinator menuFlowCoordinator
+    - GameplayFlowCoordinator gameplayFlowCoordinator
+    - SettingsFlowCoordinator settingsFlowCoordinator
+    - GameSettings gameSettings
+    - SettingsStore settingsStore
+    - GameStateStore gameStateStore
+    - final ExecutorService saveExecutor
+    - final AtomicInteger pendingSaveTasks
+    - volatile boolean savingInProgress
+    - volatile boolean autoSaveEnabled
+    - boolean timeProgressionPaused
+    - AudioManager audioManager
+    - EventLog eventLog
+    - EventLogRenderer eventLogRenderer
+    - float gameOverCountdown
+    - final float NO_COUNTDOWN {static}
+    --
+    + void create()
+    + void resize(int width, int height)
+    + void render()
+    - void renderTutorialOverlay()
+    - void initializeHudRenderers(Texture uiBg, Texture uiCorner, Texture uiEdge)
+    + void resume()
+    + void dispose()
+    - void startNewGame()
+    - void loadExistingGame()
+    - void enterGameOver()
+    - void scheduleGameOver(float delaySeconds)
+    - void triggerAutoSave()
+    - GameState createSaveSnapshot()
+    - void saveCurrentGameStateIfAllowed()
+  }
+}
+
+package "io.github.lord_of_nothing.audio" as io_github_lord_of_nothing_audio {
+  class AudioManager {
+    - final List<String> playlist
+    - int currentTrackIndex
+    - Music currentMusic
+    - boolean isPlaying
+    - float masterVolume
+    - float musicVolume
+    - float soundVolume
+    - Sound assignSound, menuSound, placeSound, selectSound, unableSound, raidAnnounceSound, kampfSound
+    --
+    +  AudioManager()
+    - void initializePlaylist()
+    + void startPlaylist()
+    - void playCurrentTrack()
+    + void setMasterVolume(float volume)
+    + void setMusicVolume(float volume)
+    + void setSoundVolume(float volume)
+    + float getMasterVolume()
+    + void stopPlaylist()
+    + void playAssign()
+    + void playMenuClick()
+    + void playPlace()
+    + void playSelect()
+    + void playUnable()
+    + void playRaidAnnounce()
+    + void playKampf()
+    + void dispose()
+  }
+}
+
+package "io.github.lord_of_nothing.buildings" as io_github_lord_of_nothing_buildings {
+  class Barrack {
+    +  Barrack()
+    + String getBuildingTypeKey()
+  }
+  class Building {
+    - final int width
+    - final int height
+    - int anchorX, anchorY
+    - int level
+    - int citizenCapacity
+    - int maxWorkers
+    - int currentWorkers
+    - ResourceType productionType
+    - int productionPerWorker
+    # final Map<ResourceType, Integer> costs
+    --
+    + abstract String getBuildingTypeKey()
+    + Map<ResourceType, Integer> getCosts()
+    +  Building(int width, int height)
+    + int getWidth()
+    + int getHeight()
+    + void setRootPosition(int x, int y)
+    + boolean isAnchorPoint(int x, int y)
+    + int getAnchorX()
+    + int getAnchorY()
+    + int getLevel()
+    + int getCitizenCapacity()
+    # void setCitizenCapacity(int cap)
+    + int getMaxWorkers()
+    # void setMaxWorkers(int max)
+    + int getCurrentWorkers()
+    + void addWorker()
+    + void removeWorker()
+    # void setProduction(ResourceType type, int amount)
+    + ResourceType getProductionType()
+    + int getProductionPerWorker()
+  }
+  class BuildingFactory {
+    -  BuildingFactory()
+    + Building create(String buildingTypeKey) {static}
+  }
+  class Field {
+    +  Field()
+    + String getBuildingTypeKey()
+  }
+  class House {
+    +  House()
+    + String getBuildingTypeKey()
+  }
+  class Quarry {
+    +  Quarry()
+    + String getBuildingTypeKey()
+  }
+  class Sawmill {
+    +  Sawmill()
+    + String getBuildingTypeKey()
+  }
+  class for {
+  }
+}
+
+package "io.github.lord_of_nothing.button" as io_github_lord_of_nothing_button {
+  class BackToMainMenuButton {
+    +  BackToMainMenuButton(float x, float y, float w, float h, EventBus eventBus)
+  }
+  class Button {
+    # Rectangle bounds
+    # Runnable onClick
+    - boolean enabled
+    --
+    + float getX()
+    + float getY()
+    + float getWidth()
+    + float getHeight()
+    + void onClick()
+    + boolean contains(float x, float y)
+    + boolean isEnabled()
+    + void setEnabled(boolean enabled)
+  }
+  class DeleteBuildingButton {
+    - final BitmapFont font
+    --
+    +  DeleteBuildingButton(float x, float y, float w, float h, EventBus eventBus, Runnable onDelete)
+    + void render(ShapeRenderer sr, SpriteBatch batch)
+    + void render(SpriteBatch batch)
+    + void dispose()
+  }
+  class ExitButton {
+    +  ExitButton(float x, float y, float w, float h, EventBus eventBus)
+  }
+  class GameSpeedButton {
+    - final int gameSpeed
+    --
+    + int getGameSpeed()
+    + void setSelected(boolean selected)
+    - String buildLabel(int speed, boolean selected) {static}
+  }
+  class PauseButton {
+  }
+  class ResumeButton {
+    +  ResumeButton(float x, float y, float w, float h, EventBus eventBus)
+  }
+  class SettingsButton {
+    +  SettingsButton(float x, float y, float w, float h, EventBus eventBus)
+  }
+  class StartGameButton {
+    +  StartGameButton(float x, float y, float w, float h, EventBus eventBus)
+  }
+  class TextButton {
+    - final Texture WHITE_PIXEL {static}
+    - final GlyphLayout GLYPH_LAYOUT {static}
+    - String text
+    - final BitmapFont font
+    --
+    + void setText(String text)
+    + void render(SpriteBatch batch)
+    - Texture createWhitePixel() {static}
+    - BitmapFont createFont() {static}
+  }
+  class TimeProgressionToggleButton {
+    - final String LABEL {static}
+    - final String SELECTED_LABEL {static}
+    --
+    + void setSelected(boolean selected)
+  }
+}
+
+package "io.github.lord_of_nothing.events" as io_github_lord_of_nothing_events {
+  class BackToMainMenuEvent {
+  }
+  class CloseSettingsMenuEvent {
+  }
+  class CloseTutorialEvent {
+  }
+  interface Event {
+  }
+  class EventBus {
+    - List<Consumer<Event>> listeners
+    - ArrayList<Event> eventLog
+    --
+    + void subscribe(Consumer<Event> listener)
+    + void publish(Event event)
+    + ArrayList<Event> getEventLog()
+  }
+  class GameSpeedChangedEvent {
+    - final int gameSpeed
+    --
+    +  GameSpeedChangedEvent(int gameSpeed)
+    + int getGameSpeed()
+  }
+  class LoadGameEvent {
+  }
+  class MusicVolumeChangedEvent {
+    - final float volume
+    --
+    +  MusicVolumeChangedEvent(float volume)
+    + float getVolume()
+  }
+  class NewGameEvent {
+  }
+  class OpenSettingsMenuEvent {
+  }
+  class OpenTutorialEvent {
+  }
+  class PauseGameEvent {
+  }
+  class ResolutionChangedEvent {
+    - final ResolutionDto resolution
+    --
+    +  ResolutionChangedEvent(ResolutionDto resolution)
+    + ResolutionDto getResolution()
+  }
+  class ResumeGameEvent {
+  }
+  class SoundVolumeChangedEvent {
+    - final float volume
+    --
+    +  SoundVolumeChangedEvent(float volume)
+    + float getVolume()
+  }
+  class StartGameEvent {
+  }
+  class ToggleFullscreenEvent {
+  }
+  class ToggleTimeProgressionEvent {
+  }
+  class UiElementCreatedEvent {
+    - final UiElement element
+    --
+    +  UiElementCreatedEvent(UiElement element)
+    + UiElement getElement()
+  }
+  class for {
+  }
+}
+
+package "io.github.lord_of_nothing.flow" as io_github_lord_of_nothing_flow {
+  class FlowState {
+    - ScreenState screenState
+    - boolean gameStarted
+    - boolean paused
+    - boolean settingsOpenedFromPause
+    --
+    + ScreenState getScreenState()
+    + void setScreenState(ScreenState screenState)
+    + boolean isGameStarted()
+    + void setGameStarted(boolean gameStarted)
+    + boolean isPaused()
+    + void setPaused(boolean paused)
+    + boolean isSettingsOpenedFromPause()
+    + void setSettingsOpenedFromPause(boolean settingsOpenedFromPause)
+  }
+  class GameplayFlowCoordinator {
+    - final FlowState flowState
+    - final GridInputHandler gridInputHandler
+    - final TopBarRenderer topBarRenderer
+    - final GameWindow gameWindow
+    - final EventBus eventBus
+    --
+    + void startGame()
+    + void pauseGame()
+    + void resumeGame()
+  }
+  class MenuFlowCoordinator {
+    - final EventBus eventBus
+    - final GridInputHandler gridInputHandler
+    - final FlowState flowState
+    - final BooleanSupplier hasSaveFile
+    - MainMenu mainMenu
+    --
+    + void returnToMainMenu()
+    + void registerUiElements()
+    + void render(SpriteBatch batch)
+    + void dispose()
+  }
+  enum ScreenState {
+  }
+  class SettingsFlowCoordinator {
+    - final int DISPLAY_MODE_APPLY_MAX_RETRIES {static}
+    - final FlowState flowState
+    - final GridInputHandler gridInputHandler
+    - final TopBarRenderer topBarRenderer
+    - final GameWindow gameWindow
+    - final SettingsMenu settingsMenu
+    - final EventBus eventBus
+    - final SettingsStore settingsStore
+    - final GameSettings gameSettings
+    - final Runnable registerMainMenuUiElements
+    --
+    + void openSettingsMenu()
+    + void closeSettingsMenu()
+    + void toggleFullscreenMode()
+    + void saveDisplaySettings()
+    + void applyDisplaySettings()
+    - void applyDisplaySettings(Runnable onApplied)
+    - boolean isCurrentFullscreenMode(Graphics.DisplayMode mode)
+    - void applyLayoutFromCurrentSize()
+    - int resolveLayoutWidth()
+    - int resolveLayoutHeight()
+    - Graphics.DisplayMode resolveFullscreenMode(int targetWidth, int targetHeight)
+    - void waitForDisplaySize(int expectedW, int expectedH, int retriesLeft, Runnable onReady)
+    + void initializeDisplaySettings(Runnable onComplete)
+    + void render(ShapeRenderer shapeRenderer, SpriteBatch batch)
+    + void dispose()
+  }
+}
+
+package "io.github.lord_of_nothing.game" as io_github_lord_of_nothing_game {
+  class BuildingPlacementState {
+    - String buildingType
+    - int x
+    - int y
+    - int currentWorkers
+    --
+    + String getBuildingType()
+    + void setBuildingType(String buildingType)
+    + int getX()
+    + void setX(int x)
+    + int getY()
+    + void setY(int y)
+    + int getCurrentWorkers()
+    + void setCurrentWorkers(int currentWorkers)
+  }
+  class GameState {
+    - Map<ResourceType, Integer> resources
+    - GridState grid
+    - int currentIngameDay
+    - Integer nextRaidScheduledDay
+    - Integer nextRaidDeterminationDay
+    - List<String> eventLogMessages
+    --
+    + Map<ResourceType, Integer> getResources()
+    + void setResources(Map<ResourceType, Integer> resources)
+    - ResourceType toResourceType(Object key)
+    - int toInt(Object value)
+    + GridState getGrid()
+    + void setGrid(GridState grid)
+    + int getCurrentIngameDay()
+    + void setCurrentIngameDay(int currentIngameDay)
+    + Integer getNextRaidScheduledDay()
+    + void setNextRaidScheduledDay(Integer nextRaidScheduledDay)
+    + Integer getNextRaidDeterminationDay()
+    + void setNextRaidDeterminationDay(Integer nextRaidDeterminationDay)
+    + List<String> getEventLogMessages()
+    + void setEventLogMessages(List<String> eventLogMessages)
+  }
+  class GameStateHandler {
+    + final int DEFAULT_STARTING_WOOD {static}
+    + final int DEFAULT_STARTING_FOOD {static}
+    - final ResourceManager resourceManager
+    - final Grid grid
+    - final HungerMechanic hungerMechanic
+    - int currentIngameDay
+    - Integer nextRaidScheduledDay
+    - Integer nextRaidDeterminationDay
+    - Integer lastRaidBanditCount
+    - Integer lastRaidDefenderCount
+    --
+    +  GameStateHandler()
+    +  GameStateHandler(ResourceManager currentResources, Grid currentGrid, int currentIngameDay)
+    + GameState getState()
+    + int getResourceAmount(ResourceType type)
+    + void addResource(ResourceType type, int amount)
+    + boolean hasEnoughResources(ResourceType type, int amount)
+    + boolean tryConsumeResource(ResourceType type, int amount)
+    + Grid getCurrentGrid()
+    + int getCurrentIngameDay()
+    + void setCurrentIngameDay(int currentIngameDay)
+    + void advanceIngameDay()
+    + HungerMechanic getHungerMechanic()
+    + void applyHungerTick(EventLog log)
+    + boolean consumePendingHungerGameOver()
+    + void resetNewGame()
+    + boolean applyState(GameState state)
+    + Integer getNextRaidScheduledDay()
+    + void setNextRaidScheduledDay(Integer nextRaidScheduledDay)
+    + Integer getNextRaidDeterminationDay()
+    + void setNextRaidDeterminationDay(Integer nextRaidDeterminationDay)
+    + void resetRaidTimeline()
+    + Integer getLastRaidBanditCount()
+    + Integer getLastRaidDefenderCount()
+    + void setLastRaidSummary(Integer banditCount, Integer defenderCount)
+    + void clearLastRaidSummary()
+    + int applySoldierCasualties(int amount)
+    + int applyVillagerCasualties(int amount)
+    + GameState getSnapshot()
+    - Map<ResourceType, Integer> createResourcesSnapshot()
+    - GameState.GridState createGridSnapshot()
+    - List<GameState.TileState> createTileSnapshot()
+    - List<GameState.BuildingPlacementState> createBuildingPlacementsSnapshot()
+    + void applyTickProduction()
+    + int getHourlyIncome(ResourceType type)
+    - void applyTileStates(List<GameState.TileState> tiles)
+    - void applyPlacements(List<GameState.BuildingPlacementState> placements)
+    - void resetResources()
+    - void clearGrid()
+    - int countAssignedWorkers(boolean barracksOnly)
+    - int removeAssignedWorkers(int requestedAmount, boolean barracksOnly)
+  }
+  class GameStateStore {
+    - final Json json
+    - final String filePath
+    --
+    +  GameStateStore(String filePath)
+    + boolean exists()
+    + boolean delete()
+    + void save(GameState state)
+    + GameState load()
+    - GameState normalizeLoadedState(GameState state, boolean alwaysRewrite)
+    - FileHandle resolveFileHandle()
+  }
+  class GridState {
+    - int width
+    - int height
+    - List<TileState> tiles
+    - List<BuildingPlacementState> placements
+    --
+    + int getWidth()
+    + void setWidth(int width)
+    + int getHeight()
+    + void setHeight(int height)
+    + List<BuildingPlacementState> getPlacements()
+    + void setPlacements(List<BuildingPlacementState> placements)
+    + List<TileState> getTiles()
+    + void setTiles(List<TileState> tiles)
+  }
+  enum HungerLevel {
+    - final float minLevel
+    - final float maxLevel
+    - final String displayName
+    - final String[] effects
+    - final float productionMultiplier
+    - final float arrivalMultiplier
+    --
+    + float getMinLevel()
+    + float getMaxLevel()
+    + String getDisplayName()
+    + String[] getEffects()
+    + float getProductionMultiplier()
+    + float getArrivalMultiplier()
+    + HungerLevel forLevel(float level) {static}
+  }
+  class HungerMechanic {
+    + final int FOOD_PER_CITIZEN_PER_HALF_DAY {static}
+    + final float BASE_HUNGER_RISE_RATE {static}
+    + final float BASE_HUNGER_FALL_RATE {static}
+    - float hungerLevel
+    - boolean pendingGameOver
+    --
+    + float getHungerLevel()
+    + HungerLevel getCurrentTier()
+    + boolean consumePendingGameOver()
+    + void update(ResourceStateMutator resources, EventLog log)
+    + void reset()
+  }
+  class RaidMechanic {
+    + final int FIRST_RAID_DETERMINATION_DAY {static}
+    + final int RAID_WARNING_MIN_DAYS {static}
+    + final int RAID_WARNING_MAX_DAYS {static}
+    + final int RAID_REST_MIN_DAYS {static}
+    + final int RAID_REST_MAX_DAYS {static}
+    --
+    -  RaidMechanic()
+    + void resetTimeline(GameStateHandler state) {static}
+    + boolean processDay(GameStateHandler state, int currentDay, Consumer<String> popupConsumer) {static}
+    - boolean announceRaidArrival(GameStateHandler state, int currentDay, Consumer<String> popupConsumer) {static}
+    - double computeSoldierDeathMean(int bandits, int soldiers) {static}
+    - double computeSoldierDeathDeviation(int bandits, int soldiers) {static}
+    - double computeVillagerDeathMean(int bandits, int soldiers) {static}
+    - double computeVillagerDeathDeviation(int bandits, int soldiers) {static}
+    - int sampleGaussianDeaths(double mean, double deviation, int maxDeaths) {static}
+    - double sampleGaussian(double mean, double deviation) {static}
+    - void emitPopup(Consumer<String> popupConsumer, String message) {static}
+    - int randomIntInclusive(int min, int max) {static}
+  }
+  interface ResourceStateMutator {
+  }
+  interface ResourceStateView {
+  }
+  class TickHandler {
+    + final float DEFAULT_TICK_DURATION_SECONDS {static}
+    + final int DEFAULT_TICKS_PER_DAY {static}
+    + final int DEFAULT_GAME_SPEED {static}
+    + final int[] HUNGER_DEDUCTION_HOURS {static}
+    + final int DEFAULT_CITIZEN_ARRIVAL_MIN {static}
+    + final int DEFAULT_CITIZEN_ARRIVAL_MAX {static}
+    + final int DEFAULT_CITIZEN_ARRIVAL_BORDER_INCREASE_INTERVAL_DAYS {static}
+    + final int DEFAULT_CITIZEN_ARRIVAL_BORDER_INCREASE {static}
+    + final int DEFAULT_CITIZEN_ARRIVAL_HOUR {static}
+    - final float tickDurationSeconds
+    - int gameSpeed
+    - float accumulatorSeconds
+    - int tickProgressInDay
+    - final Queue<String> pendingRaidPopupMessages
+    - boolean pendingRaidDefeat
+    --
+    +  TickHandler()
+    + float getTickDurationSeconds()
+    + int getTicksPerDay()
+    + int getGameSpeed()
+    + void setGameSpeed(int gameSpeed)
+    + int getCurrentIngameHour()
+    + int getCitizenArrivalMin(int currentIngameDay)
+    + int getCitizenArrivalMax(int currentIngameDay)
+    + int getCitizenArrivalTickProgress()
+    + int update(float delta, int currentIngameDay, ResourceStateMutator resourceState, EventLog log)
+    + boolean consumePendingRaidDefeat()
+    + String pollNextRaidPopupMessage()
+    - int getCitizenArrivalBorderIncrease(int currentIngameDay)
+    + void resetTimeline()
+  }
+  class TileState {
+    - int x
+    - int y
+    - String tileType
+    - String buildingType
+    - Integer assignedVillagers
+    --
+    + int getX()
+    + void setX(int x)
+    + int getY()
+    + void setY(int y)
+    + String getTileType()
+    + void setTileType(String tileType)
+    + String getBuildingType()
+    + void setBuildingType(String buildingType)
+    + Integer getAssignedVillagers()
+    + void setAssignedVillagers(Integer assignedVillagers)
+  }
+  class controls {
+  }
+}
+
+package "io.github.lord_of_nothing.grid" as io_github_lord_of_nothing_grid {
+  class Grid {
+    - final int width {static}
+    - final int height {static}
+    - int hoveredX
+    - int hoveredY
+    - final Tile[][] tiles
+    --
+    +  Grid()
+    + boolean isInside(int x, int y)
+    + void setHovered(int x, int y)
+    + Tile getTile(int x, int y)
+    + int getWidth()
+    + int getHeight()
+    + int getHoveredX()
+    + int getHoveredY()
+    + void setBuilding(int x, int y, Building building)
+    + boolean canPlace(int x, int y, int w, int h)
+    + void placeBuilding(int x, int y, Building b)
+    + void removeBuilding(int anchorX, int anchorY)
+  }
+  class GridInputHandler {
+    - final OrthographicCamera camera
+    - final Grid grid
+    - final Vector3 touchPos
+    - float tileSize
+    - float offsetX
+    - float offsetY
+    - float gridPixelWidth
+    - float gridPixelHeight
+    - Building pendingBuilding
+    - final ResourceStateMutator resources
+    - final List<UiElement> uiElements
+    - final Sidebar sidebar
+    - boolean paused
+    - boolean gameplayEnabled
+    - final EventBus eventBus
+    - UiElement exclusiveUiElement
+    - final GameWindow window
+    - final TileInspectorBar tileInspectorBar
+    - RaidBanner raidBanner
+    - final EventLog eventLog
+    - final AudioManager audioManager
+    --
+    + void updateLayout(GameWindow window)
+    + void setGameplayEnabled(boolean gameplayEnabled)
+    + void setExclusiveUiElement(UiElement exclusiveUiElement)
+    + void clearUiElements()
+    + boolean mouseMoved(int screenX, int screenY)
+    + boolean touchDragged(int screenX, int screenY, int pointer)
+    + boolean touchUp(int screenX, int screenY, int pointer, int button)
+    + boolean keyDown(int keycode)
+    + boolean touchDown(int screenX, int screenY, int pointer, int button)
+    - Integer mapGameSpeedShortcut(int keycode)
+    + boolean scrolled(float amountX, float amountY)
+    - boolean handleUiClicks(float x, float y)
+    - boolean handleSidebarInteraction(float x, float y)
+    - boolean handleRightClick()
+    - boolean handleInspectorButtons(float x, float y)
+    - boolean handleGridPlacement(float x, float y)
+    - boolean canAfford(Building building)
+    - void consumeCosts(Building building)
+    + void deleteSelectedBuilding()
+    + boolean isHouseSelected()
+    + Building getPendingBuilding()
+    + void resetTransientState()
+    - void handleBuildingEffects(Building b)
+    + void setRaidBanner(RaidBanner raidBanner)
+  }
+  class GridRenderer {
+    - final BitmapFont overlayFont
+    --
+    - void renderBackground(SpriteBatch batch, Grid grid, GameWindow window, Texture grassTex)
+    - void renderWorkerOverlays(SpriteBatch batch, Grid grid, GameWindow window)
+    - BitmapFont createOverlayFont() {static}
+    + void dispose()
+    - void renderGridShapes(ShapeRenderer shapeRenderer, Grid grid, GameWindow window)
+  }
+  class Tile {
+    + final int BASE_TILE_SIZE {static}
+    - TileType type
+    - final int x
+    - final int y
+    - Building building
+    --
+    +  Tile(int x, int y)
+    + boolean hasBuilding()
+    + Building getBuilding()
+    + void setBuilding(Building building)
+    + TileType getType()
+    + void setType(TileType type)
+  }
+  enum TileType {
+  }
+}
+
+package "io.github.lord_of_nothing.hud" as io_github_lord_of_nothing_hud {
+  enum BannerType {
+  }
+  class EventLog {
+    - final LinkedList<String> messages
+    - final Supplier<Integer> daySupplier
+    - final Supplier<Integer> hourSupplier
+    - int scrollOffset
+    - final int MAX_MESSAGES {static}
+    --
+    +  EventLog(Supplier<Integer> daySupplier, Supplier<Integer> hourSupplier)
+    + void addMessage(String message, boolean includeTimestamp)
+    + void scroll(float amountY)
+    + void clear()
+    + void setMessages(List<String> savedMessages)
+    + List<String> getMessagesSnapshot()
+    + int getScrollOffset()
+    + List<String> getMessages()
+  }
+  class EventLogRenderer {
+    - final float TEXT_PADDING_X {static}
+    - final float TEXT_PADDING_Y {static}
+    - final float LINE_HEIGHT {static}
+    - final float MESSAGE_GAP {static}
+    - final BitmapFont font
+    - final GlyphLayout glyphLayout
+    - Texture bgTexture, cornerTexture, edgeTexture
+    --
+    + void loadAssets(Texture bg, Texture corner, Texture edge)
+    + void render(ShapeRenderer sr, SpriteBatch batch, GameWindow window, EventLog log, boolean paused)
+    - void renderDecoratedFrameAt(SpriteBatch batch, float x, float y, float w, float h, float cSize)
+    - BitmapFont createFont() {static}
+    + void dispose()
+  }
+  class GameOverOverlay {
+    - final float PANEL_WIDTH {static}
+    - final float PANEL_HEIGHT {static}
+    - final float BUTTON_WIDTH {static}
+    - final float BUTTON_HEIGHT {static}
+    - final BitmapFont titleFont
+    - final BitmapFont bodyFont
+    - final GlyphLayout glyphLayout
+    - final TextButton backToMenuButton
+    - boolean visible
+    - Integer banditCount
+    - Integer defenderCount
+    --
+    +  GameOverOverlay(EventBus eventBus)
+    + void show()
+    + void show(int bandits, int defenders)
+    + void hide()
+    + UiElement getBackToMenuButton()
+    + void render(ShapeRenderer shapeRenderer, SpriteBatch batch)
+    + void dispose()
+  }
+  class PauseOverlay {
+    - final float BUTTON_WIDTH {static}
+    - final float BUTTON_HEIGHT {static}
+    - final float BUTTON_GAP {static}
+    - ResumeButton resumeButton
+    - SettingsButton settingsButton
+    - TextButton tutorialButton
+    - BackToMainMenuButton backToMainMenuButton
+    - ExitButton exitButton
+    - boolean shouldRegisterUiElements
+    --
+    + void setActive(boolean active)
+    + void render(ShapeRenderer shapeRenderer, SpriteBatch batch, EventBus eventBus)
+    - void setButtonLayout(EventBus eventBus)
+    - void registerUiElementsIfNeeded(EventBus eventBus)
+    + void invalidateUiElements()
+    - void renderOverlay(ShapeRenderer shapeRenderer)
+  }
+  enum Phase {
+    - final Texture warningTexture
+    - final Texture attackTexture
+    - final BitmapFont font
+    - final GlyphLayout layout
+    - Phase phase
+    - BannerType currentType
+    - String currentMessage
+    - float timer
+    - Runnable onDismissed
+    - String floatingText
+    - float floatingTimer
+    + final float FLOATING_DURATION {static}
+    --
+    +  RaidBanner()
+    + void show(BannerType type, String message, Runnable onDismissed)
+    + boolean isActive()
+    + void dismiss()
+    + void showFloatingText(String text)
+    + boolean isFloatingTextActive()
+    + boolean contains(float worldX, float worldY)
+    + void update(float delta)
+    + void render(SpriteBatch batch)
+    + void renderDimOverlay(ShapeRenderer shapeRenderer)
+    + void dispose()
+  }
+  class PopupOverlay {
+    - final float POPUP_WIDTH {static}
+    - final float POPUP_MIN_HEIGHT {static}
+    - final float POPUP_TEXT_PADDING_X {static}
+    - final float POPUP_TOP_PADDING {static}
+    - final float POPUP_BOTTOM_PADDING {static}
+    - final float POPUP_TEXT_BUTTON_GAP {static}
+    - final float POPUP_TEXT_WIDTH {static}
+    - final float BUTTON_WIDTH {static}
+    - final float BUTTON_HEIGHT {static}
+    - final float FRAME_CORNER_SIZE {static}
+    - final float FRAME_EDGE_SIZE {static}
+    - final BitmapFont font
+    - final GlyphLayout textLayout
+    - final TextButton confirmButton
+    - Texture bgTexture
+    - Texture cornerTexture
+    - Texture edgeTexture
+    - boolean visible
+    - String message
+    --
+    +  PopupOverlay(Runnable onDismiss)
+    + void show(String message)
+    + void loadAssets(Texture bg, Texture corner, Texture edge)
+    + void hide()
+    + boolean isVisible()
+    + UiElement getConfirmButton()
+    + void render(ShapeRenderer shapeRenderer, SpriteBatch batch)
+    - void renderDecoratedFrameAt(SpriteBatch batch, float x, float y, float h)
+    + void dispose()
+  }
+  class RaidBanner {
+    - final float EXPAND_DURATION {static}
+    - final float COLLAPSE_DURATION {static}
+    - final float MIN_HEIGHT {static}
+  }
+  class Sidebar {
+    - final List<Building> templates
+    + final int SLOT_SIZE {static}
+    + final int PADDING {static}
+    --
+    +  Sidebar()
+    + List<Building> getTemplates()
+    + Building getBuildingAt(float x, float y)
+  }
+  class SidebarRenderer {
+    - Texture bgTexture, cornerTexture, edgeTexture
+    --
+    + void render(ShapeRenderer sr, SpriteBatch batch, Sidebar sidebar, Map<String, Texture> textures, Building pending, ResourceStateView resources)
+    + void loadAssets(Texture bg, Texture corner, Texture edge)
+    - void renderDecoratedFrameAt(SpriteBatch batch, float x, float y, float w, float h, float cSize)
+  }
+  class TileInspectorBar {
+    - Building selectedBuilding
+    - int selectedGridX
+    - int selectedGridY
+    --
+    + void select(Building b, int gridX, int gridY)
+    + Building getSelected()
+    + int getSelectedGridX()
+    + int getSelectedGridY()
+    + void close()
+    + boolean isOpen()
+  }
+  class TileInspectorRenderer {
+    - final BitmapFont font
+    - DeleteBuildingButton deleteButton
+    - Texture bgTexture, cornerTexture, edgeTexture
+    --
+    - void renderDecoratedFrameAt(SpriteBatch batch, float x, float y, float w, float h, float cSize)
+    + void loadAssets(Texture bg, Texture corner, Texture edge)
+    - void renderBuildingPreview(SpriteBatch batch, Building b, float panelX, float startY, float dimAlpha)
+    + void dispose()
+  }
+  class TopBarRenderer {
+    - final int[] SUPPORTED_SPEEDS {static}
+    - final BitmapFont font
+    - final GlyphLayout glyphLayout
+    - final PauseOverlay pauseOverlay
+    - PauseButton pauseButton
+    - final float ICON_SIZE {static}
+    - final float TEXT_OFFSET {static}
+    - TimeProgressionToggleButton timeProgressionToggleButton
+    - final GameSpeedButton[] speedButtons
+    - final float PAUSE_BUTTON_WIDTH {static}
+    - final float PAUSE_BUTTON_HEIGHT {static}
+    - final float PAUSE_BUTTON_MARGIN {static}
+    - final float TIME_TOGGLE_BUTTON_WIDTH {static}
+    - final float TIME_TOGGLE_BUTTON_HEIGHT {static}
+    - final float SPEED_BUTTON_WIDTH {static}
+    - final float SPEED_BUTTON_HEIGHT {static}
+    - final float BUTTON_GAP {static}
+    - Texture bgTexture
+    - Texture cornerTexture
+    - Texture edgeTexture
+    - Map<ResourceType, Texture> resourceIcons
+    - Texture woodIcon
+    - Texture stoneIcon
+    - Texture foodIcon
+    - Texture citizenIcon
+    - Texture soldierIcon
+    - Texture capacityIcon
+    - Texture dayIcon
+    - Texture hourIcon
+    --
+    + void registerUiElements(GameWindow window, EventBus eventBus)
+    + void loadAssets(Texture bg, Texture corner, Texture edge, Texture wood, Texture stone, Texture food, Texture citizen, Texture soldier, Texture capacity, Texture day, Texture hour)
+    + void setResourceIcon(ResourceType type, Texture tex)
+    + void setTimeIcons(Texture day, Texture clock)
+    - void drawResourceGroup(SpriteBatch batch, ResourceType type, int amount, float x, float y)
+    + void invalidatePauseOverlayUiElements()
+    - void setTopBarControlVariables(GameWindow window, EventBus eventBus)
+    - void updateControlButtonState(int currentGameSpeed, boolean enabled, boolean timeProgressionPaused)
+    - void renderDecoratedFrame(SpriteBatch batch, GameWindow window, Texture bg, Texture corner, Texture edge)
+    - void renderResourceTooltip(SpriteBatch batch, GameWindow window, ResourceType type, float x, float y, int income)
+    - void renderDecoratedFrameAt(SpriteBatch batch, float x, float y, float w, float h, float cSize)
+    + void dispose()
+  }
+  class TutorialOverlay {
+    - final float PANEL_W {static}
+    - final float PANEL_H {static}
+    - final float PADDING {static}
+    - final BitmapFont font
+    - final GlyphLayout measure
+    - TextButton closeButton
+    - Texture bg, corner, edge
+    - boolean visible
+    - final String text
+    - float scroll
+    - boolean enabled
+    --
+    +  TutorialOverlay()
+    + void loadAssets(Texture bg, Texture corner, Texture edge)
+    + TextButton getCloseButton()
+    + void show(EventBus eventBus)
+    + void hide()
+    + boolean isVisible()
+    + boolean contains(float x, float y)
+    + void onClick()
+    + void render(SpriteBatch batch)
+    + boolean isEnabled()
+    + void setEnabled(boolean enabled)
+    + boolean onScroll(float x, float y, float amountY)
+    - void renderDecoratedFrameAt(SpriteBatch batch, float x, float y)
+    + void dispose()
+  }
+}
+
+package "io.github.lord_of_nothing.lwjgl3" as io_github_lord_of_nothing_lwjgl3 {
+  class Lwjgl3Launcher {
+    - final Json json {static}
+    - final String settingsFilePath {static}
+    --
+    + void main(String[] args) {static}
+    - Lwjgl3Application createApplication() {static}
+    - Lwjgl3ApplicationConfiguration getApplicationConfig() {static}
+    - Lwjgl3ApplicationConfiguration getDefaultConfiguration() {static}
+    - Graphics.DisplayMode resolveDisplayMode(int width, int height) {static}
+  }
+  class StartupHelper {
+    - final String JVM_RESTARTED_ARG {static}
+    - final String MAC_JRE_ERR_MSG {static}
+    - final String LINUX_JRE_ERR_MSG {static}
+    - final String CHILD_LOOP_ERR_MSG {static}
+    --
+    -  StartupHelper()
+    + boolean isLinuxNvidia() {static}
+    + boolean startNewJvmIfRequired() {static}
+    + boolean startNewJvmIfRequired(boolean inheritIO) {static}
+    + boolean startNewJvm0(boolean isMac, boolean inheritIO) {static}
+  }
+  class could {
+    - String getJreErrMsg(boolean isMac) {static}
+    - long getProcessID(boolean isMac) {static}
+  }
+}
+
+package "io.github.lord_of_nothing.menu" as io_github_lord_of_nothing_menu {
+  class BackgroundManager {
+    - final Texture background
+    - final Texture cloudsTexture
+    - final Texture blurredBackground
+    - final Texture blurredCloudsTexture
+    - float cloudScrollOffset
+    - final float CLOUD_SCROLL_SPEED {static}
+    --
+    +  BackgroundManager(String backgroundPath, String cloudsPath, String blurredBackgroundPath, String blurredCloudsPath)
+    + void update(float deltaTime, float screenWidth)
+    + void render(SpriteBatch batch, float screenWidth, float screenHeight, boolean useBlurred)
+    + void dispose()
+  }
+  class MainMenu {
+    - final float BUTTON_WIDTH {static}
+    - final float BUTTON_HEIGHT {static}
+    - final float BUTTON_GAP {static}
+    - final BitmapFont font
+    - final List<Button> actionButtons
+    - final SettingsButton settingsButton
+    - final TextButton tutorialButton
+    - final ExitButton exitButton
+    - final Texture titleText
+    - final BackgroundManager backgroundManager
+    --
+    +  MainMenu(EventBus eventBus, boolean hasSaveFile)
+    + void registerUiElements(EventBus eventBus)
+    + void render(SpriteBatch batch)
+    + void dispose()
+    - void setButtonLayout()
+    - float getPositionX()
+    - float getBaseY()
+    + BackgroundManager getBackgroundManager()
+  }
+  class SettingsMenu {
+    - final float BUTTON_WIDTH {static}
+    - final float BUTTON_HEIGHT {static}
+    - final float BUTTON_GAP {static}
+    - final BitmapFont font
+    - final List<UiElement> settingsControls
+    - final ResolutionSelector resolutionSelector
+    - final GameSpeedSelector gameSpeedSelector
+    - final VolumeSlider musicVolumeSlider
+    - final VolumeSlider soundVolumeSlider
+    - final BackgroundManager backgroundManager
+    --
+    +  SettingsMenu(EventBus eventBus, BackgroundManager sharedBackgroundManager)
+    + void registerUiElements(EventBus eventBus)
+    + void syncDisplaySettings(GameSettings gameSettings)
+    + void render(ShapeRenderer shapeRenderer, SpriteBatch batch)
+    + void dispose()
+    - void setButtonLayout()
+    - void renderControls(SpriteBatch batch)
+    - void updateDisplayModeLabel()
+    - float getControlsHeight()
+    - float getControlHeight(UiElement control)
+    - void setControlBounds(UiElement control, float x, float y, float height)
+  }
+}
+
+package "io.github.lord_of_nothing.persistence" as io_github_lord_of_nothing_persistence {
+  class UserConfigPaths {
+    - final String WINDOWS_MAC_DIR {static}
+    - final String LINUX_DIR {static}
+    --
+    -  UserConfigPaths()
+    + Path resolveBaseDir() {static}
+    + String resolveSettingsPath() {static}
+    + String resolveSavePath() {static}
+    - boolean isBlank(String value) {static}
+  }
+}
+
+package "io.github.lord_of_nothing.resources" as io_github_lord_of_nothing_resources {
+  class ResourceManager {
+    - final Map<ResourceType, Integer> resources
+    --
+    +  ResourceManager()
+    + void addResource(ResourceType type, int amount)
+    + boolean tryConsumeResource(ResourceType type, int amount)
+    + int getResourceAmount(ResourceType type)
+    + boolean hasEnoughResources(ResourceType type, int amount)
+    + int getAmount(ResourceType type)
+    + void setAmount(ResourceType type, int amount)
+    + void add(ResourceType type, int amount)
+    + boolean hasEnough(ResourceType type, int amount)
+    + boolean tryConsume(ResourceType type, int amount)
+  }
+  enum ResourceType {
+  }
+}
+
+package "io.github.lord_of_nothing.select" as io_github_lord_of_nothing_select {
+  class DropDownSelect {
+    # final float OPTION_HEIGHT {static}
+    - final int MAX_VISIBLE_OPTIONS {static}
+    - final float SCROLLBAR_WIDTH {static}
+    - final float SCROLLBAR_SIDE_PADDING {static}
+    - final float SCROLLBAR_TOP_BOTTOM_PADDING {static}
+    - final float SCROLLBAR_MIN_THUMB_HEIGHT {static}
+    - final Texture WHITE_PIXEL {static}
+    - final GlyphLayout GLYPH_LAYOUT {static}
+    # final Rectangle bounds
+    # final LinkedHashMap<String, String> options
+    # final ArrayList<String> labels
+    - final BitmapFont font
+    # boolean enabled
+    # boolean open
+    # int hoveredOptionIndex
+    # int selectedIndex
+    - int scrollOffset
+    --
+    + String getSelectedLabel()
+    + String getSelectedValue()
+    + void setSelectedIndex(int selectedIndex)
+    + float getX()
+    + float getY()
+    + float getWidth()
+    + float getHeight()
+    + void setBounds(float x, float y, float width, float height)
+    + boolean isOpen()
+    + void scrollBy(float amountY)
+    + boolean onScroll(float x, float y, float amountY)
+    + boolean contains(float x, float y)
+    + void onClick()
+    + void render(SpriteBatch batch)
+    - void renderScrollbar(SpriteBatch batch, int visibleCount)
+    - int getVisibleOptionCount()
+    - boolean hasScrollableOverflow()
+    - boolean isPointInsideExpandedArea(float x, float y)
+    - void ensureSelectionIsVisible()
+    - void clampScrollOffset()
+    + boolean isEnabled()
+    + void setEnabled(boolean enabled)
+    - Texture createWhitePixel() {static}
+  }
+  class GameSpeedSelector {
+    - final EventBus eventBus
+    --
+    + void syncFromSettings(GameSettings settings)
+    + void onClick()
+    - Map<String, String> createOptions() {static}
+  }
+  class ResolutionSelector {
+    # EventBus eventBus
+    --
+    + void syncFromSettings(GameSettings settings)
+    + void onClick()
+  }
+  class VolumeSlider {
+    - final String label
+    - float x, y, width, height
+    - float volume
+    - final BitmapFont font
+    - boolean isDragging
+    - boolean enabled
+    - final java.util.function.Consumer<Float> onVolumeChanged
+    --
+    +  VolumeSlider(float x, float y, float width, float height, String label, java.util.function.Consumer<Float> onVolumeChanged)
+    + boolean contains(float px, float py)
+    + void onClick()
+    + void render(SpriteBatch batch)
+    + boolean isEnabled()
+    + void setEnabled(boolean enabled)
+    + void handleDrag(float mouseX, float mouseY, boolean isPressed)
+    + void setVolume(float volume)
+    + void setBounds(float x, float y, float width, float height)
+    + void syncFromSettings(GameSettings gameSettings)
+    + float getHeight()
+    + void dispose()
+  }
+}
+
+package "io.github.lord_of_nothing.settings" as io_github_lord_of_nothing_settings {
+  class GameSettings {
+    + boolean fullscreen
+    + int windowedWidth
+    + int windowedHeight
+    + int gameSpeed
+    + float masterVolume
+    + float musicVolume
+    + float soundVolume
+  }
+  class ResolutionDto {
+    + int width
+    + int height
+    --
+    +  ResolutionDto(int width, int height)
+    + String toString()
+  }
+  class ResolutionSettings {
+    + final ResolutionDto DEFAULT_RESOLUTION {static}
+    - final int MIN_WIDTH {static}
+    - final int MIN_HEIGHT {static}
+    - final ResolutionDto[] BASELINE_RESOLUTIONS {static}
+    + ResolutionDto[] resolutions {static}
+    --
+    -  ResolutionSettings()
+    + void initialize(Graphics.DisplayMode[] displayModes) {static}
+    + ResolutionDto getResolutionFromLabel(String label) {static}
+    + HashMap<String, String> getResolutionsStrings() {static}
+    - boolean isBelowMinimumResolution(int width, int height) {static}
+  }
+  class SettingsStore {
+    - final Json json
+    - final String filePath
+    --
+    +  SettingsStore(String filePath)
+    + GameSettings load()
+    + void save(GameSettings settings)
+    - FileHandle resolveFileHandle()
+    - GameSettings normalize(GameSettings loaded, GameSettings defaults)
+    - int normalizeGameSpeed(int requested, int fallback)
+    - float normalizeVolume(float requested, float fallback)
+  }
+}
+
+package "io.github.lord_of_nothing.ui" as io_github_lord_of_nothing_ui {
+  interface UiElement {
+  }
+}
+
+BackToMainMenuButton --|> TextButton
+BackToMainMenuEvent ..|> Event
+Barrack --|> Building
+Building --> ResourceType : productionType
+Button ..|> UiElement
+CloseSettingsMenuEvent ..|> Event
+CloseTutorialEvent ..|> Event
+DeleteBuildingButton --|> Button
+DropDownSelect ..|> UiElement
+ExitButton --|> TextButton
+Field --|> Building
+FlowState --> ScreenState : screenState
+GameSpeedButton --|> TextButton
+GameSpeedChangedEvent ..|> Event
+GameSpeedSelector --|> DropDownSelect
+GameState --> GridState : grid
+GameStateHandler ..|> ResourceStateMutator
+GridInputHandler --> Building : pendingBuilding
+GridInputHandler --> RaidBanner : raidBanner
+GridInputHandler --> UiElement : exclusiveUiElement
+House --|> Building
+LoadGameEvent ..|> Event
+Main --> AudioManager : audioManager
+Main --> EventBus : eventBus
+Main --> EventLog : eventLog
+Main --> EventLogRenderer : eventLogRenderer
+Main --> FlowState : flowState
+Main --> GameOverOverlay : gameOverOverlay
+Main --> GameSettings : gameSettings
+Main --> GameStateHandler : gameStateHandler
+Main --> GameStateStore : gameStateStore
+Main --> GameWindow : gameWindow
+Main --> GameplayFlowCoordinator : gameplayFlowCoordinator
+Main --> GridInputHandler : gridInputHandler
+Main --> GridRenderer : gridRenderer
+Main --> MenuFlowCoordinator : menuFlowCoordinator
+Main --> RaidBanner : raidBanner
+Main --> SettingsFlowCoordinator : settingsFlowCoordinator
+Main --> SettingsStore : settingsStore
+Main --> Sidebar : sidebar
+Main --> SidebarRenderer : sidebarRenderer
+Main --> TickHandler : tickHandler
+Main --> TileInspectorBar : tileInspectorBar
+Main --> TileInspectorRenderer : tileInspectorRenderer
+Main --> TopBarRenderer : topBarRenderer
+Main --> TutorialOverlay : tutorialOverlay
+MenuFlowCoordinator --> MainMenu : mainMenu
+MusicVolumeChangedEvent ..|> Event
+NewGameEvent ..|> Event
+OpenSettingsMenuEvent ..|> Event
+OpenTutorialEvent ..|> Event
+PauseButton --|> TextButton
+PauseGameEvent ..|> Event
+PauseOverlay --> BackToMainMenuButton : backToMainMenuButton
+PauseOverlay --> ExitButton : exitButton
+PauseOverlay --> ResumeButton : resumeButton
+PauseOverlay --> SettingsButton : settingsButton
+PauseOverlay --> TextButton : tutorialButton
+Phase --> BannerType : currentType
+Phase --> Phase : phase
+Quarry --|> Building
+ResolutionChangedEvent ..|> Event
+ResolutionSelector --> EventBus : eventBus
+ResolutionSelector --|> DropDownSelect
+ResolutionSettings --> ResolutionDto : resolutions
+ResourceManager ..|> ResourceStateMutator
+ResourceStateMutator --|> ResourceStateView
+ResumeButton --|> TextButton
+ResumeGameEvent ..|> Event
+Sawmill --|> Building
+SettingsButton --|> TextButton
+SoundVolumeChangedEvent ..|> Event
+StartGameButton --|> TextButton
+StartGameEvent ..|> Event
+TextButton --|> Button
+Tile --> Building : building
+Tile --> TileType : type
+TileInspectorBar --> Building : selectedBuilding
+TileInspectorRenderer --> DeleteBuildingButton : deleteButton
+TimeProgressionToggleButton --|> TextButton
+ToggleFullscreenEvent ..|> Event
+ToggleTimeProgressionEvent ..|> Event
+TopBarRenderer --> PauseButton : pauseButton
+TopBarRenderer --> TimeProgressionToggleButton : timeProgressionToggleButton
+TutorialOverlay --> TextButton : closeButton
+TutorialOverlay ..|> UiElement
+UiElementCreatedEvent ..|> Event
+VolumeSlider ..|> UiElement
+@enduml
