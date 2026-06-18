@@ -31,7 +31,7 @@ public class SettingsStore {
      * @return loaded settings or defaults when load fails
      */
     public GameSettings load() {
-        GameSettings defaults = new GameSettings();
+        GameSettings defaults = createDefaultSettings();
         FileHandle file = resolveFileHandle();
         if (!file.exists()) {
             save(defaults);
@@ -56,7 +56,7 @@ public class SettingsStore {
      * @param settings settings object to persist
      */
     public void save(GameSettings settings) {
-        GameSettings normalized = normalize(settings, new GameSettings());
+        GameSettings normalized = normalize(settings, createDefaultSettings());
         FileHandle file = resolveFileHandle();
         FileHandle parent = file.parent();
         if (parent != null) {
@@ -86,6 +86,14 @@ public class SettingsStore {
         normalized.musicVolume = normalizeVolume(loaded.musicVolume, defaults.musicVolume);
         normalized.soundVolume = normalizeVolume(loaded.soundVolume, defaults.soundVolume);
         return normalized;
+    }
+
+    private GameSettings createDefaultSettings() {
+        GameSettings defaults = new GameSettings();
+        ResolutionDto defaultResolution = ResolutionSettings.getDefaultResolution();
+        defaults.windowedWidth = defaultResolution.width;
+        defaults.windowedHeight = defaultResolution.height;
+        return defaults;
     }
 
     private int normalizeGameSpeed(int requested, int fallback) {

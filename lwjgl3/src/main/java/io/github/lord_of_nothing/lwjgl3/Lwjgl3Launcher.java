@@ -6,6 +6,8 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.utils.Json;
 import io.github.lord_of_nothing.Main;
 import io.github.lord_of_nothing.persistence.UserConfigPaths;
+import io.github.lord_of_nothing.settings.ResolutionDto;
+import io.github.lord_of_nothing.settings.ResolutionSettings;
 import io.github.lord_of_nothing.settings.GameSettings;
 
 import java.nio.charset.StandardCharsets;
@@ -33,8 +35,8 @@ public class Lwjgl3Launcher {
      *
      * @return created application instance
      */
-    private static Lwjgl3Application createApplication() {
-        return new Lwjgl3Application(new Main(), getApplicationConfig());
+    private static void createApplication() {
+        new Lwjgl3Application(new Main(), getApplicationConfig());
     }
 
     private static Lwjgl3ApplicationConfiguration getApplicationConfig() {
@@ -49,7 +51,12 @@ public class Lwjgl3Launcher {
             GameSettings loaded = json.fromJson(GameSettings.class, settingsJson);
 
             try {
-                config.setWindowedMode(loaded.windowedWidth, loaded.windowedHeight);
+                ResolutionDto windowedResolution = ResolutionSettings.clampToWindowedBounds(
+                    loaded.windowedWidth,
+                    loaded.windowedHeight,
+                    Lwjgl3ApplicationConfiguration.getDisplayMode()
+                );
+                config.setWindowedMode(windowedResolution.width, windowedResolution.height);
             } catch (Exception ignored) {
                 // if settings file is missing or the windowedWidth or windowedHeight is missing,
                 // this throws and we ignore it as we just use the default values in that case
@@ -98,8 +105,16 @@ public class Lwjgl3Launcher {
         // Keep fullscreen Alt-Tab behavior working on Windows by iconifying on focus loss.
         configuration.setAutoIconify(true);
 
-        // Neutral default: start windowed unless persisted settings request fullscreen.
-        configuration.setWindowedMode(1080, 720);
+        // Neutral default: start windowed using the current display's safe size unless persisted settings request fullscreen.
+        Graphics.DisplayMode desktopMode = Lwjgl3ApplicationConfiguration.getDisplayMode();
+        int defaultWidth = desktopMode == null ? 1080 : desktopMode.width;
+        int defaultHeight = desktopMode == null ? 720 : desktopMode.height;
+        ResolutionDto startupResolution = ResolutionSettings.clampToWindowedBounds(
+            defaultWidth,
+            defaultHeight,
+            desktopMode
+        );
+        configuration.setWindowedMode(startupResolution.width, startupResolution.height);
 
         configuration.setWindowSizeLimits(1080, 720, 9999, 9999);
         configuration.setResizable(false);
